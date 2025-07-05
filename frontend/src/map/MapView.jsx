@@ -5,6 +5,7 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
 import L from 'leaflet';
+import { useGeolocation } from '../hooks/GeolocationContext';
 
 const userIcon = new L.Icon({
     iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png",
@@ -51,7 +52,7 @@ const MapView = () => {
     const [selectedPlace, setSelectedPlace] = useState(null); // Store the selected place from suggestions
     const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
     const [cache, setCache] = useState({}); 
-    const [position, setPosition] = useState([51.505, -0.09]); // Default position (London)
+    const { position, setPosition, error } = useGeolocation();
 
     const [poiType, setPoiType] = useState(null); // Default POI type
     const [poiResults, setPoiResults] = useState([]); // Store POI results
