@@ -5,7 +5,8 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
 import L from 'leaflet';
-import { useGeolocation } from '../hooks/GeolocationContext';
+import { usePOI } from '../hooks/usePOIContext';
+import { useGeolocation } from '../hooks/useGeolocationContext';
 
 const userIcon = new L.Icon({
     iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png",
@@ -49,85 +50,13 @@ const MapView = () => {
 
     const [query, setQuery] = useState(''); // Search query state
     const [results, setResults] = useState([]); // Store search results
-    const [selectedPlace, setSelectedPlace] = useState(null); // Store the selected place from suggestions
     const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
     const [cache, setCache] = useState({}); 
-    const { position, setPosition, error } = useGeolocation();
+    const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
+    const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs } = usePOI();
 
-    const [poiType, setPoiType] = useState(null); // Default POI type
-    const [poiResults, setPoiResults] = useState([]); // Store POI results
-    const [poiError, setPoiError] = useState(null); // Store POI error if any
-    const [poiLoading, setPoiLoading] = useState(false); // Store POI loading state
+
     const [activePOIId, setActivePOIId] = useState(null); // Store active POI ID for highlighting
-
-
-
-    const coords = selectedPlace
-        ? [selectedPlace.lat, selectedPlace.lng]
-        : position;
-
-
-    // Get user's current location
-    // This will set the initial position of the map
-    // and will be used to fetch nearby POIs
-    // It will also update the position when the user selects a place from suggestions
-    // If the user denies geolocation permission, it will default to London
-    useEffect(() => {
-        navigator.geolocation.getCurrentPosition(
-            pos => {
-                setPosition([pos.coords.latitude, pos.coords.longitude]);
-            },
-            err => {
-                console.error("Geolocation error:", err);
-            }
-        )
-    }, [])
-
-    // Fetch nearby POIs based on the current position or selected place
-    // If the user selects a place from suggestions, it will update the position and fetch POIs again
-    useEffect(() => {
-        if (!coords || !poiType) return;
-
-        const fetchPOIs = async () => {
-            setPoiLoading(true);
-            try {
-                const url = `${import.meta.env.VITE_BASE_URL}/api/nearby?lat=${coords[0]}&lng=${coords[1]}&radius=1500&type=${poiType}`;
-                const { data } = await axios.get(url);
-                setPoiResults(data);
-                setPoiError(null);
-
-            } catch (error) {
-                console.error("Failed to fetch POIs:", error.message);
-                setPoiResults([]);
-                setPoiError("Could not connect to the POI service.");
-            } finally {
-                setPoiLoading(false);
-            }
-        }
-
-        fetchPOIs();
-    }, [JSON.stringify(coords), poiType])
-
-
-    // Retry fetching POIs every 5 seconds if there was an error
-    // This will keep trying to fetch POIs until it succeeds
-    // or the component is unmounted
-    useEffect(() => {
-        if (!poiError) return;
-
-        const retryFecthPOIs = setInterval(async () => {
-            try {
-                const url = `${import.meta.env.VITE_BASE_URL}/api/nearby?lat=${coords[0]}&lng=${coords[1]}&radius=1500&type=${poiType}`;
-                const { data } = await axios.get(url);
-                setPoiResults(data);
-                setPoiError(null);
-            } catch (error) {
-                console.log("Retrying POI fetch...");
-            }
-        }, 5000);
-
-        return () => clearInterval(retryFecthPOIs);
-    }, [poiError, coords, poiType])
 
 
     // Handle search query input and fetch results
@@ -189,7 +118,6 @@ const MapView = () => {
                     placeholder='Search...'
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    // onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     onFocus={() => setShowResults(true)}
                     onBlur={() => setTimeout(() => setShowResults(false), 100)} />
 
@@ -284,9 +212,11 @@ const MapView = () => {
 
 
                         {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
-                        <FlyToLocation coords={position} />
+                        <FlyToLocation coords={getCoords()} />
                     </MapContainer>
 
+
+                    {/* RECENTER BUTTON */}
                     {(selectedPlace || poiType || position) && (
                         <button className='absolute bottom-24 right-4 z-[1000] bg-white p-2 rounded-full shadow-md border hover:bg-gray-100 transition'
                             onClick={() => {

@@ -1,25 +1,29 @@
+// Fetch nearby POIs based on the current position or selected place
+// If the user selects a place from suggestions, it will update the position and fetch POIs again
 
-import { createContext, useContext, useEffect, useState } from 'react';
+// Retry fetching POIs every 5 seconds if there was an error
+// This will keep trying to fetch POIs until it succeeds
+// or the component is unmounted
+
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useGeolocation } from './useGeolocationContext';
+import axios from 'axios';
 
 const POIContext = createContext();
 
 export const POIProvider = ({ children }) => {
 
-    const { position, setPosition } = useGeolocation();
-
-    const [selectedPlace, setSelectedPlace] = useState(null);
+    const { getCoords } = useGeolocation();
 
     const [poiType, setPoiType] = useState(null); // Default POI type
     const [poiResults, setPoiResults] = useState([]); // Store POI results
     const [poiError, setPoiError] = useState(null); // Store POI error if any
     const [poiLoading, setPoiLoading] = useState(false); // Store POI loading state
 
-    const coords = selectedPlace
-        ? [selectedPlace.lat, selectedPlace.lng]
-        : position;
-
     const fetchPOIs = useCallback(async () => {
-        if(!coords || !poiType) return;
+        const coords = getCoords();
+
+        if (!coords || !poiType) return;
         setPoiLoading(true);
         try {
             const url = `${import.meta.env.VITE_BASE_URL}/api/nearby?lat=${coords[0]}&lng=${coords[1]}&radius=1500&type=${poiType}`;
@@ -34,37 +38,37 @@ export const POIProvider = ({ children }) => {
         } finally {
             setPoiLoading(false);
         }
-    })
+    }, [getCoords, poiType])
+
 
     useEffect(() => {
         fetchPOIs();
     }, [fetchPOIs])
 
+
     useEffect(() => {
-        if(!poiError) return;
+        if (!poiError) return;
 
         const interval = setInterval(() => {
             fetchPOIs();
         }, 5000);
 
-
         return () => clearInterval(interval);
-
     }, [poiError, fetchPOIs])
 
 
     return (
-        <POIContext.Provider value={{ position, setPosition, error }}>
+        <POIContext.Provider value={{ poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs: fetchPOIs }}>
             {children}
         </POIContext.Provider>
     );
 };
 
-export const useGeolocation = () => {
-    const context = useContext(GeolocationContext);
+export const usePOI = () => {
+    const context = useContext(POIContext);
 
     if (!context) {
-        throw new Error("useGeolocation must be used within a GeolocationProvider");
+        throw new Error("usePOI must be used within a GeolocationProvider");
     }
 
     return context;
