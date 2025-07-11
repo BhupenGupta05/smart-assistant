@@ -5,20 +5,18 @@
 // This will keep trying to fetch POIs until it succeeds
 // or the component is unmounted
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { useGeolocation } from './useGeolocationContext';
+import { useCallback, useEffect, useState } from 'react';
+import { useGeolocation } from './useGeolocation';
 import axios from 'axios';
 
-const POIContext = createContext();
-
-export const POIProvider = ({ children }) => {
-
+export const usePOI = () => {
     const { getCoords } = useGeolocation();
 
     const [poiType, setPoiType] = useState(null); // Default POI type
     const [poiResults, setPoiResults] = useState([]); // Store POI results
     const [poiError, setPoiError] = useState(null); // Store POI error if any
     const [poiLoading, setPoiLoading] = useState(false); // Store POI loading state
+
 
     const fetchPOIs = useCallback(async () => {
         const coords = getCoords();
@@ -41,11 +39,12 @@ export const POIProvider = ({ children }) => {
     }, [getCoords, poiType])
 
 
+    // INITIAL FETCH
     useEffect(() => {
         fetchPOIs();
     }, [fetchPOIs])
 
-
+    // RETRY, IF FAILED AFTER EVERY 5 SECONDS
     useEffect(() => {
         if (!poiError) return;
 
@@ -56,20 +55,13 @@ export const POIProvider = ({ children }) => {
         return () => clearInterval(interval);
     }, [poiError, fetchPOIs])
 
-
-    return (
-        <POIContext.Provider value={{ poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs: fetchPOIs }}>
-            {children}
-        </POIContext.Provider>
-    );
-};
-
-export const usePOI = () => {
-    const context = useContext(POIContext);
-
-    if (!context) {
-        throw new Error("usePOI must be used within a GeolocationProvider");
+    return {
+        poiType,
+        setPoiType,
+        poiResults,
+        poiLoading,
+        poiError,
+        refetchPOIs: fetchPOIs
     }
 
-    return context;
-};
+}

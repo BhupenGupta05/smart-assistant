@@ -29,6 +29,8 @@ app.get('/api/nearby', async (req, res) => {
 
     try {
         const {data} = await axios.get(url);
+        // console.log(data.results);
+        
 
         if(data.status !== 'OK') {
             console.error("Google Maps Error:", data.status);
@@ -37,10 +39,13 @@ app.get('/api/nearby', async (req, res) => {
 
         const simplifiedResults = data.results.map((place) => ({
             name: place.name,
+            place_id: place.place_id,
             lat: place.geometry.location.lat,
             lng: place.geometry.location.lng,
             address: place.vicinity,
             user_ratings_total: place.user_ratings_total || 'NA',
+            rating: place.rating || 'NA',
+            opening_hours: place.opening_hours?.open_now ?? 'NA'
         }))
 
         cache.set(key, simplifiedResults);
@@ -79,7 +84,7 @@ app.get('/api/search', async (req, res) => {
             lng: place.geometry.location.lng,
         }));
 
-        console.log(simplifiedResults);
+        // console.log(simplifiedResults);
         
 
         res.json(simplifiedResults);

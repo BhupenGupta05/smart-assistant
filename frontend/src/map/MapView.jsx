@@ -1,25 +1,41 @@
 import { useState, useRef, useEffect } from 'react'
-import { Ellipsis, Utensils, ShoppingBag, Bed, Fuel, Coffee, Hospital, Locate } from 'lucide-react'
+import { Ellipsis, Utensils, ShoppingBag, Bed, Fuel, Coffee, Hospital, Locate, TramFront } from 'lucide-react'
 import axios from 'axios';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
 import L from 'leaflet';
-import { usePOI } from '../hooks/usePOIContext';
-import { useGeolocation } from '../hooks/useGeolocationContext';
+import { usePOI } from '../hooks/usePOI';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { useAQI } from '../hooks/useAQI';
+
+const getAQILevel = (aqi) => {
+    if (aqi <= 50) return { level: "Good", color: "bg-green-500" };
+    if (aqi <= 100) return { level: "Moderate", color: "bg-yellow-400" };
+    if (aqi <= 150) return { level: "Unhealthy for Sensitive Groups", color: "bg-orange-400" };
+    if (aqi <= 200) return { level: "Unhealthy", color: "bg-red-500" };
+    if (aqi <= 300) return { level: "Very Unhealthy", color: "bg-purple-600" };
+    return { level: "Hazardous", color: "bg-maroon-700" };
+};
+
 
 const userIcon = new L.Icon({
-    iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png",
-    iconSize: [25, 41],
+    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
     iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
     shadowSize: [41, 41],
     popupAnchor: [0, -30],
 })
 
+const transitIcon = new L.Icon({
+    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-train&size=20&color=FF9800",
+    iconAnchor: [12, 41],
+    shadowSize: [41, 41],
+    popupAnchor: [0, -30],
+});
+
+
 const poiIcon = new L.Icon({
-    iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png",
-    iconSize: [25, 41],
+    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=2196F3",
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
     shadowSize: [41, 41],
@@ -27,8 +43,7 @@ const poiIcon = new L.Icon({
 })
 
 const highlightedPoiIcon = new L.Icon({
-    iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/yellow-dot.png",
-    iconSize: [25, 41],
+    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=4CAF50",
     iconAnchor: [12, 41],
     shadowSize: [41, 41],
     popupAnchor: [0, -30],
@@ -41,6 +56,7 @@ const POICategory = [
     { label: "Hotels", type: "lodging", icon: Bed },
     { label: "Hospitals & Clinics", type: "hospital", icon: Hospital },
     { label: "Coffee", type: "cafe", icon: Coffee },
+    { label: "Transit Stations", type: "transit_station", icon: TramFront },
     { label: "More", type: "more", icon: Ellipsis }
 ]
 
@@ -51,7 +67,10 @@ const MapView = () => {
     const [query, setQuery] = useState(''); // Search query state
     const [results, setResults] = useState([]); // Store search results
     const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
-    const [cache, setCache] = useState({}); 
+
+    // const [cache, setCache] = useState({});  // OLD VERSION 
+    const cacheRef = useRef(new Map());
+
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs } = usePOI();
 
@@ -59,15 +78,29 @@ const MapView = () => {
     const [activePOIId, setActivePOIId] = useState(null); // Store active POI ID for highlighting
 
 
+    const [showTransitLayer, setShowTransitLayer] = useState(false); //Show Transit Layer only for transit_station poiType
+
+    const coords = getCoords();
+    const shouldFetchAQI = coords && coords.length === 2 && coords[0] && coords[1];
+    const { aqi, loading: aqiLoading, error: aqiError } = useAQI(shouldFetchAQI ? coords[0] : null, shouldFetchAQI ? coords[1] : null);
+
+
     // Handle search query input and fetch results
     const handleSearch = async () => {
         if (query.length < 3) return;
 
-        if (cache[query]) {
+        const key = `${query}`;
+        if (cacheRef.current.has(key)) {
             console.log("Cached result found for query:", query);
-            setResults(cache[query]);
+            setResults(cacheRef.current.get(key));
             return;
         }
+
+        // if (cache[query]) {
+        //     console.log("Cached result found for query:", query);
+        //     setResults(cache[query]);
+        //     return;
+        // }
 
         const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
 
@@ -75,10 +108,11 @@ const MapView = () => {
 
 
         setResults(data);
-        setCache((prev) => ({
-            ...prev,
-            [query]: data
-        }))
+        // setCache((prev) => ({
+        //     ...prev,
+        //     [query]: data
+        // }))
+        cacheRef.current.set(key, data);
     }
 
 
@@ -106,6 +140,15 @@ const MapView = () => {
             setResults([]);
         }
     }, [query])
+
+
+    // Disable Transit Layer Automatically When POI Type Changes
+    useEffect(() => {
+        if (poiType !== 'transit_station') {
+            setShowTransitLayer(false);
+        }
+    }, [poiType]);
+
 
     return (
         <div className='relative h-screen w-screen'>
@@ -136,7 +179,40 @@ const MapView = () => {
                 )}
             </div>
 
-            <div className='absolute top-[80px] left-0 right-0 z-[999] px-4'>
+            {/* WORK ON THIS */}
+
+            {/* AQI INDICATOR USING USEAQI HOOK */}
+            {!aqiLoading && aqi && (
+                <div className="absolute top-4 left-4 z-[1000]">
+                    {(() => {
+                        const aqiValue = aqi?.list?.[0]?.main?.aqi;
+                        if (!aqiValue) return null;
+                        const { level, color } = getAQILevel(aqiValue);
+
+                        return (
+                            <div className={`text-white text-sm font-medium px-3 py-2 rounded shadow-lg ${color}`}>
+                                AQI: {aqi.aqi} – {level}
+                            </div>
+                        );
+                    })()}
+                </div>
+            )}
+
+            {aqiLoading && (
+                <div className="absolute top-4 left-4 z-[1000] bg-gray-200 text-gray-800 px-3 py-2 rounded shadow">
+                    Loading AQI...
+                </div>
+            )}
+
+            {aqiError && (
+                <div className="absolute top-4 left-4 z-[1000] bg-red-100 text-red-600 px-3 py-2 rounded shadow">
+                    Failed to load AQI
+                </div>
+            )}
+
+
+            {/* Different POI types to choose from */}
+            <div className='absolute top-[80px] left-0 right-0 z-[999] flex justify-center'>
                 <div className='flex overflow-x-auto gap-2 py-2 no-scrollbar'>
                     {POICategory.map(({ label, type, icon: Icon }) => (
                         <button
@@ -153,11 +229,34 @@ const MapView = () => {
             </div>
 
 
+            {/* TOGGLE TRANSIT LAYER */}
+            {poiType === 'transit_station' && (
+                <button
+                    onClick={() => setShowTransitLayer(!showTransitLayer)}
+                    className="absolute top-[130px] right-4 z-[1000] bg-white px-4 py-2 rounded-full shadow-md border text-sm font-medium hover:bg-gray-100 transition"
+                >
+                    {showTransitLayer ? "Hide Transit" : "Show Transit"}
+                </button>
+            )}
+
+
+
+
+
             <div className='fixed inset-0 overflow-hidden'>
                 {/* MAP VIEW */}
                 <div className='absolute inset-0 z-0'>
                     <MapContainer center={position} ref={mapRef} zoom={13} style={{ height: "100%", width: "100%" }}>
                         <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' />
+
+                        {/* TRANSIT LAYER */}
+                        {showTransitLayer && (
+                            <TileLayer
+                                url={`https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=${import.meta.env.VITE_THUNDERFOREST_API_KEY}`}
+                                attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, © OpenStreetMap contributors'
+                            />
+
+                        )}
 
 
                         {/* SELECTED LOCATION */}
@@ -191,8 +290,8 @@ const MapView = () => {
                             return (
                                 <Marker
                                     key={idx}
-                                    position={[poi.lat, poi.lng]} i
-                                    con={isActive ? highlightedPoiIcon : poiIcon}
+                                    position={[poi.lat, poi.lng]}
+                                    icon={poiType === 'transit_station' ? transitIcon : (isActive ? highlightedPoiIcon : poiIcon)}
                                     eventHandlers={{
                                         mouseover: () => setActivePOIId(poiId),
                                         mouseout: () => !selectedPlace && setActivePOIId(null),
@@ -248,20 +347,22 @@ const MapView = () => {
 
                 {/* POI SIDEBAR */}
                 {poiType && (
-                    <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[40%] overflow-y-auto p-4 shadow-lg border-t'>
-                        <h2 className="text-lg font-semibold mb-2">Nearby Places</h2>
+                    <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[45%] overflow-y-auto p-4 shadow-xl border-t rounded-t-lg'>
+                        <h2 className="text-lg font-semibold mb-3">Nearby Places</h2>
+
                         {poiLoading && <p className="text-gray-500">Loading nearby places...</p>}
                         {poiError && !poiLoading && <p className="text-red-500 mb-2">{poiError}</p>}
                         {!poiError && !poiLoading && poiResults.length === 0 && <p>No places found.</p>}
-                        <ul>
+
+                        <ul className="space-y-3">
                             {poiResults.map((place, idx) => {
                                 const poiId = place.place_id || idx;
                                 const isActive = activePOIId === poiId;
 
                                 return (
-                                    <li
+                                    <div
                                         key={idx}
-                                        className={`mb-2 p-2 border rounded cursor-pointer transition ${isActive ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-100'
+                                        className={`flex flex-col sm:flex-row gap-3 border rounded-lg p-3 shadow-sm cursor-pointer transition-all duration-200 ${isActive ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50'
                                             }`}
                                         onMouseEnter={() => setActivePOIId(poiId)}
                                         onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
@@ -270,13 +371,77 @@ const MapView = () => {
                                             setActivePOIId(poiId);
                                         }}
                                     >
-                                        <p className="font-bold">{place.name}</p>
-                                        <p className="text-sm text-gray-600">{place.address}</p>
-                                    </li>
-                                )
+                                        {/* Image (Optional) */}
+                                        {place.photos?.length > 0 ? (
+                                            <img
+                                                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=${place.photos[0].photo_reference}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`}
+                                                alt={place.name}
+                                                className="w-24 h-24 object-cover rounded-md border"
+                                            />
+                                        ) : (
+                                            <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-md text-xs text-gray-500">
+                                                No Image
+                                            </div>
+                                        )}
+
+                                        {/* Info */}
+                                        <div className="flex flex-col justify-between flex-1">
+                                            <div>
+                                                <p className="text-base font-semibold">{place.name}</p>
+                                                {/* <p className="text-xs text-gray-500">{place.vicinity || place.address}</p> */}
+
+                                                <div className="flex items-center gap-2 text-xs mt-1">
+                                                    <span>{place.rating} ⭐</span>
+                                                    <span>({place.user_ratings_total})</span>
+                                                    <span
+                                                        className={`font-semibold ${place.opening_hours ? 'text-green-600' : 'text-red-600'
+                                                            }`}
+                                                    >
+                                                        {place.opening_hours
+                                                            ? 'Open'
+                                                            : 'Closed'}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Utility Buttons */}
+                                            <div className="flex gap-3 mt-2">
+                                                <a
+                                                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+                                                        place.name
+                                                    )}&destination_place_id=${place.place_id}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 text-xs underline"
+                                                >
+                                                    Directions
+                                                </a>
+                                                {place.website && (
+                                                    <a
+                                                        href={place.website}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-600 text-xs underline"
+                                                    >
+                                                        Website
+                                                    </a>
+                                                )}
+                                                {place.formatted_phone_number && (
+                                                    <a
+                                                        href={`tel:${place.formatted_phone_number}`}
+                                                        className="text-blue-600 text-xs underline"
+                                                    >
+                                                        Call
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
                             })}
                         </ul>
                     </div>
+
                 )}
 
             </div>
