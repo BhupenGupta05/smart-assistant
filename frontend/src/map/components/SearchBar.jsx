@@ -17,6 +17,7 @@ const SearchBar = ({ query, setQuery, setPosition, setSelectedPlace }) => {
     //     }, 300);
     // }
 
+    // Handle search query input and fetch results
     const handleSearch = async () => {
         if (query.length < 3) return;
 
@@ -46,6 +47,7 @@ const SearchBar = ({ query, setQuery, setPosition, setSelectedPlace }) => {
         cacheRef.current.set(key, data);
     }
 
+    // Handle search input changes using a debounced approach
     useEffect(() => {
         if (query.trim() !== "") {
             const timer = setTimeout(handleSearch, 300);
@@ -56,6 +58,11 @@ const SearchBar = ({ query, setQuery, setPosition, setSelectedPlace }) => {
         }
     }, [query])
 
+
+    // Handle place selection from search results
+    // This will set the selected place, update the map position,
+    // and clear the search results
+    // It will also close the suggestions dropdown
     const handlePlaceSelect = (place) => {
         // console.log("Selected place:", place);
         // console.log("Setting position to:", [place.lat, place.lng]);

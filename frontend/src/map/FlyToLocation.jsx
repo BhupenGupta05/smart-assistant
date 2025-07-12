@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 
 const FlyToLocation = ({ coords }) => {
-    console.log("FLYING TO: ", coords);
+    // console.log("FLYING TO: ", coords);
     
     const map = useMap();
     const prevCoords = useRef(null);

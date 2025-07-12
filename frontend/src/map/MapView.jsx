@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Ellipsis, Utensils, ShoppingBag, Bed, Fuel, Coffee, Hospital, Locate, TramFront } from 'lucide-react'
+import { Ellipsis, Utensils, ShoppingBag, Bed, Fuel, Coffee, Hospital, TramFront } from 'lucide-react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
@@ -8,6 +8,7 @@ import { usePOI } from '../hooks/usePOIContext';
 import { useGeolocation } from '../hooks/useGeolocationContext';
 import { useAQI } from '../hooks/useAQI';
 import SearchBar from './components/SearchBar';
+import Recenter from './components/Recenter';
 
 const userIcon = new L.Icon({
     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
@@ -55,11 +56,7 @@ const MapView = () => {
     const mapRef = useRef(null);
 
     const [query, setQuery] = useState(''); // Search query state
-    // const [results, setResults] = useState([]); // Store search results
-    // const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
-
     // const [cache, setCache] = useState({});  //OLD
-    // const cacheRef = useRef(new Map());
 
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs } = usePOI();
@@ -75,63 +72,6 @@ const MapView = () => {
     const { aqi, loading: aqiLoading, error: aqiError } = useAQI(shouldFetchAQI ? coords[0] : null, shouldFetchAQI ? coords[1] : null);
 
 
-    // Handle search query input and fetch results
-    // const handleSearch = async () => {
-    //     if (query.length < 3) return;
-
-    //     const key = `${query}`;
-    //     if (cacheRef.current.has(key)) {
-    //         console.log("Cached result found for query:", query);
-    //         setResults(cacheRef.current.get(key));
-    //         return;
-    //     }
-
-    //     // if (cache[query]) {
-    //     //     console.log("Cached result found for query:", query);
-    //     //     setResults(cache[query]);
-    //     //     return;
-    //     // }
-
-    //     const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
-
-    //     const { data } = await axios.get(url);
-
-
-    //     setResults(data);
-    //     // setCache((prev) => ({
-    //     //     ...prev,
-    //     //     [query]: data
-    //     // }))
-    //     cacheRef.current.set(key, data);
-    // }
-
-
-    // Handle place selection from search results
-    // This will set the selected place, update the map position,
-    // and clear the search results
-    // It will also close the suggestions dropdown
-    // const handlePlaceSelect = (place) => {
-    //     // console.log("Selected place:", place);
-    //     // console.log("Setting position to:", [place.lat, place.lng]);
-
-    //     setSelectedPlace(place);
-    //     setPosition([place.lat, place.lng]);
-    //     setResults([]);
-    //     setQuery('');
-    // }
-
-
-    // Handle search input changes using a debounced approach
-    // useEffect(() => {
-    //     if (query.trim() !== "") {
-    //         const timer = setTimeout(handleSearch, 300);
-    //         return () => clearTimeout(timer);
-    //     } else {
-    //         setResults([]);
-    //     }
-    // }, [query])
-
-
     // Disable Transit Layer Automatically When POI Type Changes
     useEffect(() => {
         if (poiType !== 'transit_station') {
@@ -144,31 +84,6 @@ const MapView = () => {
         <div className='relative h-screen w-screen'>
 
             {/* SEARCH BAR + SUGGESTIONS */}
-            {/* <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3'>
-                <input
-                    type="text"
-                    className='w-full p-2 rounded bg-white shadow-md border-slate-200 text-sm focus:outline-none font-medium'
-                    placeholder='Search...'
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onFocus={() => setShowResults(true)}
-                    onBlur={() => setTimeout(() => setShowResults(false), 100)} />
-
-                {showResults && (
-                    <div className='bg-white rounded mt-1 max-h-60 overflow-y-auto shadow-md'>
-                        {results.map((place, idx) => (
-                            <div
-                                key={idx}
-                                className='p-2 font-medium cursor-pointer hover:bg-slate-300 text-sm border-slate-200 border-[1px]'
-                                onMouseDown={() => handlePlaceSelect(place)}
-                            >
-                                📍 {place.address}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div> */}
-
             <SearchBar
             query={query}
             setQuery={setQuery}
@@ -311,7 +226,14 @@ const MapView = () => {
 
 
                     {/* RECENTER BUTTON */}
-                    {(selectedPlace || poiType || position) && (
+                    {( selectedPlace || poiType || position ) && (
+                        <Recenter
+                        mapRef={mapRef}
+                        setPosition={setPosition}
+                        setSelectedPlace={setSelectedPlace} />
+                    )}
+                    
+                    {/* {(selectedPlace || poiType || position) && (
                         <button className='absolute bottom-24 right-4 z-[1000] bg-white p-2 rounded-full shadow-md border hover:bg-gray-100 transition'
                             onClick={() => {
                                 if (!navigator.geolocation) {
@@ -334,7 +256,7 @@ const MapView = () => {
                             }}>
                             <Locate size={20} className='text-blue-600' />
                         </button>
-                    )}
+                    )} */}
 
 
                 </div>
