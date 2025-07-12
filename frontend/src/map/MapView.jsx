@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { Ellipsis, Utensils, ShoppingBag, Bed, Fuel, Coffee, Hospital, TramFront } from 'lucide-react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
@@ -10,6 +9,8 @@ import { useAQI } from '../hooks/useAQI';
 import SearchBar from './components/SearchBar';
 import Recenter from './components/Recenter';
 import POISidebar from './components/POISidebar';
+import POICategory from './components/POICategory';
+import AQIIndicator from './components/AQIIndicator';
 
 const userIcon = new L.Icon({
     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
@@ -41,16 +42,7 @@ const highlightedPoiIcon = new L.Icon({
     popupAnchor: [0, -30],
 });
 
-const POICategory = [
-    { label: "Restaurants", type: "restaurant", icon: Utensils },
-    { label: "Shopping", type: "shopping_mall", icon: ShoppingBag },
-    { label: "Petrol", type: "gas_station", icon: Fuel },
-    { label: "Hotels", type: "lodging", icon: Bed },
-    { label: "Hospitals & Clinics", type: "hospital", icon: Hospital },
-    { label: "Coffee", type: "cafe", icon: Coffee },
-    { label: "Transit Stations", type: "transit_station", icon: TramFront },
-    { label: "More", type: "more", icon: Ellipsis }
-]
+
 
 
 const MapView = () => {
@@ -70,7 +62,7 @@ const MapView = () => {
 
     const coords = getCoords();
     const shouldFetchAQI = coords && coords.length === 2 && coords[0] && coords[1];
-    const { aqi, loading: aqiLoading, error: aqiError } = useAQI(shouldFetchAQI ? coords[0] : null, shouldFetchAQI ? coords[1] : null);
+    const { aqi, aqiLoading, aqiError } = useAQI(shouldFetchAQI ? coords[0] : null, shouldFetchAQI ? coords[1] : null);
 
 
     // Disable Transit Layer Automatically When POI Type Changes
@@ -96,49 +88,19 @@ const MapView = () => {
 
 
             {/* AQI INDICATOR USING USEAQI HOOK */}
-            {/* {!aqiLoading && aqi && (
-                <div className="absolute top-4 left-4 z-[1000]">
-                    {(() => {
-                        const { level, color } = getAQILevel(aqi.aqi);
-                        return (
-                            <div className={`text-white text-sm font-medium px-3 py-2 rounded shadow-lg ${color}`}>
-                                AQI: {aqi.aqi} – {level}
-                            </div>
-                        );
-                    })()}
-                </div>
-            )} */}
-
-            {aqiLoading && (
-                <div className="absolute top-4 left-4 z-[1000] bg-gray-200 text-gray-800 px-3 py-2 rounded shadow">
-                    Loading AQI...
+            {!aqiLoading && aqi && (
+                <div className="absolute top-4 left-12 z-[1000]">
+                    <AQIIndicator
+                        aqi={aqi}
+                        loading={aqiLoading}
+                        error={aqiError} />
                 </div>
             )}
-
-            {aqiError && (
-                <div className="absolute top-4 left-4 z-[1000] bg-red-100 text-red-600 px-3 py-2 rounded shadow">
-                    Failed to load AQI
-                </div>
-            )}
-
 
             {/* Different POI types to choose from */}
-            <div className='absolute top-[80px] left-0 right-0 z-[999] flex justify-center'>
-                <div className='flex overflow-x-auto gap-2 py-2 no-scrollbar'>
-                    {POICategory.map(({ label, type, icon: Icon }) => (
-                        <button
-                            key={type}
-                            onClick={() => setPoiType(type)}
-                            className={`flex gap-2 items-center whitespace-nowrap text-sm px-4 py-1 rounded-full shadow-sm transition ${poiType === type ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
-                        >
-                            <Icon size={16} />
-                            {label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
+            <POICategory
+                poiType={poiType}
+                setPoiType={setPoiType} />
 
             {/* TOGGLE TRANSIT LAYER */}
             {poiType === 'transit_station' && (
@@ -149,9 +111,6 @@ const MapView = () => {
                     {showTransitLayer ? "Hide Transit" : "Show Transit"}
                 </button>
             )}
-
-
-
 
 
             <div className='fixed inset-0 overflow-hidden'>

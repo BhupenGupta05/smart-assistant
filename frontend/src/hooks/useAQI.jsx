@@ -13,7 +13,7 @@ export const useAQI = (lat, lon) => {
         if (!lat || !lon) return;
 
         const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
-        if(cacheRef.current.has(key)) {
+        if (cacheRef.current.has(key)) {
             setAqi(cacheRef.current.get(key));
             return;
         }
@@ -22,9 +22,14 @@ export const useAQI = (lat, lon) => {
             try {
                 setLoading(true);
                 const { data } = await axios.get(url);
-                setAqi(data); 
+                // console.log(data.list[0].main);
+
+                const aqiVal = data.list[0].main.aqi;
+                const result = { aqi: aqiVal };
+
+                setAqi(result);
                 setError(null);
-                cacheRef.current.set(key, data);
+                cacheRef.current.set(key, result);
             } catch (err) {
                 setError("Failed to fetch AQI");
                 setAqi(null);
