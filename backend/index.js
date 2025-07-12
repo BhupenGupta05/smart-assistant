@@ -66,7 +66,7 @@ app.get('/api/search', async (req, res) => {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const url = `${process.env.BASE_URL}/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
 
-    console.log("Google Geocoding URL:", url);
+    // console.log("Google Geocoding URL:", url);
 
     try {
         const { data } = await axios.get(url);

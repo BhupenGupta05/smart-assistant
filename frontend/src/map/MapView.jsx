@@ -1,23 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { Ellipsis, Utensils, ShoppingBag, Bed, Fuel, Coffee, Hospital, Locate, TramFront } from 'lucide-react'
-import axios from 'axios';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
 import L from 'leaflet';
-import { usePOI } from '../hooks/usePOI';
-import { useGeolocation } from '../hooks/useGeolocation';
+import { usePOI } from '../hooks/usePOIContext';
+import { useGeolocation } from '../hooks/useGeolocationContext';
 import { useAQI } from '../hooks/useAQI';
-
-const getAQILevel = (aqi) => {
-    if (aqi <= 50) return { level: "Good", color: "bg-green-500" };
-    if (aqi <= 100) return { level: "Moderate", color: "bg-yellow-400" };
-    if (aqi <= 150) return { level: "Unhealthy for Sensitive Groups", color: "bg-orange-400" };
-    if (aqi <= 200) return { level: "Unhealthy", color: "bg-red-500" };
-    if (aqi <= 300) return { level: "Very Unhealthy", color: "bg-purple-600" };
-    return { level: "Hazardous", color: "bg-maroon-700" };
-};
-
+import SearchBar from './components/SearchBar';
 
 const userIcon = new L.Icon({
     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
@@ -65,11 +55,11 @@ const MapView = () => {
     const mapRef = useRef(null);
 
     const [query, setQuery] = useState(''); // Search query state
-    const [results, setResults] = useState([]); // Store search results
-    const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
+    // const [results, setResults] = useState([]); // Store search results
+    // const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
 
-    // const [cache, setCache] = useState({});  // OLD VERSION 
-    const cacheRef = useRef(new Map());
+    // const [cache, setCache] = useState({});  //OLD
+    // const cacheRef = useRef(new Map());
 
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs } = usePOI();
@@ -86,60 +76,60 @@ const MapView = () => {
 
 
     // Handle search query input and fetch results
-    const handleSearch = async () => {
-        if (query.length < 3) return;
+    // const handleSearch = async () => {
+    //     if (query.length < 3) return;
 
-        const key = `${query}`;
-        if (cacheRef.current.has(key)) {
-            console.log("Cached result found for query:", query);
-            setResults(cacheRef.current.get(key));
-            return;
-        }
+    //     const key = `${query}`;
+    //     if (cacheRef.current.has(key)) {
+    //         console.log("Cached result found for query:", query);
+    //         setResults(cacheRef.current.get(key));
+    //         return;
+    //     }
 
-        // if (cache[query]) {
-        //     console.log("Cached result found for query:", query);
-        //     setResults(cache[query]);
-        //     return;
-        // }
+    //     // if (cache[query]) {
+    //     //     console.log("Cached result found for query:", query);
+    //     //     setResults(cache[query]);
+    //     //     return;
+    //     // }
 
-        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+    //     const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
 
-        const { data } = await axios.get(url);
+    //     const { data } = await axios.get(url);
 
 
-        setResults(data);
-        // setCache((prev) => ({
-        //     ...prev,
-        //     [query]: data
-        // }))
-        cacheRef.current.set(key, data);
-    }
+    //     setResults(data);
+    //     // setCache((prev) => ({
+    //     //     ...prev,
+    //     //     [query]: data
+    //     // }))
+    //     cacheRef.current.set(key, data);
+    // }
 
 
     // Handle place selection from search results
     // This will set the selected place, update the map position,
     // and clear the search results
     // It will also close the suggestions dropdown
-    const handlePlaceSelect = (place) => {
-        // console.log("Selected place:", place);
-        // console.log("Setting position to:", [place.lat, place.lng]);
+    // const handlePlaceSelect = (place) => {
+    //     // console.log("Selected place:", place);
+    //     // console.log("Setting position to:", [place.lat, place.lng]);
 
-        setSelectedPlace(place);
-        setPosition([place.lat, place.lng]);
-        setResults([]);
-        setQuery('');
-    }
+    //     setSelectedPlace(place);
+    //     setPosition([place.lat, place.lng]);
+    //     setResults([]);
+    //     setQuery('');
+    // }
 
 
     // Handle search input changes using a debounced approach
-    useEffect(() => {
-        if (query.trim() !== "") {
-            const timer = setTimeout(handleSearch, 300);
-            return () => clearTimeout(timer);
-        } else {
-            setResults([]);
-        }
-    }, [query])
+    // useEffect(() => {
+    //     if (query.trim() !== "") {
+    //         const timer = setTimeout(handleSearch, 300);
+    //         return () => clearTimeout(timer);
+    //     } else {
+    //         setResults([]);
+    //     }
+    // }, [query])
 
 
     // Disable Transit Layer Automatically When POI Type Changes
@@ -154,7 +144,7 @@ const MapView = () => {
         <div className='relative h-screen w-screen'>
 
             {/* SEARCH BAR + SUGGESTIONS */}
-            <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3'>
+            {/* <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3'>
                 <input
                     type="text"
                     className='w-full p-2 rounded bg-white shadow-md border-slate-200 text-sm focus:outline-none font-medium'
@@ -177,18 +167,23 @@ const MapView = () => {
                         ))}
                     </div>
                 )}
-            </div>
+            </div> */}
 
-            {/* WORK ON THIS */}
+            <SearchBar
+            query={query}
+            setQuery={setQuery}
+            setPosition={setPosition}
+            setSelectedPlace={setSelectedPlace} />
+
+            {/* IMPLEMENT THIS */}
+
+
 
             {/* AQI INDICATOR USING USEAQI HOOK */}
-            {!aqiLoading && aqi && (
+            {/* {!aqiLoading && aqi && (
                 <div className="absolute top-4 left-4 z-[1000]">
                     {(() => {
-                        const aqiValue = aqi?.list?.[0]?.main?.aqi;
-                        if (!aqiValue) return null;
-                        const { level, color } = getAQILevel(aqiValue);
-
+                        const { level, color } = getAQILevel(aqi.aqi);
                         return (
                             <div className={`text-white text-sm font-medium px-3 py-2 rounded shadow-lg ${color}`}>
                                 AQI: {aqi.aqi} – {level}
@@ -196,7 +191,7 @@ const MapView = () => {
                         );
                     })()}
                 </div>
-            )}
+            )} */}
 
             {aqiLoading && (
                 <div className="absolute top-4 left-4 z-[1000] bg-gray-200 text-gray-800 px-3 py-2 rounded shadow">
