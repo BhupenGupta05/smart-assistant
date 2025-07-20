@@ -83,13 +83,10 @@ const MapView = () => {
                 setPosition={setPosition}
                 setSelectedPlace={setSelectedPlace} />
 
-            {/* IMPLEMENT THIS */}
-
-
 
             {/* AQI INDICATOR USING USEAQI HOOK */}
             {!aqiLoading && aqi && (
-                <div className="absolute top-4 left-12 z-[1000]">
+                <div className="absolute top-4 right-4 z-[1000]">
                     <AQIIndicator
                         aqi={aqi}
                         loading={aqiLoading}
@@ -170,6 +167,7 @@ const MapView = () => {
                                             setActivePOIId(poiId);
                                         }
                                     }}>
+
                                     <Popup>
                                         <strong>{poi.name}</strong><br />
                                         📍 {poi.address}<br />

@@ -29,8 +29,8 @@ const AQIIndicator = ({ aqi, loading, error }) => {
 
     const { level, color } = getAQILevel(aqi.aqi);
     return (
-        <div className={`text-white text-sm font-medium px-3 py-2 rounded shadow-lg ${color}`}>
-            AQI: {level}
+        <div className={`${color} pulsating-marker`}>
+            {/* AQI: {level} */}
         </div>
     )
 }

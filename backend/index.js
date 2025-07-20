@@ -43,6 +43,7 @@ app.get('/api/nearby', async (req, res) => {
             lat: place.geometry.location.lat,
             lng: place.geometry.location.lng,
             address: place.vicinity,
+            photos: place.photos,
             user_ratings_total: place.user_ratings_total || 'NA',
             rating: place.rating || 'NA',
             opening_hours: place.opening_hours?.open_now ?? 'NA'
