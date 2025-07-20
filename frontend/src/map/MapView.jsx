@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
 import FlyToLocation from './FlyToLocation';
-import L from 'leaflet';
+import L, { icon } from 'leaflet';
 import { usePOI } from '../hooks/usePOIContext';
 import { useGeolocation } from '../hooks/useGeolocationContext';
 import { useAQI } from '../hooks/useAQI';
@@ -11,6 +11,7 @@ import Recenter from './components/Recenter';
 import POISidebar from './components/POISidebar';
 import POICategory from './components/POICategory';
 import AQIIndicator from './components/AQIIndicator';
+import POIMarker from './components/POIMarker';
 
 const userIcon = new L.Icon({
     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
@@ -154,26 +155,40 @@ const MapView = () => {
                             const poiId = poi.place_id || idx;
                             const isActive = activePOIId === poiId;
 
-                            return (
-                                <Marker
-                                    key={idx}
-                                    position={[poi.lat, poi.lng]}
-                                    icon={poiType === 'transit_station' ? transitIcon : (isActive ? highlightedPoiIcon : poiIcon)}
-                                    eventHandlers={{
-                                        mouseover: () => setActivePOIId(poiId),
-                                        mouseout: () => !selectedPlace && setActivePOIId(null),
-                                        click: () => {
-                                            setSelectedPlace(poi);
-                                            setActivePOIId(poiId);
-                                        }
-                                    }}>
+                            const icon = poiType === 'transit_station' ? transitIcon : (isActive ? highlightedPoiIcon : poiIcon);
 
-                                    <Popup>
-                                        <strong>{poi.name}</strong><br />
-                                        📍 {poi.address}<br />
-                                        ⭐ {poi.user_ratings_total} ratings
-                                    </Popup>
-                                </Marker>
+                            return (
+                                // <Marker
+                                //     key={idx}
+                                //     position={[poi.lat, poi.lng]}
+                                //     icon={poiType === 'transit_station' ? transitIcon : (isActive ? highlightedPoiIcon : poiIcon)}
+                                //     eventHandlers={{
+                                //         mouseover: () => setActivePOIId(poiId),
+                                //         mouseout: () => !selectedPlace && setActivePOIId(null),
+                                //         click: () => {
+                                //             setSelectedPlace(poi);
+                                //             setActivePOIId(poiId);
+                                //         }
+                                //     }}>
+
+                                //     <Popup>
+                                //         <strong>{poi.name}</strong><br />
+                                //         📍 {poi.address}<br />
+                                //         ⭐ {poi.user_ratings_total} ratings
+                                //     </Popup>
+                                // </Marker>
+
+                                <POIMarker
+                                    key={poiId}
+                                    poi={poi}
+                                    poiId={poiId}
+                                    icon={icon}
+                                    onMouseOver={(id) => setActivePOIId(id)}
+                                    onMouseOut={() => !selectedPlace && setActivePOIId(null)}
+                                    onClick={(poi) => {
+                                        setSelectedPlace(poi);
+                                        setActivePOIId(poiId);
+                                    }} />
                             )
                         })}
 
