@@ -1,69 +1,55 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import "leaflet/dist/leaflet.css";
-import FlyToLocation from './FlyToLocation';
-import L from 'leaflet';
 import { usePOI } from '../hooks/usePOIContext';
 import { useGeolocation } from '../hooks/useGeolocationContext';
 import { useAQI } from '../hooks/useAQI';
-import SearchBar from './components/SearchBar';
-import Recenter from './components/Recenter';
 import POISidebar from './components/POISidebar';
-import POICategory from './components/POICategory';
-import AQIIndicator from './components/AQIIndicator';
-import POIMarker from './components/POIMarker';
-
-const userIcon = new L.Icon({
-    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
-    iconAnchor: [12, 41],
-    shadowSize: [41, 41],
-    popupAnchor: [0, -30],
-})
-
-const transitIcon = new L.Icon({
-    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-train&size=20&color=FF9800",
-    iconAnchor: [12, 41],
-    shadowSize: [41, 41],
-    popupAnchor: [0, -30],
-});
-
-
-const poiIcon = new L.Icon({
-    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=2196F3",
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-    popupAnchor: [0, -30],
-})
-
-const highlightedPoiIcon = new L.Icon({
-    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=4CAF50",
-    iconAnchor: [12, 41],
-    shadowSize: [41, 41],
-    popupAnchor: [0, -30],
-});
-
-
+import MapControls from './components/MapControls';
+import MapRenderer from './components/MapRenderer';
 
 
 const MapView = () => {
     const mapRef = useRef(null);
 
     const [query, setQuery] = useState(''); // Search query state
-    // const [cache, setCache] = useState({});  //OLD
-
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs } = usePOI();
-
-
-    const [activePOIId, setActivePOIId] = useState(null); // Store active POI ID for highlighting
-
-
+    // const [activePOIId, setActivePOIId] = useState(null); // Store active POI ID for highlighting
+    const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting
     const [showTransitLayer, setShowTransitLayer] = useState(false); //Show Transit Layer only for transit_station poiType
 
-    const coords = getCoords();
-    const shouldFetchAQI = coords && coords.length === 2 && coords[0] && coords[1];
-    const { aqi, aqiLoading, aqiError } = useAQI(shouldFetchAQI ? coords[0] : null, shouldFetchAQI ? coords[1] : null);
+    const activePOIId = selectedPlace?.place_id || hoverPOIId; // Use selected place ID or hover ID for active POI
+
+
+
+    // | Check                                                                  | What it's doing                                     | Why it's needed                    |
+    // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
+    // | `rawCoords &&`                                                         | Makes sure `rawCoords` is not `null` or `undefined` | Avoids crashes                     |
+    // | `Array.isArray(rawCoords)`                                             | Makes sure it's an array                            | Coordinates should be `[lat, lng]` |
+    // | `rawCoords.length === 2`                                               | Ensures there are exactly 2 items                   | Should be lat & lng only           |
+    // | `typeof rawCoords[0] === 'number' && typeof rawCoords[1] === 'number'` | Makes sure both are numbers                         | Prevents invalid API calls         |
+    // | `rawCoords[0] && rawCoords[1]`                                         | Makes sure neither value is `0`, `null`, or `NaN`   | Some APIs reject these             |
+
+    const rawCoords = getCoords();
+
+    const coords = useMemo(() => {
+        return (
+            rawCoords &&
+            Array.isArray(rawCoords) &&
+            rawCoords.length === 2 &&
+            typeof rawCoords[0] === 'number' &&
+            typeof rawCoords[1] === 'number' &&
+            rawCoords[0] &&
+            rawCoords[1]
+        ) ? rawCoords : null;
+    }, [rawCoords]);
+
+
+    const { aqi, aqiLoading, aqiError } = useAQI(coords?.[0] ?? null, coords?.[1] ?? null);
+
+
+    // USING WITH A PROXY SERVER
+    const tileUrl = `${import.meta.env.VITE_BASE_URL}/api/tiles/:z/:x/:y`;
 
 
     // Disable Transit Layer Automatically When POI Type Changes
@@ -73,122 +59,40 @@ const MapView = () => {
         }
     }, [poiType]);
 
-    // MEMOIZE ALL POI MARKERS
-    const memoizedPOIMarkers = useMemo(() => {
-        return poiResults.map((poi, idx) => {
-            const poiId = poi.place_id || idx;
-            const isActive = activePOIId === poiId;
-
-            const icon = poiType === 'transit_station' ? transitIcon : (isActive ? highlightedPoiIcon : poiIcon);
-
-            return (
-                <POIMarker
-                    key={poiId}
-                    poi={poi}
-                    poiId={poiId}
-                    icon={icon}
-                    onMouseOver={(id) => setActivePOIId(id)}
-                    onMouseOut={() => !selectedPlace && setActivePOIId(null)}
-                    onClick={(poi) => {
-                        setSelectedPlace(poi);
-                        setActivePOIId(poiId);
-                    }} />
-            )
-        })
-    }, [poiResults, activePOIId, poiType, selectedPlace])
-
 
     return (
         <div className='relative h-screen w-screen'>
 
-            {/* SEARCH BAR + SUGGESTIONS */}
-            <SearchBar
+            {/* MAP CONTROLS */}
+            <MapControls
                 query={query}
                 setQuery={setQuery}
                 setPosition={setPosition}
-                setSelectedPlace={setSelectedPlace} />
-
-
-            {/* AQI INDICATOR USING USEAQI HOOK */}
-            {!aqiLoading && aqi && (
-                <div className="absolute top-4 right-4 z-[1000]">
-                    <AQIIndicator
-                        aqi={aqi}
-                        loading={aqiLoading}
-                        error={aqiError} />
-                </div>
-            )}
-
-            {/* Different POI types to choose from */}
-            <POICategory
+                setSelectedPlace={setSelectedPlace}
+                aqi={aqi}
+                aqiLoading={aqiLoading}
+                aqiError={aqiError}
                 poiType={poiType}
-                setPoiType={setPoiType} />
-
-            {/* TOGGLE TRANSIT LAYER */}
-            {poiType === 'transit_station' && (
-                <button
-                    onClick={() => setShowTransitLayer(!showTransitLayer)}
-                    className="absolute top-[130px] right-4 z-[1000] bg-white px-4 py-2 rounded-full shadow-md border text-sm font-medium hover:bg-gray-100 transition"
-                >
-                    {showTransitLayer ? "Hide Transit" : "Show Transit"}
-                </button>
-            )}
+                setPoiType={setPoiType}
+                showTransitLayer={showTransitLayer}
+                setShowTransitLayer={setShowTransitLayer} />
 
 
             <div className='fixed inset-0 overflow-hidden'>
-                {/* MAP VIEW */}
+                {/* MAP RENDERER */}
                 <div className='absolute inset-0 z-0'>
-                    <MapContainer center={position} ref={mapRef} zoom={13} style={{ height: "100%", width: "100%" }}>
-                        <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' />
-
-                        {/* TRANSIT LAYER */}
-                        {showTransitLayer && (
-                            <TileLayer
-                                url={`https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=${import.meta.env.VITE_THUNDERFOREST_API_KEY}`}
-                                attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, © OpenStreetMap contributors'
-                            />
-
-                        )}
-
-
-                        {/* SELECTED LOCATION */}
-                        {selectedPlace && (
-                            <>
-                                <Marker position={[selectedPlace.lat, selectedPlace.lng]} icon={userIcon}>
-                                    <Popup>
-                                        <strong>{selectedPlace.address}</strong>
-                                    </Popup>
-                                </Marker>
-                            </>
-                        )}
-
-                        {/* CURRENT LOCATION */}
-                        {!selectedPlace && position && (
-                            <>
-                                <Marker position={position} icon={userIcon}>
-                                    <Popup>
-                                        <strong>Your Location</strong>
-                                    </Popup>
-                                </Marker>
-                            </>
-                        )}
-
-
-                        {/* NEARBY POIs */}
-                        {memoizedPOIMarkers}
-
-                        {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
-                        <FlyToLocation coords={getCoords()} />
-                    </MapContainer>
-
-
-                    {/* RECENTER BUTTON */}
-                    {(selectedPlace || poiType || position) && (
-                        <Recenter
-                            mapRef={mapRef}
-                            setPosition={setPosition}
-                            setSelectedPlace={setSelectedPlace} />
-                    )}
+                    <MapRenderer
+                        mapRef={mapRef}
+                        position={position}
+                        selectedPlace={selectedPlace}
+                        poiResults={poiResults}
+                        activePOIId={activePOIId}
+                        setHoverPOIId={setHoverPOIId}
+                        setSelectedPlace={setSelectedPlace}
+                        poiType={poiType}
+                        showTransitLayer={showTransitLayer}
+                        tileUrl={tileUrl}
+                        setPosition={setPosition} />
                 </div>
 
 
@@ -199,7 +103,7 @@ const MapView = () => {
                     poiLoading={poiLoading}
                     poiError={poiError}
                     activePOIId={activePOIId}
-                    setActivePOIId={setActivePOIId}
+                    setActivePOIId={setHoverPOIId}
                     selectedPlace={selectedPlace}
                     setSelectedPlace={setSelectedPlace} />
 

@@ -15,6 +15,9 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
                     const poiId = place.place_id || idx;
                     const isActive = activePOIId === poiId;
 
+                    // console.log(place.photos);
+                    
+
                     return (
                         <div
                             key={idx}
@@ -27,10 +30,11 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
                                 setActivePOIId(poiId);
                             }}
                         >
-                            {/* Image (Optional) */}
+                            {/* Image */}
+
                             {place.photos?.length > 0 ? (
                                 <img
-                                    src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=${place.photos[0].photo_reference}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`}
+                                    src={`http://localhost:5173/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
                                     alt={place.name}
                                     className="w-24 h-24 object-cover rounded-md border"
                                 />

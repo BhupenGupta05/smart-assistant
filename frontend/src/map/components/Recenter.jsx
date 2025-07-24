@@ -21,7 +21,7 @@ const Recenter = ({ mapRef, setPosition, setSelectedPlace }) => {
         );
     }
     return (
-        <button className='absolute bottom-24 right-4 z-[1000] bg-white p-2 rounded-full shadow-md border hover:bg-gray-100 transition'
+        <button className='absolute bottom-60 right-4 z-[1000] bg-white p-2 rounded-full shadow-md border hover:bg-gray-100 transition'
             onClick={handleRecenter}>
             <Locate size={20} className='text-blue-600' />
         </button>
