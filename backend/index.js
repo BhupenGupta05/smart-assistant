@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const chatRoute = require('./routes/chat');
 
 const app = express();
 
@@ -18,13 +19,14 @@ const searchCache = new Map();
 const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
 
 
-
 app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
     res.send('Welcome to the backend server!');
 });
+
+app.use('/api/chat', chatRoute);
 
 // PROXY ROUTE
 app.get('/api/tiles/:z/:x/:y', async (req, res) => {
@@ -69,7 +71,7 @@ app.get('/api/aqi', async (req, res) => {
         const result = { aqi: data.list[0].main.aqi };
         aqiCache.set(key, { timestamp: now, data: result });
         // console.log("AQI fetched and cached:", result);
-        
+
         res.json(result);
     } catch (error) {
         console.error('AQI fetch error:', error.message);
@@ -82,7 +84,7 @@ app.get('/api/place-photo', async (req, res) => {
     const { photoRef } = req.query;
 
     // console.log("QUERY: ", photoRef);
-    
+
     if (!photoRef) {
         return res.status(400).json({ error: 'Missing photoRef parameter' });
     }
@@ -114,7 +116,7 @@ app.get('/api/nearby', async (req, res) => {
 
     try {
         const { data } = await axios.get(url);
-        // console.log(data.results);
+        console.log(data.results);
 
 
         if (data.status !== 'OK') {
