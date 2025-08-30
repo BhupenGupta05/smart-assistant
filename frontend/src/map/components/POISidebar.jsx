@@ -1,7 +1,36 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import POIDetails from './POIDetails';
 
-const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, setActivePOIId, selectedPlace, setSelectedPlace }) => {
+const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, setActivePOIId, selectedPlace, setSelectedPlace, activeIdx, setActiveIdx }) => {
     if(!poiType) return null;
+
+    const itemRefs = useRef({});
+
+    // BUG FIX: CLICKING ON PLACE CRETED A SNAPPY EFFECT BECAUSE OF scrollIntoView
+    // WHEN USER MANUALL SELECTS A PLACE IN SIDEBAR, scrollIntoView SHOULD NOT WORK
+    const userClickedRef = useRef(false);
+
+    useEffect(() => {
+        if(selectedPlace && !userClickedRef.current) {
+            const poiId = selectedPlace.place_id || poiResults.indexOf(selectedPlace);
+            const currentItem = itemRefs.current[poiId];
+
+            if(currentItem) {
+                currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        // RESET FLAG
+        userClickedRef.current = false;
+    },[selectedPlace, poiResults]);
+
+    if(selectedPlace) {
+        return (
+            <POIDetails
+            place={selectedPlace}
+            onBack={() => setSelectedPlace(null)} />
+        )
+    }
+
     return (
         <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[45%] overflow-y-auto p-4 shadow-xl border-t rounded-t-lg'>
             <h2 className="text-lg font-semibold mb-3">Nearby Places</h2>
@@ -20,12 +49,14 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
 
                     return (
                         <div
-                            key={idx}
+                            key={poiId}
+                            ref={(ele) => (itemRefs.current[poiId] = ele)}
                             className={`flex flex-col sm:flex-row gap-3 border rounded-lg p-3 shadow-sm cursor-pointer transition-all duration-200 ${isActive ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50'
                                 }`}
                             onMouseEnter={() => setActivePOIId(poiId)}
                             onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
                             onClick={() => {
+                                userClickedRef.current = true;
                                 setSelectedPlace(place);
                                 setActivePOIId(poiId);
                             }}

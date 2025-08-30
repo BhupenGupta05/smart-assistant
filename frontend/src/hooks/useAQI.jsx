@@ -7,13 +7,13 @@ export const useAQI = (lat, lon) => {
     const [error, setError] = useState(null);
     const cacheRef = useRef(new Map());
 
-    // USING WITH A PROXY SERVER
-    const url = `${import.meta.env.VITE_BASE_URL}/api/aqi?lat=${lat}&lon=${lon}`;
-
-    const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
-
     const fetchAQI = async () => {
         if (!lat || !lon) return;
+
+        const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+
+        // USING WITH A PROXY SERVER
+        const url = `${import.meta.env.VITE_BASE_URL}/api/aqi?lat=${lat}&lon=${lon}`;
 
         if (cacheRef.current.has(key)) {
             setAqi(cacheRef.current.get(key));
@@ -44,17 +44,17 @@ export const useAQI = (lat, lon) => {
 
     useEffect(() => {
 
-        if(!lat || !lon) return;
+        if (!lat || !lon) return;
 
         fetchAQI();
 
 
         // RETRY EVERY 5 SECONDS IF ERROR OCCURS OR COORDS CHANGE
         const interval = setInterval(() => {
-            if(error) {
+            if (error) {
                 fetchAQI();
             }
-            
+
         }, 5000);
 
         return () => clearInterval(interval);

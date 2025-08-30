@@ -1,101 +1,107 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import axios from 'axios';
 import { Search } from 'lucide-react';
 
-const SearchBar = ({ query, setQuery, setPosition, setSelectedPlace }) => {
-    const [results, setResults] = useState([]); // Store search results
-    const [showResults, setShowResults] = useState(false); // Control visibility of suggestions dropdown
+const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPlace }, ref) => {
+    const [results, setResults] = useState([]);
+    const [showResults, setShowResults] = useState(false);
+    const [internalQuery, setInternalQuery] = useState(''); // fallback local query
     const cacheRef = useRef(new Map());
 
-    // DEBOUNCE FUNCTION
-    // const debounceRef = useRef(null);
-
-    // const triggerSearch = () => {
-    //     if (debounceRef.current) clearTimeout(debounceRef.current);
-    //     debounceRef.current = setTimeout(() => {
-    //         handleSearch();
-    //     }, 300);
-    // }
-
     // Handle search query input and fetch results
-    const handleSearch = async () => {
-        if (query.length < 3) return;
+    const handleSearch = async (searchQuery) => {
+        if (!searchQuery || searchQuery.length < 3) return [];
 
-        const key = `${query}`;
+        const key = searchQuery.toLowerCase().trim();
         if (cacheRef.current.has(key)) {
-            console.log("Cached result found for query:", query);
-            setResults(cacheRef.current.get(key));
-            return;
+            console.log("Cached result found for query:", searchQuery);
+            const cached = cacheRef.current.get(key);
+            setResults(cached);
+            return cached;
         }
 
-        // if (cache[query]) {
-        //     console.log("Cached result found for query:", query);
-        //     setResults(cache[query]);
-        //     return;
-        // }
+        try {
+            const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(searchQuery)}`;
+            const { data } = await axios.get(url);
 
-        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+            setResults(data);
+            cacheRef.current.set(key, data);
+            return data;
+        } catch (error) {
+            console.error('Search error:', error);
+            setResults([]);
+            return [];
+        }
+    };
 
-        const { data } = await axios.get(url);
-
-
-        setResults(data);
-        // setCache((prev) => ({
-        //     ...prev,
-        //     [query]: data
-        // }))
-        cacheRef.current.set(key, data);
-    }
-
-    // Handle search input changes using a debounced approach
+    // Debounced search
     useEffect(() => {
-        if (query.trim() !== "") {
-            const timer = setTimeout(handleSearch, 300);
+        const effectiveQuery = setQuery ? query : internalQuery;
+        if (effectiveQuery.trim() !== "") {
+            const timer = setTimeout(() => handleSearch(effectiveQuery), 300);
             return () => clearTimeout(timer);
-            // triggerSearch();
         } else {
             setResults([]);
         }
-    }, [query])
+    }, [query, internalQuery]);
 
-
-    // Handle place selection from search results
-    // This will set the selected place, update the map position,
-    // and clear the search results
-    // It will also close the suggestions dropdown
+    // Handle place selection
     const handlePlaceSelect = (place) => {
-        // console.log("Selected place:", place);
-        // console.log("Setting position to:", [place.lat, place.lng]);
-
         setSelectedPlace(place);
         setPosition([place.lat, place.lng]);
         setResults([]);
-        setQuery('');
-    }
+
+        // ✅ Keep place name in the input box
+        if (setQuery) setQuery(place.address);
+        else setInternalQuery(place.address);
+
+        setShowResults(false);
+    };
+
+    useImperativeHandle(ref, () => ({
+        searchLocationAndSelectFirst: async (location) => {
+            try {
+                const searchResults = await handleSearch(location);
+                if (searchResults.length === 0) return false;
+
+                const place = searchResults[0];
+                setSelectedPlace(place);
+                setPosition([place.lat, place.lng]);
+
+                // ✅ Also set input box text to location name
+                if (setQuery) setQuery(place.address);
+                else setInternalQuery(place.address);
+
+                return true;
+            } catch (err) {
+                console.error("Failed to search and select:", err);
+                return false;
+            }
+        }
+    }));
 
     return (
         <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3'>
-
             <div className='relative w-full'>
                 <input
                     type="text"
                     className='w-full p-2 rounded bg-white shadow-md border-slate-200 text-sm focus:outline-none font-medium'
                     placeholder='Search...'
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    value={setQuery ? query : internalQuery}
+                    onChange={(e) => {
+                        if (setQuery) setQuery(e.target.value);
+                        else setInternalQuery(e.target.value);
+                    }}
                     onFocus={() => setShowResults(true)}
-                    onBlur={() => setTimeout(() => setShowResults(false), 100)} />
+                    onBlur={() => setTimeout(() => setShowResults(false), 150)}
+                />
 
-                <button
-                    // onClick={triggerSearch}
-                    className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer'>
+                <button className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer'>
                     <Search size={18} />
                 </button>
             </div>
 
-
-
-            {showResults && (
+            {showResults && results.length > 0 && (
                 <div className='bg-white rounded mt-1 max-h-60 overflow-y-auto shadow-md'>
                     {results.map((place, idx) => (
                         <div
@@ -109,7 +115,7 @@ const SearchBar = ({ query, setQuery, setPosition, setSelectedPlace }) => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+});
 
-export default SearchBar
+export default SearchBar;

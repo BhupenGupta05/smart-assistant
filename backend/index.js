@@ -1,10 +1,14 @@
 require('dotenv').config();
 const express = require('express');
+// const { WebSocketServer } = require('ws');
 const axios = require('axios');
 const cors = require('cors');
 const chatRoute = require('./routes/chat');
+const poiRoute = require('./routes/searchPOIs');
+const directionsRoute = require('./routes/directions');
 
 const app = express();
+// const server = require('http').createServer(app);
 
 // In-memory cache to store POI results
 const cache = new Map();
@@ -22,11 +26,16 @@ const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
 app.use(cors());
 app.use(express.json());
 
+
 app.get('/', (req, res) => {
     res.send('Welcome to the backend server!');
 });
 
 app.use('/api/chat', chatRoute);
+
+app.use('/api/search_poi', poiRoute);
+
+app.use('/api/directions', directionsRoute);
 
 // PROXY ROUTE
 app.get('/api/tiles/:z/:x/:y', async (req, res) => {
@@ -116,7 +125,7 @@ app.get('/api/nearby', async (req, res) => {
 
     try {
         const { data } = await axios.get(url);
-        console.log(data.results);
+        // console.log(data.results);
 
 
         if (data.status !== 'OK') {
@@ -144,6 +153,63 @@ app.get('/api/nearby', async (req, res) => {
     }
 })
 
+
+// OLD GEOCODE-BASED SEARCH (FETCHES ONLY ADDRESS, LAT, LNG)
+// app.get('/api/search', async (req, res) => {
+//     const { query } = req.query;
+
+//     if (!query) {
+//         return res.status(400).json({ error: 'Missing query parameter' });
+//     }
+
+//     const cacheKey = query.trim().toLowerCase();
+//     const now = Date.now();
+
+//     // Serve from cache if fresh
+//     if (searchCache.has(cacheKey)) {
+//         const { timestamp, data } = searchCache.get(cacheKey);
+//         if (now - timestamp < CACHE_DURATION) {
+//             console.log("Returning cached search result");
+//             return res.json(data);
+//         }
+//     }
+
+
+//     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+//     const url = `${process.env.BASE_URL}/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+
+//     // console.log("Google Geocoding URL:", url);
+
+//     try {
+//         const { data } = await axios.get(url);
+//         // console.log(data.results);
+
+
+//         if (data.status !== 'OK') {
+//             console.error("Google Maps Error:", data.status);
+//             return res.status(500).json({ error: 'Failed to get results from Google Maps' });
+//         }
+
+//         const simplifiedResults = data.results.map((place) => ({
+//             address: place.formatted_address,
+//             lat: place.geometry.location.lat,
+//             lng: place.geometry.location.lng,
+//         }));
+
+//         // console.log(simplifiedResults);
+
+//         // Cache the result
+//         searchCache.set(cacheKey, { timestamp: now, data: simplifiedResults });
+
+
+//         res.json(simplifiedResults);
+//     } catch (error) {
+//         console.error("Error fetching from Google Maps:", error.message);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+// NEW TEXT SEARCH-BASED SEARCH (FETCHES DETAILED PLACE INFO)
 app.get('/api/search', async (req, res) => {
     const { query } = req.query;
 
@@ -154,7 +220,6 @@ app.get('/api/search', async (req, res) => {
     const cacheKey = query.trim().toLowerCase();
     const now = Date.now();
 
-    // Serve from cache if fresh
     if (searchCache.has(cacheKey)) {
         const { timestamp, data } = searchCache.get(cacheKey);
         if (now - timestamp < CACHE_DURATION) {
@@ -163,40 +228,58 @@ app.get('/api/search', async (req, res) => {
         }
     }
 
-
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    const url = `${process.env.BASE_URL}/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
-
-    // console.log("Google Geocoding URL:", url);
 
     try {
-        const { data } = await axios.get(url);
-        // console.log(data.results);
+        // Step 1: Text Search (more flexible than geocode)
+        const searchUrl = `${process.env.BASE_URL}/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+        const searchResponse = await axios.get(searchUrl);
 
-
-        if (data.status !== 'OK') {
-            console.error("Google Maps Error:", data.status);
+        if (searchResponse.data.status !== 'OK') {
+            console.error("Google Maps Search Error:", searchResponse.data.status);
             return res.status(500).json({ error: 'Failed to get results from Google Maps' });
         }
 
-        const simplifiedResults = data.results.map((place) => ({
-            address: place.formatted_address,
-            lat: place.geometry.location.lat,
-            lng: place.geometry.location.lng,
-        }));
+        const candidates = searchResponse.data.results;
 
-        // console.log(simplifiedResults);
+        // Step 2: Fetch details for top candidate (you can expand this to multiple)
+        const detailedResults = await Promise.all(
+            candidates.slice(0, 3).map(async (place) => {
+                const detailsUrl = `${process.env.BASE_URL}/place/details/json?place_id=${place.place_id}&fields=name,formatted_address,geometry,photo,rating,user_ratings_total,opening_hours,website,formatted_phone_number,place_id&key=${apiKey}`;
+                const detailsRes = await axios.get(detailsUrl);
 
-        // Cache the result
-        searchCache.set(cacheKey, { timestamp: now, data: simplifiedResults });
+                if (detailsRes.data.status === 'OK') {
+                    const p = detailsRes.data.result;
+                    return {
+                        name: p.name,
+                        address: p.formatted_address,
+                        lat: p.geometry.location.lat,
+                        lng: p.geometry.location.lng,
+                        place_id: p.place_id,
+                        photos: p.photos,
+                        rating: p.rating || 'NA',
+                        user_ratings_total: p.user_ratings_total || 'NA',
+                        opening_hours: p.opening_hours?.open_now ?? 'NA',
+                        website: p.website,
+                        phone: p.formatted_phone_number,
+                    };
+                }
+                return null;
+            })
+        );
 
+        const filteredResults = detailedResults.filter(Boolean);
 
-        res.json(simplifiedResults);
+        // Cache and return
+        searchCache.set(cacheKey, { timestamp: now, data: filteredResults });
+        res.json(filteredResults);
     } catch (error) {
         console.error("Error fetching from Google Maps:", error.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>

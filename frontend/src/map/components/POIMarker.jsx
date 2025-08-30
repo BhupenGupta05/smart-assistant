@@ -2,6 +2,7 @@ import React from 'react'
 import { Marker, Popup } from 'react-leaflet';
 
 const POIMarker = React.memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onClick }) => {
+    
     return (
         <Marker
             position={[poi.lat, poi.lng]}
@@ -9,13 +10,16 @@ const POIMarker = React.memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onCli
             eventHandlers={{
                 mouseover: () => onMouseOver(poiId),
                 mouseout: () => onMouseOut(),
-                click: () => onClick(poi)
+                click: () => {
+                    onClick(poi),
+                    onMouseOver(poiId)
+                }
             }}>
 
-            <Popup>
+            <Popup className='transparent-popup'>
                 <strong>{poi.name}</strong><br />
                 📍 {poi.address}<br />
-                ⭐ {poi.user_ratings_total} ratings
+                ⭐ {poi.rating} ratings
             </Popup>
         </Marker>
     )

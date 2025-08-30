@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const OpenAI = require('openai');
+const axios = require('axios');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -161,40 +162,38 @@ const tools = [
 ];
 
 router.post('/', async (req, res) => {
-  const { messages } = req.body;
+  const { query, type, open_now = false, radius = 2000, location } = req.body;
+  console.log("REQUEST BODY:", req.body);
+  
 
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Messages array is required' });
+  if (!location || !location.lat || !location.lng) {
+    return res.status(400).json({ error: "location is required {lat, lng}" });
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [systemPrompt, ...messages],
-      tools,
-      tool_choice: 'auto',
-      temperature: 0.7,
-    });
+    const url = `${process.env.BASE_URL}/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=${radius}&keyword=${encodeURIComponent(query)}${open_now ? "&opennow=true" : ""}${type ? `&type=${type}` : ""}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
-    const choice = response.choices[0];
-    const hasToolCalls = Array.isArray(choice.message.tool_calls) && choice.message.tool_calls.length > 0;
+    const { data } = await axios.get(url);
+
+    console.log("DATA:", data);
+    
+
+    if (data.status !== "OK") {
+      return res.status(400).json({ error: data.status, details: data.error_message });
+    }
 
     res.json({
-      reply: choice.message.content || (hasToolCalls ? "Executing your request..." : "I didn't understand that request."),
-      tool_calls: hasToolCalls ? choice.message.tool_calls : []
+      results: data.results,
+      next_page_token: data.next_page_token || null
     });
+    
 
   } catch (error) {
-    console.error(error);
-    if (error.response?.status === 429) {
-      res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
-    } else if (error.response?.status >= 500) {
-      res.status(500).json({ error: 'OpenRouter service unavailable. Please try again later.' });
-    } else {
-      res.status(500).json({ error: 'Something went wrong with the AI assistant.' });
-    }
+    console.error("POI search error:", error.message);
+    res.status(500).json({ error: "Failed to fetch POIs" });
   }
 });
+
 
 module.exports = router;
 

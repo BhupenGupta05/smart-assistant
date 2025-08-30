@@ -1,12 +1,15 @@
 import POICategory from "./POICategory"
 import SearchBar from "./SearchBar"
 import AQIIndicator from "./AQIIndicator"
+import POIDetails from "./POIDetails"
+import Chatbot from "../../components/Chatbot";
 import "leaflet/dist/leaflet.css";
 
 const MapControls = ({
     query,
     setQuery,
     setPosition,
+    selectedPlace,
     setSelectedPlace,
     aqi,
     aqiLoading,
@@ -14,16 +17,32 @@ const MapControls = ({
     poiType,
     setPoiType,
     showTransitLayer,
-    setShowTransitLayer
+    setShowTransitLayer,
+    searchRef
 }) => {
     return (
         <>
             {/* SEARCH BAR + SUGGESTIONS */}
             <SearchBar
-                query={query}
-                setQuery={setQuery}
+                ref={searchRef}
+                // query={query}
+                // setQuery={setQuery}
                 setPosition={setPosition}
                 setSelectedPlace={setSelectedPlace} />
+
+            {/* DETAILS BOTTOM BAR */}
+            {selectedPlace && (
+                <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-white shadow-xl z-[1000] overflow-y-auto rounded-t-xl">
+                    <POIDetails place={selectedPlace} onBack={() => setSelectedPlace(null)} />
+                </div>
+            )}
+
+
+            {/* Chatbot - bottom right corner */}
+            <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
+                <Chatbot />
+            </div>
+
 
 
             {/* AQI INDICATOR USING USEAQI HOOK */}

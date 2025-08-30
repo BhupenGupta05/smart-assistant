@@ -58,7 +58,7 @@ export const POIProvider = ({ children }) => {
 
 
     return (
-        <POIContext.Provider value={{ poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs: fetchPOIs }}>
+        <POIContext.Provider value={{ poiResults, setPoiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs: fetchPOIs }}>
             {children}
         </POIContext.Provider>
     );

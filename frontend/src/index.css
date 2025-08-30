@@ -34,59 +34,69 @@
   }
 }
 
-
 .chatbot {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 320px;
-  max-height: 500px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  font-family: sans-serif;
+  @apply fixed bottom-5 right-5 w-72 max-h-[500px] flex flex-col overflow-hidden rounded-2xl shadow-xl border;
+  background: rgba(255, 255, 255, 0.15); 
+  backdrop-filter: blur(12px);           
+  -webkit-backdrop-filter: blur(12px);    
+  border-color: rgba(255, 255, 255, 0.2); 
 }
 
 .chat-header {
-  padding: 10px;
-  background: #333;
+  @apply p-3 font-semibold text-sm;
+  background: rgba(15, 23, 42, 0.8); 
   color: white;
-  font-weight: bold;
-  text-align: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 
 .chat-messages {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
+  @apply flex flex-col p-3 overflow-y-auto no-scrollbar;
 }
 
 .message {
-  margin-bottom: 10px;
-  padding: 8px;
-  border-radius: 5px;
-  line-height: 1.4;
+  @apply mb-2 px-3 py-2 rounded-lg text-sm leading-relaxed max-w-[70%] break-words;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .message.user {
-  background: #daf1fc;
-  align-self: flex-end;
-  text-align: right;
+  @apply self-end text-right;
+  background: rgba(56, 189, 248, 0.3);   
+  color: #0c4a6e;                        
 }
+
 
 .message.assistant {
-  background: #f4f4f4;
-  align-self: flex-start;
+  @apply self-start text-left;
+  background: rgba(255, 255, 255, 0.25); 
+  color: #1e293b;                        
+  font-weight: 500;
 }
 
-input[type="text"] {
-  border: none;
-  padding: 10px;
-  border-top: 1px solid #ccc;
-  font-size: 14px;
-  outline: none;
+.chatbot input {
+  @apply p-2 text-sm outline-none border-t;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #111;
 }
+.chatbot input::placeholder {
+  color: rgba(0,0,0,0.5);
+}
+
+.transparent-popup .leaflet-popup-content-wrapper {
+    background: rgba(255, 255, 255, 0.8); 
+    box-shadow: none; /* remove shadow */
+}
+
+.transparent-popup .leaflet-popup-tip {
+    background: rgba(255, 255, 255, 0.0); /* tip transparent */
+}
+
+
+
+
+
