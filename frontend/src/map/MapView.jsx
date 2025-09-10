@@ -12,6 +12,11 @@ import { useDirections } from '../hooks/useDirections'
 const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef }) => {
     const mapRef = useRef(null);
 
+    const [origin, setOrigin] = useState(null);       // { lat, lng, name }
+    const [destination, setDestination] = useState(null); // { lat, lng, name }
+    const [activeField, setActiveField] = useState(null);
+
+
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs } = usePOI();
     // const [activePOIId, setActivePOIId] = useState(null); // Store active POI ID for highlighting
@@ -59,15 +64,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         }
     }, [poiType]);
 
-    // When a user picks a place, fetch directions from current coords -> selected place
-    // useEffect(() => {
-    //     if (!selectedPlace || !coords) return;
-    //     const destLat = selectedPlace.lat ?? selectedPlace.geometry?.location?.lat;
-    //     const destLng = selectedPlace.lng ?? selectedPlace.geometry?.location?.lng;
-
-    //     if (destLat == null || destLng == null) return;
-    //     getDirections(coords, [destLat, destLng]);
-    // }, [selectedPlace, coords, getDirections]);
 
     return (
         <div className='relative h-screen w-screen'>
@@ -76,6 +72,12 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
             <MapControls
                 query={query}
                 setQuery={setQuery}
+                origin={origin}
+                setOrigin={setOrigin}
+                destination={destination}
+                setDestination={setDestination}
+                activeField={activeField}
+                setActiveField={setActiveField}
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
@@ -86,7 +88,11 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 setPoiType={setPoiType}
                 showTransitLayer={showTransitLayer}
                 setShowTransitLayer={setShowTransitLayer}
-                searchRef={searchRef} />
+                searchRef={searchRef}
+                routes={routes}
+                getDirections={getDirections}
+                loading={dirLoading}
+                error={dirError} />
 
 
             <div className='fixed inset-0 overflow-hidden'>
@@ -95,6 +101,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                     <MapRenderer
                         mapRef={mapRef}
                         position={position}
+                        origin={origin}
+                        destination={destination}
                         selectedPlace={selectedPlace}
                         poiResults={poiResults}
                         activePOIId={activePOIId}
@@ -103,7 +111,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         poiType={poiType}
                         showTransitLayer={showTransitLayer}
                         tileUrl={tileUrl}
-                        setPosition={setPosition} />
+                        setPosition={setPosition}
+                        routes={routes} />
                 </div>
 
 

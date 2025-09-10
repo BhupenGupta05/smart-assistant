@@ -27,9 +27,9 @@ app.use(cors());
 app.use(express.json());
 
 
-app.get('/', (req, res) => {
-    res.send('Welcome to the backend server!');
-});
+// app.get('/', (req, res) => {
+//     res.send('Welcome to the backend server!');
+// });
 
 app.use('/api/chat', chatRoute);
 

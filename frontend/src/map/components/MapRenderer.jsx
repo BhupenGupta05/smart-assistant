@@ -5,10 +5,13 @@ import Recenter from './Recenter'
 import POIMarker from './POIMarker'
 import "leaflet/dist/leaflet.css";
 import { userIcon, transitIcon, poiIcon, highlightedPoiIcon } from '../icons/markers'
+import DirectionsLayer from '../../components/DirectionsLayer'
 
 const MapRenderer = ({
     mapRef,
     position,
+    origin,
+    destination,
     selectedPlace,
     poiResults,
     activePOIId,
@@ -17,13 +20,14 @@ const MapRenderer = ({
     poiType,
     showTransitLayer,
     tileUrl,
-    setPosition
+    setPosition,
+    routes
 }) => {
 
     // MEMOIZE ALL POI MARKERS
     const memoizedPOIMarkers = useMemo(() => {
         return poiResults.map((poi, idx) => {
-           
+
             const poiId = poi.place_id || idx;
             const isActive = activePOIId === poiId;
 
@@ -78,10 +82,17 @@ const MapRenderer = ({
     // const centerPosition = position ?? [selectedLat, selectedLng]
 
     const centerPosition = useMemo(() => {
-        if (position) return position;
+        if (destination) return [destination.lat, destination.lng];   // prioritize destination
+        if (origin) return [origin.lat, origin.lng];                 // else origin
         if (selectedLat != null && selectedLng != null) return [selectedLat, selectedLng];
-        return [28.6139, 77.2090]; // fallback to Delhi or any default
-    }, [position, selectedLat, selectedLng]);
+        if (position) return position;                               // fallback to current location
+        return [28.6139, 77.2090];                                   // ultimate fallback (Delhi or any default)
+    }, [destination, origin, selectedLat, selectedLng, position]);
+
+
+    // console.log("🚦 ROUTES after API call:", routes);
+    // routes.forEach((r, i) => console.log(i, r.coords));
+
 
 
     return (
@@ -113,6 +124,13 @@ const MapRenderer = ({
                     </Popup>
                 </Marker>
             )}
+
+
+            {/* ✅ Draw route when both origin & destination exist */}
+            {origin && destination && routes?.length > 0 && (
+                <DirectionsLayer routes={routes} origin={origin} destination={destination} />
+            )}
+
 
             {/* NEARBY POIs */}
             {memoizedPOIMarkers}

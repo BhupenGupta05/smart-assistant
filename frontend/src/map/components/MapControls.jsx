@@ -4,10 +4,54 @@ import AQIIndicator from "./AQIIndicator"
 import POIDetails from "./POIDetails"
 import Chatbot from "../../components/Chatbot";
 import "leaflet/dist/leaflet.css";
+import { useEffect, useMemo, useState } from "react";
+import { useDirections } from "../../hooks/useDirections";
+import SearchControls from "../controls/SearchControls";
+import DirectionControls from "../controls/DirectionControls";
+
+export const normalize = (place) => {
+    if (!place) return null;
+
+    let lat, lng;
+
+    if (place.geometry?.location) {
+        lat = typeof place.geometry.location.lat === "function"
+            ? place.geometry.location.lat()
+            : place.geometry.location.lat;
+        lng = typeof place.geometry.location.lng === "function"
+            ? place.geometry.location.lng()
+            : place.geometry.location.lng;
+        console.log("🌍 geometry.location detected:", lat, lng);
+    } else if (Array.isArray(place.location)) {
+        [lat, lng] = place.location;
+        console.log("📦 array location detected:", lat, lng);
+    } else if (place.lat !== undefined && place.lng !== undefined) {
+        lat = place.lat;
+        lng = place.lng;
+        console.log("📍 direct lat/lng detected:", lat, lng);
+    } else {
+        console.warn("⚠️ normalize: no coordinates found in place", place);
+    }
+
+    return {
+        name: place.name || place.formatted_address,
+        address: place.formatted_address || place.name,
+        location: [lat, lng],
+        lat,
+        lng,
+    };
+};
+
 
 const MapControls = ({
     query,
     setQuery,
+    origin,
+    setOrigin,
+    destination,
+    setDestination,
+    activeField,
+    setActiveField,
     setPosition,
     selectedPlace,
     setSelectedPlace,
@@ -18,58 +62,88 @@ const MapControls = ({
     setPoiType,
     showTransitLayer,
     setShowTransitLayer,
-    searchRef
+    searchRef,
+    routes,
+    getDirections,
+    loading,
+    error
 }) => {
+    const [mode, setMode] = useState("search"); // "search" or "directions"
+
+    // const {
+    //     routes,
+    //     getDirections,
+    //     loading: directionsLoading,
+    //     error: directionsError,
+    // } = useDirections();
+
+    useEffect(() => {
+        if (!selectedPlace) return;
+
+        const normalizedPlace = normalize(selectedPlace);
+
+        // console.log("normalizedPlace", normalizedPlace);
+
+
+        if (mode === "search") {
+            // Just show POI details; user will click "Directions"
+        } else if (mode === "directions") {
+            if (activeField === "origin") setOrigin(normalizedPlace);
+            else if (activeField === "destination") setDestination(normalizedPlace);
+            setActiveField(null);
+        }
+
+        setSelectedPlace(mode === "search" ? selectedPlace : null);
+    }, [selectedPlace, activeField, mode, setSelectedPlace]);
+
+
+
     return (
         <>
-            {/* SEARCH BAR + SUGGESTIONS */}
-            <SearchBar
-                ref={searchRef}
-                // query={query}
-                // setQuery={setQuery}
-                setPosition={setPosition}
-                setSelectedPlace={setSelectedPlace} />
-
-            {/* DETAILS BOTTOM BAR */}
-            {selectedPlace && (
-                <div className="absolute bottom-0 left-0 right-0 h-[40%] bg-white shadow-xl z-[1000] overflow-y-auto rounded-t-xl">
-                    <POIDetails place={selectedPlace} onBack={() => setSelectedPlace(null)} />
-                </div>
+            {mode === "search" && (
+                <SearchControls
+                    setOrigin={setOrigin}
+                    setPosition={setPosition}
+                    selectedPlace={selectedPlace}
+                    setSelectedPlace={setSelectedPlace}
+                    setDestination={setDestination}
+                    setActiveField={setActiveField}
+                    setMode={setMode}
+                    aqi={aqi}
+                    aqiLoading={aqiLoading}
+                    aqiError={aqiError}
+                    poiType={poiType}
+                    showTransitLayer={showTransitLayer}
+                    setShowTransitLayer={setShowTransitLayer}
+                    searchRef={searchRef} />
             )}
 
-
-            {/* Chatbot - bottom right corner */}
-            <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
-                <Chatbot />
-            </div>
-
-
-
-            {/* AQI INDICATOR USING USEAQI HOOK */}
-            {!aqiLoading && aqi && (
-                <div className="absolute top-4 right-4 z-[1000]">
-                    <AQIIndicator
-                        aqi={aqi}
-                        loading={false}
-                        error={aqiError} />
-                </div>
+            {mode === "directions" && (
+                <DirectionControls
+                    origin={origin}
+                    setOrigin={setOrigin}
+                    destination={destination}
+                    setDestination={setDestination}
+                    activeField={activeField}
+                    setActiveField={setActiveField}
+                    setPosition={setPosition}
+                    selectedPlace={selectedPlace}
+                    setSelectedPlace={setSelectedPlace}
+                    aqi={aqi}
+                    aqiLoading={aqiLoading}
+                    aqiError={aqiError}
+                    poiType={poiType}
+                    setPoiType={setPoiType}
+                    showTransitLayer={showTransitLayer}
+                    setShowTransitLayer={setShowTransitLayer}
+                    searchRef={searchRef}
+                    routes={routes}
+                    getDirections={getDirections}
+                    loading={loading}
+                    error={error}
+                    setMode={setMode}
+                />
             )}
-
-            {/* Different POI types to choose from */}
-            <POICategory
-                poiType={poiType}
-                setPoiType={setPoiType} />
-
-            {/* TOGGLE TRANSIT LAYER */}
-            {poiType === 'transit_station' && (
-                <button
-                    onClick={() => setShowTransitLayer(!showTransitLayer)}
-                    className="absolute top-[130px] right-4 z-[1000] bg-white px-4 py-2 rounded-full shadow-md border text-sm font-medium hover:bg-gray-100 transition"
-                >
-                    {showTransitLayer ? "Hide Transit" : "Show Transit"}
-                </button>
-            )}
-
 
         </>
     )

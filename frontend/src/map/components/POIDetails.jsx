@@ -1,37 +1,9 @@
-import { useState } from "react";
-import axios from "axios";
+import { normalize } from "./MapControls";
 
-const POIDetails = ({ place, onBack, origin }) => {
-  console.log("PLACE",place);
-  
-  const [directions, setDirections] = useState(null);
-  const [loading, setLoading] = useState(false);
+const POIDetails = ({ place, onBack, onDirections }) => {
+  // console.log("PLACE",place);
 
   if (!place) return null;
-
-  const getDirections = async () => {
-    // if (!origin || !place?.geometry?.location) {
-    //   alert("Missing origin or destination");
-    //   return;
-    // }
-
-    try {
-      setLoading(true);
-      const destination = `${place.lat},${place.lng}`;
-      const response = await axios.get("/api/directions", {
-        params: {
-          origin,
-          destination,
-          modes: "driving,walking,transit,bicycling",
-        },
-      });
-      setDirections(response.data);
-    } catch (error) {
-      console.error("Error fetching directions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="p-4">
@@ -82,11 +54,13 @@ const POIDetails = ({ place, onBack, origin }) => {
       {/* Actions */}
       <div className="flex gap-3 flex-wrap">
         <button
-          onClick={getDirections}
-          disabled={loading}
+          onClick={() => {
+            console.log("Directions to:", normalize(place));
+            
+            onDirections(normalize(place))}}
           className="px-3 py-2 rounded bg-blue-600 text-white text-sm"
         >
-          {loading ? "Loading..." : "Directions"}
+          Directions
         </button>
 
         {place.website && (
@@ -110,13 +84,6 @@ const POIDetails = ({ place, onBack, origin }) => {
         <button className="px-3 py-2 rounded bg-gray-100 text-sm">Save</button>
         <button className="px-3 py-2 rounded bg-gray-100 text-sm">Share</button>
       </div>
-
-      {/* Show Directions (for debug / test) */}
-      {directions && (
-        <div className="mt-4 text-sm bg-gray-100 p-3 rounded">
-          <pre>{JSON.stringify(directions, null, 2)}</pre>
-        </div>
-      )}
     </div>
   );
 };

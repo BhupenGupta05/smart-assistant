@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useState } from "react"
 import axios from "axios";
 
+
 export const useDirections = () => {
     const [routes, setRoutes] = useState([]);
     const [selectedMode, setSelectedMode] = useState(null);
@@ -9,6 +10,10 @@ export const useDirections = () => {
     const [error, setError] = useState(null);
 
     const getDirections = useCallback(async (origin, destination, modes = ["driving", "walking", "transit", "bicycling"]) => {
+        // console.log("ORIGIN", origin);
+        // console.log("DESTINATION", destination);
+
+
         if (!origin || !destination) return;
         setLoading(true);
 
@@ -19,8 +24,16 @@ export const useDirections = () => {
                 modes: modes.join(",")
             });
 
-            const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/directions?${qs}`);
+            // console.log("SEARCH PARAMS:", qs.toString());
+            
+
+
+            const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/directions?${qs}`);
+            // console.log("DATA FETCHED:", data.routes);
+            
             setRoutes(data.routes || []);
+            // console.log("ROUTES SET:", routes);
+            
             setSelectedMode(data.routes?.[0]?.mode || null);
             setError(null);
         } catch (e) {

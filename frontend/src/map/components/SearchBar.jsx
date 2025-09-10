@@ -24,6 +24,9 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
             const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(searchQuery)}`;
             const { data } = await axios.get(url);
 
+            // console.log("Search result", data);
+
+
             setResults(data);
             cacheRef.current.set(key, data);
             return data;
@@ -47,6 +50,8 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
 
     // Handle place selection
     const handlePlaceSelect = (place) => {
+        if(place?.lat === null || place?.lng === null) return;
+        
         setSelectedPlace(place);
         setPosition([place.lat, place.lng]);
         setResults([]);
@@ -57,6 +62,7 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
 
         setShowResults(false);
     };
+
 
     useImperativeHandle(ref, () => ({
         searchLocationAndSelectFirst: async (location) => {
