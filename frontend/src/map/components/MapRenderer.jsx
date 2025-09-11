@@ -4,7 +4,7 @@ import FlyToLocation from '../FlyToLocation'
 import Recenter from './Recenter'
 import POIMarker from './POIMarker'
 import "leaflet/dist/leaflet.css";
-import { userIcon, transitIcon, poiIcon, highlightedPoiIcon } from '../icons/markers'
+import { userIcon, transitIcon, poiIcon, highlightedPoiIcon, smallIcon } from '../icons/markers'
 import DirectionsLayer from '../../components/DirectionsLayer'
 
 const MapRenderer = ({
@@ -21,7 +21,11 @@ const MapRenderer = ({
     showTransitLayer,
     tileUrl,
     setPosition,
-    routes
+    routes,
+    mode,
+    setMode,
+    activeRouteIndex,
+    setActiveRouteIndex
 }) => {
 
     // MEMOIZE ALL POI MARKERS
@@ -78,8 +82,6 @@ const MapRenderer = ({
     const selectedLat = selectedPlace?.lat ?? selectedPlace?.geometry?.location?.lat
     const selectedLng = selectedPlace?.lng ?? selectedPlace?.geometry?.location?.lng
 
-    // Safe map center
-    // const centerPosition = position ?? [selectedLat, selectedLng]
 
     const centerPosition = useMemo(() => {
         if (destination) return [destination.lat, destination.lng];   // prioritize destination
@@ -90,9 +92,7 @@ const MapRenderer = ({
     }, [destination, origin, selectedLat, selectedLng, position]);
 
 
-    // console.log("🚦 ROUTES after API call:", routes);
-    // routes.forEach((r, i) => console.log(i, r.coords));
-
+    // console.log("MODE: ", mode);
 
 
     return (
@@ -108,7 +108,7 @@ const MapRenderer = ({
             )}
 
             {/* SELECTED LOCATION */}
-            {selectedPlace && selectedLat != null && selectedLng != null && (
+            {mode === "search" && selectedPlace && selectedLat != null && selectedLng != null && (
                 <Marker position={[selectedLat, selectedLng]} icon={userIcon}>
                     <Popup className='transparent-popup'>
                         <strong>{selectedPlace.address || selectedPlace.name}</strong>
@@ -117,7 +117,7 @@ const MapRenderer = ({
             )}
 
             {/* CURRENT LOCATION */}
-            {!selectedPlace && position && (
+            {mode === "search" && !selectedPlace && position && (
                 <Marker position={position} icon={userIcon}>
                     <Popup className='transparent-popup'>
                         <strong>Your Location</strong>
@@ -125,10 +125,23 @@ const MapRenderer = ({
                 </Marker>
             )}
 
+            {/* DIRECTIONS MODE: origin & destination */}
+            {mode === "directions" && origin && (
+                <Marker position={[origin.lat, origin.lng]} icon={smallIcon} >
+                    <Popup>Origin: {origin.name || "Current Location"}</Popup>
+                </Marker>
+            )}
+
+            {mode === "directions" && destination && (
+                <Marker position={[destination.lat, destination.lng]} icon={smallIcon} >
+                    <Popup>Destination: {destination.name}</Popup>
+                </Marker>
+            )}
+
 
             {/* ✅ Draw route when both origin & destination exist */}
             {origin && destination && routes?.length > 0 && (
-                <DirectionsLayer routes={routes} origin={origin} destination={destination} />
+                <DirectionsLayer routes={routes} origin={origin} destination={destination} activeRouteIndex={activeRouteIndex} setActiveRouteIndex={setActiveRouteIndex} />
             )}
 
 

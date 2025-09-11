@@ -43,7 +43,7 @@ const SearchControls = ({
             lng: pos.coords.longitude,
           };
           setOrigin(currentLocation);
-          setPosition(currentLocation.location); // recenter map
+          // setPosition(currentLocation.location); // recenter map
         },
         (err) => {
           console.warn("⚠️ Failed to fetch current location:", err);

@@ -12,6 +12,9 @@ import { useDirections } from '../hooks/useDirections'
 const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef }) => {
     const mapRef = useRef(null);
 
+    const [mode, setMode] = useState("search"); // "search" or "directions"
+    const [activeRouteIndex, setActiveRouteIndex] = useState(0); // Track the active route index
+
     const [origin, setOrigin] = useState(null);       // { lat, lng, name }
     const [destination, setDestination] = useState(null); // { lat, lng, name }
     const [activeField, setActiveField] = useState(null);
@@ -92,7 +95,11 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 routes={routes}
                 getDirections={getDirections}
                 loading={dirLoading}
-                error={dirError} />
+                error={dirError}
+                mode={mode}
+                setMode={setMode}
+                activeRouteIndex={activeRouteIndex}
+                setActiveRouteIndex={setActiveRouteIndex} />
 
 
             <div className='fixed inset-0 overflow-hidden'>
@@ -112,7 +119,11 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         showTransitLayer={showTransitLayer}
                         tileUrl={tileUrl}
                         setPosition={setPosition}
-                        routes={routes} />
+                        routes={routes}
+                        mode={mode}
+                        setMode={setMode}
+                        activeRouteIndex={activeRouteIndex} 
+                        setActiveRouteIndex={setActiveRouteIndex}/>
                 </div>
 
 

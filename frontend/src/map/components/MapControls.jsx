@@ -66,16 +66,12 @@ const MapControls = ({
     routes,
     getDirections,
     loading,
-    error
+    error,
+    mode,
+    setMode,
+    activeRouteIndex,
+    setActiveRouteIndex
 }) => {
-    const [mode, setMode] = useState("search"); // "search" or "directions"
-
-    // const {
-    //     routes,
-    //     getDirections,
-    //     loading: directionsLoading,
-    //     error: directionsError,
-    // } = useDirections();
 
     useEffect(() => {
         if (!selectedPlace) return;
@@ -142,6 +138,8 @@ const MapControls = ({
                     loading={loading}
                     error={error}
                     setMode={setMode}
+                    activeRouteIndex={activeRouteIndex}
+                    setActiveRouteIndex={setActiveRouteIndex}
                 />
             )}
 

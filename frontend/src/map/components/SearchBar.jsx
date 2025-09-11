@@ -87,7 +87,7 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
     }));
 
     return (
-        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3'>
+        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3 rounded-md'>
             <div className='relative w-full'>
                 <input
                     type="text"

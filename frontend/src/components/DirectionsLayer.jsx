@@ -1,8 +1,9 @@
-import { Polyline, Marker, Popup } from "react-leaflet";
+import { Polyline, Popup } from "react-leaflet";
 import FitBounds from '../map/components/FitBounds';
-import { userIcon } from "../map/icons/markers";
 
-export default function DirectionsLayer({ routes, origin, destination }) {
+import SmoothPolylineRedraw from '../map/components/SmoothPolylineRedraw'
+
+export default function DirectionsLayer({ routes, origin, destination, activeRouteIndex, setActiveRouteIndex }) {
   if (!routes?.length) return null;
 
   return (
@@ -12,37 +13,26 @@ export default function DirectionsLayer({ routes, origin, destination }) {
         if (!latlngs.length) return null;
 
         return (
-          <Polyline key={idx} positions={latlngs} color={idx === 0 ? "blue" : "gray" }>
+          <Polyline
+            key={idx}
+            positions={latlngs}
+            color={idx === activeRouteIndex ? "blue" : "gray"}
+            weight={idx === activeRouteIndex ? 3 : 2}
+            opacity={idx === activeRouteIndex ? 1 : 0.9}
+            // dashArray={idx === activeRouteIndex ? null : "6,6"}
+            eventHandlers={{
+              click: () => setActiveRouteIndex(idx)
+            }}>
             <Popup>
               {route.mode.toUpperCase()} — {(route.distance_meters / 1000).toFixed(1)} km,{" "}
               {(route.duration_seconds / 60).toFixed(0)} min
             </Popup>
           </Polyline>
-          // <Polyline
-          //   key={idx}
-          //   positions={latlngs}
-          //   color={idx === 0 ? "blue" : "gray"}
-          // />
         );
       })}
 
-      {/* Origin Marker */}
-      {origin && (
-        <Marker position={[origin.lat, origin.lng]}>
-          <Popup>Origin: {origin.address || origin.name}</Popup>
-        </Marker>
-      )}
-
-      {/* Destination Marker */}
-      {destination && (
-        <Marker position={[destination.lat, destination.lng]}>
-          <Popup>Destination: {destination.address || destination.name}</Popup>
-        </Marker>
-      )}
-
-
-
       <FitBounds routes={routes} />
+      {/* <SmoothPolylineRedraw /> */}
     </>
   );
 }

@@ -1,5 +1,6 @@
 import L from 'leaflet'
 import "leaflet/dist/leaflet.css";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
 
 export const userIcon = new L.Icon({
     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=F56565",
@@ -30,3 +31,10 @@ export const highlightedPoiIcon = new L.Icon({
     shadowSize: [41, 41],
     popupAnchor: [0, -30],
 });
+
+export const smallIcon = new L.Icon({
+    iconUrl: markerIcon,
+    iconSize: [20, 32],   
+    iconAnchor: [10, 32],
+    popupAnchor: [1, -28],
+})
