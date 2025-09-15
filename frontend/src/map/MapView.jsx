@@ -6,6 +6,7 @@ import { useAQI } from '../hooks/useAQI';
 import POISidebar from './components/POISidebar';
 import MapControls from './components/MapControls';
 import MapRenderer from './components/MapRenderer';
+import DirectionsPanel from '../components/DirectionsPanel';
 import { useDirections } from '../hooks/useDirections'
 
 
@@ -13,7 +14,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     const mapRef = useRef(null);
 
     const [mode, setMode] = useState("search"); // "search" or "directions"
-    const [activeRouteIndex, setActiveRouteIndex] = useState(0); // Track the active route index
+
+    const [selectedMode, setSelectedMode] = useState(null);
 
     const [origin, setOrigin] = useState(null);       // { lat, lng, name }
     const [destination, setDestination] = useState(null); // { lat, lng, name }
@@ -26,7 +28,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting
     const activePOIId = selectedPlace?.place_id || hoverPOIId; // Use selected place ID or hover ID for active POI
 
-    const { routes, selectedMode, setSelectedMode, loading: dirLoading, error: dirError, getDirections } = useDirections();
+    const { routes, loading: dirLoading, error: dirError, getDirections } = useDirections();
 
 
 
@@ -67,6 +69,14 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         }
     }, [poiType]);
 
+    useEffect(() => {
+        if(routes?.length) {
+            setSelectedMode(routes[0].mode);
+        }
+    }, [routes])
+    
+
+
 
     return (
         <div className='relative h-screen w-screen'>
@@ -97,9 +107,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 loading={dirLoading}
                 error={dirError}
                 mode={mode}
-                setMode={setMode}
-                activeRouteIndex={activeRouteIndex}
-                setActiveRouteIndex={setActiveRouteIndex} />
+                setMode={setMode}/>
 
 
             <div className='fixed inset-0 overflow-hidden'>
@@ -122,8 +130,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         routes={routes}
                         mode={mode}
                         setMode={setMode}
-                        activeRouteIndex={activeRouteIndex} 
-                        setActiveRouteIndex={setActiveRouteIndex}/>
+                        selectedMode={selectedMode}
+                        setSelectedMode={setSelectedMode} />
                 </div>
 
 
@@ -137,6 +145,13 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                     setActivePOIId={setHoverPOIId}
                     selectedPlace={selectedPlace}
                     setSelectedPlace={setSelectedPlace} />
+
+                {mode === "directions" && (
+                    <DirectionsPanel
+                        routes={routes}
+                        selectedMode={selectedMode}
+                        setSelectedMode={setSelectedMode} />
+                )}
 
             </div>
         </div>

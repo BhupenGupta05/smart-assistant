@@ -3,6 +3,15 @@ const axios = require('axios');
 const polyline = require('@mapbox/polyline');
 const router = express.Router();
 
+// Emission factors per mode in grams CO2 per km
+const EMISSION_FACTORS = {
+    driving: 171,   // average car (g/km)
+    transit: 105,   // bus/train average (g/km)
+    walking: 0,     // walking emits nothing
+    cycling: 0      // cycling emits nothing
+};
+
+
 router.get('/', async (req, res) => {
     try {
         const { origin, destination, modes = "driving,walking,transit,bicycling" } = req.query;
@@ -21,7 +30,7 @@ router.get('/', async (req, res) => {
             const { data } = await axios.get(url);
 
             // console.log("DATA FETCHED: ", data);
-            
+
 
             if (data.status !== 'OK' || !data.routes.length) return null;
 
@@ -29,6 +38,10 @@ router.get('/', async (req, res) => {
             const route = data.routes[0];
             const leg = route.legs?.[0];
             const coords = route.overview_polyline?.points ? polyline.decode(route.overview_polyline.points).map(([lat, lng]) => [lat, lng]) : [];
+
+            // Calculate emissions
+            const distance_km = (leg?.distance?.value ?? 0) / 1000;
+            const emission_grams = (EMISSION_FACTORS[mode] ?? 0) * distance_km;
 
             return {
                 mode,
@@ -40,6 +53,7 @@ router.get('/', async (req, res) => {
                 warnings: route.warnings || [],
                 bounds: route.bounds || null,
                 coords,
+                emission_grams
             };
         }
         const routes = (await Promise.all(modeList.map(fetchMode))).filter(Boolean);

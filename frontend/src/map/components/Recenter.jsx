@@ -1,10 +1,22 @@
 import { Locate } from "lucide-react";
 
-const Recenter = ({ mapRef, setPosition, setSelectedPlace }) => {
+const Recenter = ({ mapRef, mode, routes, selectedMode, setPosition, setSelectedPlace }) => {
+
     const handleRecenter = () => {
         if (!navigator.geolocation) {
             alert("Geolocation is not enabled by your browser.");
             return;
+        }
+        
+        if(mode === "directions" && routes?.length > 0) {
+            const activeRoute = routes.find(r => r.mode === selectedMode || routes[0]);
+            const coords = activeRoute?.coords || [];
+
+            if(coords.length > 0) {
+                const bounds = L.latLngBounds(coords);
+                mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+                return;
+            }
         }
 
         navigator.geolocation.getCurrentPosition(

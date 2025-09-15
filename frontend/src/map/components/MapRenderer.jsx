@@ -24,8 +24,8 @@ const MapRenderer = ({
     routes,
     mode,
     setMode,
-    activeRouteIndex,
-    setActiveRouteIndex
+    selectedMode,
+    setSelectedMode
 }) => {
 
     // MEMOIZE ALL POI MARKERS
@@ -141,7 +141,7 @@ const MapRenderer = ({
 
             {/* ✅ Draw route when both origin & destination exist */}
             {origin && destination && routes?.length > 0 && (
-                <DirectionsLayer routes={routes} origin={origin} destination={destination} activeRouteIndex={activeRouteIndex} setActiveRouteIndex={setActiveRouteIndex} />
+                <DirectionsLayer routes={routes} selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
             )}
 
 
@@ -151,13 +151,24 @@ const MapRenderer = ({
             {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
             <FlyToLocation />
 
-            {/* RECENTER BUTTON */}
+            {/* RECENTER BUTTON */} 
             {(selectedPlace || poiType || position) && (
+                // <Recenter
+                //     mapRef={mapRef}
+                //     setPosition={setPosition}
+                //     setSelectedPlace={setSelectedPlace}
+                // />
+
+                // NOW, THIS ACCOMODATES CENTERING ROUTE ALSO
                 <Recenter
                     mapRef={mapRef}
+                    mode={mode}
+                    routes={routes}
+                    selectedMode={selectedMode}
                     setPosition={setPosition}
                     setSelectedPlace={setSelectedPlace}
                 />
+
             )}
         </MapContainer>
     )

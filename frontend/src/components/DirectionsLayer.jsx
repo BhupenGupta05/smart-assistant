@@ -3,8 +3,10 @@ import FitBounds from '../map/components/FitBounds';
 
 import SmoothPolylineRedraw from '../map/components/SmoothPolylineRedraw'
 
-export default function DirectionsLayer({ routes, origin, destination, activeRouteIndex, setActiveRouteIndex }) {
+export default function DirectionsLayer({ routes, selectedMode, setSelectedMode }) {
   if (!routes?.length) return null;
+
+
 
   return (
     <>
@@ -12,16 +14,24 @@ export default function DirectionsLayer({ routes, origin, destination, activeRou
         const latlngs = route.coords || [];
         if (!latlngs.length) return null;
 
+
+
+        const isActive = route.mode === selectedMode;
+
+
+
         return (
           <Polyline
             key={idx}
             positions={latlngs}
-            color={idx === activeRouteIndex ? "blue" : "gray"}
-            weight={idx === activeRouteIndex ? 3 : 2}
-            opacity={idx === activeRouteIndex ? 1 : 0.9}
+            pathOptions={{
+              color: isActive ? "blue" : "gray",
+              weight: isActive ? 3 : 3,   
+              opacity: isActive ? 1 : 0.9
+            }}
             // dashArray={idx === activeRouteIndex ? null : "6,6"}
             eventHandlers={{
-              click: () => setActiveRouteIndex(idx)
+              click: () => setSelectedMode(route.mode)
             }}>
             <Popup>
               {route.mode.toUpperCase()} — {(route.distance_meters / 1000).toFixed(1)} km,{" "}

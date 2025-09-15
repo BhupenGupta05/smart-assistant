@@ -1,58 +1,97 @@
-import { Car, Bus, Bike, Walk } from "lucide-react";
+import { useState } from "react";
+import { CarFront, Bus, Footprints } from "lucide-react";
 
 const travelModes = [
-  { key: "driving", icon: Car, label: "Driving" },
+  { key: "driving", icon: CarFront, label: "Driving" },
   { key: "transit", icon: Bus, label: "Transit" },
-  { key: "walking", icon: Walk, label: "Walking" },
-  { key: "cycling", icon: Bike, label: "Cycling" },
+  { key: "walking", icon: Footprints, label: "Walking" },
 ];
 
 export default function DirectionsPanel({
   routes,
-  activeRouteIndex,
-  setActiveRouteIndex,
   selectedMode,
   setSelectedMode,
 }) {
+  const [expanded, setExpanded] = useState(false);
+
   if (!routes?.length) return null;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg shadow-lg p-3 z-[1000]">
-      {/* Travel mode selector */}
-      <div className="flex justify-around mb-3">
-        {travelModes.map(({ key, icon: Icon, label }) => (
-          <button
-            key={key}
-            onClick={() => setSelectedMode(key)}
-            className={`flex flex-col items-center text-xs ${
-              selectedMode === key ? "text-blue-600 font-semibold" : "text-gray-500"
-            }`}
-          >
-            <Icon size={20} />
-            {label}
-          </button>
-        ))}
+    <div
+      className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[1000] transition-all duration-300 flex flex-col ${
+        expanded ? "h-[40%]" : "h-[120px]"
+      }`}
+    >
+    {/* Panel div */}
+      <div
+        className="flex justify-center py-2 cursor-pointer"
+        onClick={() => setExpanded((prev) => !prev)}
+      >
+        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
       </div>
 
-      {/* List of routes */}
-      <div className="space-y-2">
-        {routes.map((route, idx) => (
-          <div
-            key={idx}
-            onClick={() => setActiveRouteIndex(idx)}
-            className={`p-2 rounded-md cursor-pointer ${
-              activeRouteIndex === idx ? "bg-blue-100 border border-blue-400" : "bg-gray-100"
-            }`}
-          >
-            <div className="flex justify-between text-sm">
-              <span className="font-medium">{route.mode.toUpperCase()}</span>
-              <span>{(route.distance_meters / 1000).toFixed(1)} km</span>
-            </div>
-            <div className="text-xs text-gray-600">
-              {(route.duration_seconds / 60).toFixed(0)} min
-            </div>
-          </div>
-        ))}
+      {/* Travel Modes */}
+      <div className="flex justify-around px-6 mb-4">
+        {travelModes.map(({ key, icon: Icon, label }) => {
+          const active = selectedMode === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setSelectedMode(key)}
+              className={`flex flex-col items-center px-4 py-2 rounded-xl transition ${
+                active
+                  ? "text-blue-600 font-semibold bg-blue-50 shadow-sm"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              <Icon size={24} className="mb-1" />
+              <span className="text-xs">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Routes */}
+      <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-3">
+        {routes
+          .filter((route) => route.mode === selectedMode) // only show for active mode
+          .map((route, idx) => {
+            const isActive = route.mode === selectedMode;
+
+            return (
+              <div
+                key={idx}
+                onClick={() => setSelectedMode(route.mode)}
+                className={`p-4 rounded-2xl cursor-pointer transition shadow-sm ${
+                  isActive
+                    ? "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-400"
+                    : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  {/* Duration */}
+                  <span
+                    className={`text-xl font-bold ${
+                      isActive ? "text-blue-700" : "text-gray-800"
+                    }`}
+                  >
+                    {(route.duration_seconds / 60).toFixed(0)} min
+                  </span>
+                  {/* Distance */}
+                  <span className="text-sm text-gray-600">
+                    {(route.distance_meters / 1000).toFixed(1)} km
+                  </span>
+                </div>
+
+                {/* Carbon Emissions */}
+                {route.emission_grams !== undefined && (
+                  <div className="text-xs text-gray-500">
+                    {((route.emission_grams) / 1000).toFixed(2)} kg CO₂
+                  </div>
+                )}
+              </div>
+            );
+          })}
       </div>
     </div>
   );
