@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import POIDetails from './POIDetails';
+import { normalize } from './MapControls';
 
-const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, setActivePOIId, selectedPlace, setSelectedPlace, activeIdx, setActiveIdx }) => {
-    if(!poiType) return null;
+const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, setActivePOIId, selectedPlace, setSelectedPlace, activeIdx, setActiveIdx, origin, setOrigin, destination, setDestination, setMode, position, clearRoutes }) => {
+    if (!poiType) return null;
 
     const itemRefs = useRef({});
 
@@ -11,28 +12,71 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
     const userClickedRef = useRef(false);
 
     useEffect(() => {
-        if(selectedPlace && !userClickedRef.current) {
+        if (selectedPlace && !userClickedRef.current) {
             const poiId = selectedPlace.place_id || poiResults.indexOf(selectedPlace);
             const currentItem = itemRefs.current[poiId];
 
-            if(currentItem) {
+            if (currentItem) {
                 currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
         // RESET FLAG
         userClickedRef.current = false;
-    },[selectedPlace, poiResults]);
+    }, [selectedPlace, poiResults]);
 
-    if(selectedPlace) {
+
+    // Same function as in SearchControls
+    const startDirectionsWith = (place) => {
+        if(clearRoutes) clearRoutes();
+
+        const destinationPlace = normalize(place);
+
+        setDestination(destinationPlace);
+
+        // Get current location as origin
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const currentLocation = {
+                        name: "Current Location",
+                        address: "Your current location",
+                        location: [pos.coords.latitude, pos.coords.longitude],
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                    };
+                    setOrigin(currentLocation);
+                },
+                (err) => {
+                    console.warn("⚠️ Failed to fetch current location:", err);
+                    // Fallback to position prop if geolocation fails
+                    if (position) {
+                        setOrigin({
+                            name: "Current Location",
+                            address: "Your current location",
+                            location: position,
+                            lat: position[0],
+                            lng: position[1],
+                        });
+                    }
+                }
+            );
+        }
+
+        setMode("directions");
+        setSelectedPlace(null);
+    };
+
+    if (selectedPlace) {
         return (
             <POIDetails
-            place={selectedPlace}
-            onBack={() => setSelectedPlace(null)} />
+                place={selectedPlace}
+                onBack={() => setSelectedPlace(null)}
+                onDirections={() => startDirectionsWith(selectedPlace)} />
         )
     }
 
     return (
-        <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[45%] overflow-y-auto p-4 shadow-xl border-t rounded-t-lg'>
+        <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[35%] overflow-y-auto p-4 shadow-xl border-t rounded-t-lg'>
             <h2 className="text-lg font-semibold mb-3">Nearby Places</h2>
 
             {poiLoading && <p className="text-gray-500">Loading nearby places...</p>}
@@ -45,7 +89,7 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
                     const isActive = activePOIId === poiId;
 
                     // console.log(place.photos);
-                    
+
 
                     return (
                         <div
@@ -97,7 +141,15 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
 
                                 {/* Utility Buttons */}
                                 <div className="flex gap-3 mt-2">
-                                    <a
+                                    <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        startDirectionsWith(place);
+                                    }} 
+                                    className='text-blue-600 text-xs underline'>
+                                        Directions
+                                    </button>
+                                    {/* <a
                                         href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
                                             place.name
                                         )}&destination_place_id=${place.place_id}`}
@@ -106,7 +158,7 @@ const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, se
                                         className="text-blue-600 text-xs underline"
                                     >
                                         Directions
-                                    </a>
+                                    </a> */}
                                     {place.website && (
                                         <a
                                             href={place.website}

@@ -146,7 +146,7 @@ const MapRenderer = ({
 
 
             {/* NEARBY POIs */}
-            {memoizedPOIMarkers}
+            {mode === "search" && memoizedPOIMarkers}
 
             {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
             <FlyToLocation />

@@ -18,6 +18,7 @@ const SearchControls = ({
   aqiLoading,
   aqiError,
   poiType,
+  setPoiType,
   showTransitLayer,
   setShowTransitLayer,
   searchRef }) => {
@@ -66,6 +67,8 @@ const SearchControls = ({
         setPosition={setPosition}
         setSelectedPlace={setSelectedPlace}
       />
+      
+     
 
       {/* DETAILS BOTTOM BAR */}
       {selectedPlace && (

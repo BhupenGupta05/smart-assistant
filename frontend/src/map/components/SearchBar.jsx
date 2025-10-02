@@ -3,9 +3,10 @@ import axios from 'axios';
 import { Search } from 'lucide-react';
 
 const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPlace }, ref) => {
+
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
-    const [internalQuery, setInternalQuery] = useState(''); // fallback local query
+    const [internalQuery, setInternalQuery] = useState(''); // User typed query
     const cacheRef = useRef(new Map());
 
     // Handle search query input and fetch results
@@ -50,8 +51,8 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
 
     // Handle place selection
     const handlePlaceSelect = (place) => {
-        if(place?.lat === null || place?.lng === null) return;
-        
+        if (place?.lat === null || place?.lng === null) return;
+
         setSelectedPlace(place);
         setPosition([place.lat, place.lng]);
         setResults([]);
@@ -95,8 +96,14 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
                     placeholder='Search...'
                     value={setQuery ? query : internalQuery}
                     onChange={(e) => {
-                        if (setQuery) setQuery(e.target.value);
-                        else setInternalQuery(e.target.value);
+                        if (setQuery) {
+                            setQuery(e.target.value);
+                                // console.log("Parent controlled query is being set: ", e.target.value);
+                        }
+                        else {
+                            setInternalQuery(e.target.value);
+                            // console.log("Local internal query is being set:", e.target.value);
+                        }
                     }}
                     onFocus={() => setShowResults(true)}
                     onBlur={() => setTimeout(() => setShowResults(false), 150)}

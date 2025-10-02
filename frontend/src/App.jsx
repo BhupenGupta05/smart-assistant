@@ -8,7 +8,7 @@ const App = () => {
 
   const [query, setQuery] = useState(''); // Search query state
   const { position, setPosition, selectedPlace, setSelectedPlace } = useGeolocation();
-  const { poiResults, setPoiResults, poiType, setPoiType, refetchPOIs } = usePOI();
+  const { poiResults, setPoiResults, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
   const [showTransitLayer, setShowTransitLayer] = useState(false); // Show Transit Layer only for transit_station poiType
   const searchRef = useRef();
 
@@ -23,11 +23,12 @@ const App = () => {
       poiResults,
       setPoiResults,
       refetchPOIs,
+      clearPOIs,
       query,
       setQuery,
       showTransitLayer,
       setShowTransitLayer,
-      searchRef
+      searchRef,
     }}>
       <div className='text-center text-2xl font-bold'>
         <MapView

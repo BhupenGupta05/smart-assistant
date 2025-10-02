@@ -11,14 +11,22 @@ const categories = [
     { label: "More", type: "more", icon: Ellipsis }
 ]
 
-const POICategory = ({ poiType, setPoiType }) => {
+const POICategory = ({ poiType, setPoiType, clearPOIs, refetchPOIs }) => {
     return (
         <div className='absolute top-[80px] left-1 right-1 z-[999] flex justify-center'>
             <div className='flex overflow-x-auto gap-2 py-2 no-scrollbar'>
                 {categories.map(({ label, type, icon: Icon }) => (
                     <button
                         key={type}
-                        onClick={() => setPoiType(type)}
+                        onClick={() => {
+                            if(poiType === type) {
+                                setPoiType(null);
+                                clearPOIs();
+                            } else {
+                                setPoiType(type);
+                                refetchPOIs();
+                            }
+                        }}
                         className={`flex gap-2 items-center whitespace-nowrap text-sm px-4 py-1 rounded-full shadow-sm transition ${poiType === type ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
                             }`}
                     >

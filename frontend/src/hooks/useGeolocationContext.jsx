@@ -2,21 +2,23 @@
 // This will set the initial position of the map
 // and will be used to fetch nearby POIs
 // It will also update the position when the user selects a place from suggestions
-// If the user denies geolocation permission, it will default to London
+// If the user denies geolocation permission, it will default to New Delhi
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
 const GeolocationContext = createContext();
 
 export const GeolocationProvider = ({ children }) => {
-    const [position, setPosition] = useState([28.6139, 77.2090]); // Default to New Delhi
-    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [position, setPosition] = useState([28.6139, 77.2090]); // It is the coordinates of user's current location
+    const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
     const [error, setError] = useState(null);
 
+    // If a place is selected, return its coordinates; otherwise, return current position
     const getCoords = () => {
         return selectedPlace ? [selectedPlace.lat, selectedPlace.lng] : position;
     }
 
+    // For the initial render, try to get the user's current location
     useEffect(() => {
         if(!navigator.geolocation) {
             setError("Geolocation is not supported by your browser");

@@ -6,19 +6,13 @@ import SmoothPolylineRedraw from '../map/components/SmoothPolylineRedraw'
 export default function DirectionsLayer({ routes, selectedMode, setSelectedMode }) {
   if (!routes?.length) return null;
 
-
-
   return (
     <>
       {routes.map((route, idx) => {
         const latlngs = route.coords || [];
         if (!latlngs.length) return null;
 
-
-
         const isActive = route.mode === selectedMode;
-
-
 
         return (
           <Polyline

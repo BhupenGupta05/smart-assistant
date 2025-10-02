@@ -20,6 +20,8 @@ export const POIProvider = ({ children }) => {
     const [poiError, setPoiError] = useState(null); // Store POI error if any
     const [poiLoading, setPoiLoading] = useState(false); // Store POI loading state
 
+    
+    // Function to fetch POIs based on current coordinates and selected POI type
     const fetchPOIs = useCallback(async () => {
         const coords = getCoords();
 
@@ -40,12 +42,16 @@ export const POIProvider = ({ children }) => {
         }
     }, [getCoords, poiType])
 
+    const clearPOIs = () => setPoiResults([]);
 
+
+    // Fetch POIs when coordinates or POI type changes
     useEffect(() => {
         fetchPOIs();
     }, [fetchPOIs])
 
 
+    // If the server doesn't respond, retry every 5 seconds
     useEffect(() => {
         if (!poiError) return;
 
@@ -58,7 +64,7 @@ export const POIProvider = ({ children }) => {
 
 
     return (
-        <POIContext.Provider value={{ poiResults, setPoiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs: fetchPOIs }}>
+        <POIContext.Provider value={{ poiResults, setPoiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs: fetchPOIs, clearPOIs }}>
             {children}
         </POIContext.Provider>
     );

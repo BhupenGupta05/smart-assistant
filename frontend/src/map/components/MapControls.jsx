@@ -1,14 +1,12 @@
-import POICategory from "./POICategory"
-import SearchBar from "./SearchBar"
-import AQIIndicator from "./AQIIndicator"
-import POIDetails from "./POIDetails"
-import Chatbot from "../../components/Chatbot";
+// Component to manage map controls for searching locations and getting directions
+
 import "leaflet/dist/leaflet.css";
-import { useEffect, useMemo, useState } from "react";
-import { useDirections } from "../../hooks/useDirections";
+import { useEffect } from "react";
 import SearchControls from "../controls/SearchControls";
 import DirectionControls from "../controls/DirectionControls";
+import POICategory from "./POICategory";
 
+// Helper function to normalize place data from various formats
 export const normalize = (place) => {
     if (!place) return null;
 
@@ -42,7 +40,6 @@ export const normalize = (place) => {
     };
 };
 
-
 const MapControls = ({
     query,
     setQuery,
@@ -69,8 +66,9 @@ const MapControls = ({
     error,
     mode,
     setMode,
-    activeRouteIndex,
-    setActiveRouteIndex
+    clearRoutes,
+    clearPOIs,
+    refetchPOIs
 }) => {
 
     useEffect(() => {
@@ -97,21 +95,28 @@ const MapControls = ({
     return (
         <>
             {mode === "search" && (
-                <SearchControls
-                    setOrigin={setOrigin}
-                    setPosition={setPosition}
-                    selectedPlace={selectedPlace}
-                    setSelectedPlace={setSelectedPlace}
-                    setDestination={setDestination}
-                    setActiveField={setActiveField}
-                    setMode={setMode}
-                    aqi={aqi}
-                    aqiLoading={aqiLoading}
-                    aqiError={aqiError}
-                    poiType={poiType}
-                    showTransitLayer={showTransitLayer}
-                    setShowTransitLayer={setShowTransitLayer}
-                    searchRef={searchRef} />
+                <>
+                    <SearchControls
+                        setOrigin={setOrigin}
+                        setPosition={setPosition}
+                        selectedPlace={selectedPlace}
+                        setSelectedPlace={setSelectedPlace}
+                        setDestination={setDestination}
+                        setActiveField={setActiveField}
+                        setMode={setMode}
+                        aqi={aqi}
+                        aqiLoading={aqiLoading}
+                        aqiError={aqiError}
+                        poiType={poiType}
+                        setPoiType={setPoiType}
+                        showTransitLayer={showTransitLayer}
+                        setShowTransitLayer={setShowTransitLayer}
+                        searchRef={searchRef} />
+
+                    {/* 🏷️ POI CATEGORIES */}
+                    <POICategory poiType={poiType} setPoiType={setShowTransitLayer ? setPoiType : setPoiType} clearPOIs={clearPOIs} refetchPOIs={refetchPOIs} />
+                </>
+
             )}
 
             {mode === "directions" && (
@@ -125,9 +130,6 @@ const MapControls = ({
                     setPosition={setPosition}
                     selectedPlace={selectedPlace}
                     setSelectedPlace={setSelectedPlace}
-                    aqi={aqi}
-                    aqiLoading={aqiLoading}
-                    aqiError={aqiError}
                     poiType={poiType}
                     setPoiType={setPoiType}
                     showTransitLayer={showTransitLayer}
@@ -138,8 +140,7 @@ const MapControls = ({
                     loading={loading}
                     error={error}
                     setMode={setMode}
-                    activeRouteIndex={activeRouteIndex}
-                    setActiveRouteIndex={setActiveRouteIndex}
+                    clearRoutes={clearRoutes}
                 />
             )}
 
