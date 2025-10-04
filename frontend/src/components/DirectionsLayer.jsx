@@ -1,7 +1,5 @@
 import { Polyline, Popup } from "react-leaflet";
-import FitBounds from '../map/components/FitBounds';
-
-import SmoothPolylineRedraw from '../map/components/SmoothPolylineRedraw'
+import FitBounds from '../map/components/FitBounds'
 
 export default function DirectionsLayer({ routes, selectedMode, setSelectedMode }) {
   if (!routes?.length) return null;
@@ -36,7 +34,6 @@ export default function DirectionsLayer({ routes, selectedMode, setSelectedMode 
       })}
 
       <FitBounds routes={routes} />
-      {/* <SmoothPolylineRedraw /> */}
     </>
   );
 }

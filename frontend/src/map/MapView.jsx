@@ -10,21 +10,20 @@ import DirectionsPanel from '../components/DirectionsPanel';
 import { useDirections } from '../hooks/useDirections'
 
 
-const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef }) => {
+const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef }) => {
     const mapRef = useRef(null); // Using same map instance
 
     const [mode, setMode] = useState("search"); // Mode is basically either we want to just search for a place or get directions
     const [selectedMode, setSelectedMode] = useState(null); // Mode of transportation for directions: driving, walking, transit
-
     const [origin, setOrigin] = useState(null);  // Confirmed origin coordinates
     const [destination, setDestination] = useState(null); // Confirmed destination coordinates
     const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
-
-
-    const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation(); 
-    const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
-   
     const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
+
+
+    const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
+    const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
+
     const activePOIId = selectedPlace?.place_id || hoverPOIId; // Use selected place ID or hover ID for active POI
 
     const { routes, loading: dirLoading, error: dirError, getDirections, clearRoutes } = useDirections();
@@ -71,11 +70,11 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
     // By default, set selectedMode to first available mode when routes change
     useEffect(() => {
-        if(routes?.length) {
+        if (routes?.length) {
             setSelectedMode(routes[0].mode);
         }
     }, [routes])
-    
+
 
 
 
@@ -103,6 +102,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 showTransitLayer={showTransitLayer}
                 setShowTransitLayer={setShowTransitLayer}
                 searchRef={searchRef}
+                directionsRef={directionsRef}
                 routes={routes}
                 getDirections={getDirections}
                 loading={dirLoading}
@@ -140,26 +140,29 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
 
                 {/* POI SIDEBAR */}
-                {mode === "search" && (<POISidebar
-                    poiType={poiType}
-                    poiResults={poiResults}
-                    poiLoading={poiLoading}
-                    poiError={poiError}
-                    activePOIId={activePOIId}
-                    setActivePOIId={setHoverPOIId}
-                    selectedPlace={selectedPlace}
-                    setSelectedPlace={setSelectedPlace}
-                    setOrigin={setOrigin} // NEW
-                    setDestination={setDestination}
-                    setMode={setMode}
-                    position={position}
-                    clearRoutes={clearRoutes} />)}
+                {mode === "search" && (
+                    <POISidebar
+                        poiType={poiType}
+                        poiResults={poiResults}
+                        poiLoading={poiLoading}
+                        poiError={poiError}
+                        activePOIId={activePOIId}
+                        setActivePOIId={setHoverPOIId}
+                        selectedPlace={selectedPlace}
+                        setSelectedPlace={setSelectedPlace}
+                        setOrigin={setOrigin} // NEW
+                        setDestination={setDestination}
+                        setMode={setMode}
+                        position={position}
+                        clearRoutes={clearRoutes} />
+                )}
 
                 {mode === "directions" && (
                     <DirectionsPanel
                         routes={routes}
                         selectedMode={selectedMode}
-                        setSelectedMode={setSelectedMode} />
+                        setSelectedMode={setSelectedMode}
+                        directionsRef={directionsRef} />
                 )}
 
             </div>

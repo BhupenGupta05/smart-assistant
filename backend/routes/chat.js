@@ -73,6 +73,9 @@ const systemPrompt = {
 // User: "What's the air quality here?"
 // Assistant: "I'll check the air quality at your current location. The AQI data will be displayed on your map."
 
+// User: "Show me walking directions from Connaught Place to Red Fort"
+// Assistant: "I'll get you walking directions from Connaught Place to Red Fort." (show_route with origin="Connaught Place", destination="Red Fort", mode="walking")
+
 // Always be conversational, friendly, and confirm what action you're taking while using the appropriate functions.
 
 // };
@@ -155,7 +158,34 @@ const tools = [
         required: ["query"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "set_directions",
+      description: "Set origin and destination for directions",
+      parameters: {
+        type: "object",
+        properties: {
+          origin: {
+            type: "string",
+            description: "The starting point address"
+          },
+          destination: {
+            type: "string",
+            description: "The destination address"
+          },
+          mode: {
+            type: "string",
+            enum: ["driving", "walking", "transit"],
+            default: "driving"
+          }
+        },
+        required: ["origin", "destination"]
+      }
+    }
   }
+
 
 
 ];
@@ -176,8 +206,13 @@ router.post('/', async (req, res) => {
       temperature: 0.7,
     });
 
+    console.log("BACKEND raw response:", JSON.stringify(response, null, 2));
+
     const choice = response.choices[0];
     const hasToolCalls = Array.isArray(choice.message.tool_calls) && choice.message.tool_calls.length > 0;
+
+    console.log("BACKEND parsed choice:", JSON.stringify(choice, null, 2));
+
 
     res.json({
       reply: choice.message.content || (hasToolCalls ? "Executing your request..." : "I didn't understand that request."),

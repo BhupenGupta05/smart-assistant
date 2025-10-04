@@ -1,13 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { Locate, MapPin, ArrowDownUp, X } from "lucide-react";
 import axios from "axios";
+import { useFetchPlaces } from "../../hooks/useFetchPlaces";
 
 const DEBOUNCE_DELAY = 300;
 
-
-// THE ORIGIN AND DESTINATION ARE NOT GETTING UPDATE AS WE CAN SEE IN LOGS
-
-const DirectionControls = ({
+const DirectionControls = forwardRef(({
   origin,
   setOrigin,
   destination,
@@ -17,18 +15,13 @@ const DirectionControls = ({
   setPosition,
   selectedPlace,
   setSelectedPlace,
-  poiType,
-  setPoiType,
-  showTransitLayer,
-  setShowTransitLayer,
-  searchRef,
   routes,
   getDirections,
   loading,
   error,
   setMode,
   clearRoutes
-}) => {
+}, ref) => {
 
   // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
   // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED
@@ -36,12 +29,12 @@ const DirectionControls = ({
   const [originInput, setOriginInput] = useState(origin?.name || "");
   const [destinationInput, setDestinationInput] = useState(destination?.name || "");
 
-
-  const [originResults, setOriginResults] = useState([]);
-  const [destinationResults, setDestinationResults] = useState([]);
-
   const justSelectedOrigin = useRef(false);
   const justSelectedDestination = useRef(false);
+
+  const originResults = useFetchPlaces(originInput, justSelectedOrigin);
+  const destinationResults = useFetchPlaces(destinationInput, justSelectedDestination);
+
 
   // Sync originInput when origin prop changes externally
   useEffect(() => {
@@ -57,63 +50,26 @@ const DirectionControls = ({
     }
   }, [destination]);
 
-  useEffect(() => {
-    if (justSelectedOrigin.current) {
-      justSelectedOrigin.current = false;
-      return;
+
+  // TRYING TO REPLACE THIS
+  const fetchPlaces = async (query) => {
+    if (!query || query.length < 3) return [];
+    try {
+      const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+      const { data } = await axios.get(url);
+      return data;
+    } catch (err) {
+      console.error("Search error:", err);
+      return [];
     }
+  };
 
-    if (!originInput || originInput.length < 3) {
-      setOriginResults([]);
-      return;
-    }
-
-    const handler = setTimeout(async () => {
-      try {
-        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(originInput)}`;
-        const { data } = await axios.get(url);
-        setOriginResults(data);
-      } catch (err) {
-        console.error(err);
-        setOriginResults([]);
-      }
-    }, DEBOUNCE_DELAY);
-
-    return () => clearTimeout(handler);
-  }, [originInput]);
-
-
-  useEffect(() => {
-    if (justSelectedDestination.current) {
-      justSelectedDestination.current = false;
-      return;
-    }
-
-    if (!destinationInput || destinationInput.length < 3) {
-      setDestinationResults([]);
-      return;
-    }
-
-    const handler = setTimeout(async () => {
-      try {
-        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(destinationInput)}`;
-        const { data } = await axios.get(url);
-        setDestinationResults(data);
-      } catch (err) {
-        console.error(err);
-        setDestinationResults([]);
-      }
-    }, DEBOUNCE_DELAY);
-
-    return () => clearTimeout(handler);
-  }, [destinationInput]);
 
   const selectOrigin = (place) => {
     if (clearRoutes) {
       clearRoutes();
       console.log("🧹 Cleared routes before setting new destination");
     }
-
     // Normalize the place data to ensure consistent format
     const normalizedPlace = {
       name: place.name || place.formatted_address,
@@ -126,7 +82,6 @@ const DirectionControls = ({
 
     setOrigin(normalizedPlace);
     setOriginInput(normalizedPlace.address || normalizedPlace.name);
-    setOriginResults([]);
     setActiveField(null);
     justSelectedOrigin.current = true; // Set flag to prevent next search
   };
@@ -135,9 +90,8 @@ const DirectionControls = ({
   const selectDestination = (place) => {
     if (clearRoutes) {
       clearRoutes();
-      console.log("🧹 Cleared routes before setting new origin");
+      console.log("🧹 Cleared routes before setting new destination");
     }
-
     // Normalize the place data to ensure consistent format
     const normalizedPlace = {
       name: place.name || place.formatted_address,
@@ -150,11 +104,53 @@ const DirectionControls = ({
 
     setDestination(normalizedPlace);
     setDestinationInput(normalizedPlace.address || normalizedPlace.name);
-    setDestinationResults([]);
     setActiveField(null);
     justSelectedDestination.current = true; // Set flag to prevent next search
   };
 
+  useImperativeHandle(ref, () => ({
+    ready: true,
+    searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
+      if (!query && fallbackCurrentLocation) {
+        const pos = fallbackCurrentLocation; // [lat, lng]
+        const fakePlace = {
+          name: "Current Location",
+          address: "Current Location",
+          lat: pos[0],
+          lng: pos[1],
+          place_id: "current_location"
+        };
+        selectOrigin(fakePlace);
+        return true;
+      }
+      const results = await fetchPlaces(query);
+      if (results.length > 0) {
+        selectOrigin(results[0]);
+        return true;
+      }
+      return false;
+    },
+
+    searchAndSetDestination: async (query) => {
+      const results = await fetchPlaces(query);
+      if (results.length > 0) {
+        selectDestination(results[0]);
+        return true;
+      }
+      return false;
+    },
+
+    calculateDirections: async (mode = "driving") => {
+      if (origin?.location && destination?.location) {
+        await getDirections(origin.location, destination.location, [mode]);
+      }
+    },
+
+    // ✅ NEW: switch MapView to directions mode
+    switchToDirectionsMode: () => {
+      if (setMode) setMode("directions");
+    }
+  }));
 
 
   const confirmOrigin = () => {
@@ -205,8 +201,6 @@ const DirectionControls = ({
     setOriginInput("");
     setDestinationInput("");
     setSelectedPlace(null);
-    setOriginResults([]);
-    setDestinationResults([]);
   };
 
   return (
@@ -318,6 +312,6 @@ const DirectionControls = ({
       </div>
     </div>
   );
-};
+});
 
 export default DirectionControls;

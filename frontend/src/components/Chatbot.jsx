@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useAssistant } from '../hooks/useAssistant';
+import { useDirections } from '../hooks/useDirections';
 
 const Chatbot = () => {
-    const { searchRef } = useAssistant();
     const [messages, setMessages] = useState([
         { role: 'assistant', content: 'Hi! Ask me anything 🚀' },
     ]);
@@ -12,6 +12,8 @@ const Chatbot = () => {
     const [loading, setLoading] = useState(false);
 
     const {
+        searchRef, 
+        directionsRef, 
         setPosition,
         setSelectedPlace,
         setPoiType,
@@ -21,6 +23,7 @@ const Chatbot = () => {
         setShowTransitLayer
     } = useAssistant();
 
+    // CONTROLLING SEARCH BAR USING CHATBOT PROMPT
     const moveToLocation = async (location) => {
         if (location === 'current') {
             return new Promise((resolve, reject) => {
@@ -35,12 +38,13 @@ const Chatbot = () => {
                 );
             });
         } else {
-            const success = await searchRef.current?.searchLocationAndSelectFirst(location);
+            const success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
             if (!success) throw new Error(`Could not find location: "${location}". Try a more specific address.`);
             return `Successfully moved to ${location}`;
         }
     };
 
+    // SETTING POIs USING CHATBOT PROMPT
     const setPoi = (poi) => {
         if (!poi) throw new Error("No POI type specified");
         setPoiType(poi);
@@ -48,11 +52,13 @@ const Chatbot = () => {
         return `Showing ${poi} places nearby`;
     };
 
+    // TOGGLING TRANSIT LAYER USING CHATBOT PROMPT
     const toggleTransit = () => {
         setShowTransitLayer(prev => !prev);
         return "Toggled transit layer";
     };
 
+    // DISPLAYING POIs USING CHATBOT PROMPT
     const searchPoi = (args) => {
         if (!args.query) throw new Error("No query provided for POI search");
 
@@ -97,7 +103,7 @@ const Chatbot = () => {
                                     ? place.geometry.location.lng()
                                     : place.geometry?.location?.lng;
 
-        
+
                             return {
                                 name: place.name,
                                 lat,
@@ -128,10 +134,79 @@ const Chatbot = () => {
         });
     };
 
-    const runTool = async (tool) => {
+    // HELPER FUNCTION
+    // WAITING TILL THE DIRECTION REF MOUNTS SO THAT WE CAN SET ORIGIN/DESTINATION IN INPUTS
+    const waitForRef = async (ref, retries = 10, delay = 200) => {
+        let count = 0;
+        while ((!ref.current || !ref.current.ready) && count < retries) {
+            await new Promise(r => setTimeout(r, delay));
+            count++;
+        }
+        return ref.current;
+    };
+
+    // Utility: FETCH COORDINATES FROM STRING
+    const getCurrentLocation = () =>
+        new Promise((resolve, reject) => {
+            if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({
+                    name: "Current Location",
+                    address: "Your current location",
+                    location: [pos.coords.latitude, pos.coords.longitude],
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude
+                }),
+                (err) => reject(new Error("Failed to get current location")),
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+    });
+
+    // --- Set Directions (controls origin & destination inputs) ---
+    const setDirections = async ({ origin = 'current', destination }) => {
+        const dirRef = await waitForRef(directionsRef);
+        if (!dirRef) throw new Error('Directions controls not ready');
+        if (!destination) throw new Error('Destination is required');
+
+        let success;
+
+        // If origin is current location, fetch coordinates for it and set ref's value
+        if (origin.toLowerCase() === 'current location' || origin === "current") {
+            const pos = await getCurrentLocation();
+            success = await directionsRef.current.searchAndSetOrigin('', pos.location);
+        } else {
+            success = await directionsRef.current.searchAndSetOrigin(origin);
+        }
+        if (!success) throw new Error('Failed to set origin');
+
+        // SET DESTINATION ALSO
+        success = await dirRef.searchAndSetDestination(
+            typeof destination === 'string' ? destination : destination.name
+        );
+        if (!success) throw new Error('Failed to set destination');
+
+
+        dirRef.switchToDirectionsMode(); // SWITCH TO DIRETCIONS MODE
+        await dirRef.calculateDirections(mode); // CALCULATE ROUTE
+
+        return `✅ Directions set from ${origin} to ${destination.name || destination}`;
+    };
+
+
+    const runTool = async (tool, lastUserMessage) => {
         console.log("Running tool:", tool.function.name, "with args:", tool.function.arguments);
         const { name, arguments: argsJSON } = tool.function;
         const args = JSON.parse(argsJSON);
+
+        // FORCING CHATBOT IF "ROUTE" KEYWORD IS INCLUDED IN PROMPT, 
+        // THEN RUN set_directions INSTEAD OF move_to_location
+        if (name === 'move_to_location' && lastUserMessage.toLowerCase().includes("route")) {
+            name = 'set_directions';
+            args.destination = { name: args.location };
+        }
+
+        console.log("FRONTEND: Parsed args:", args);
 
         switch (name) {
             case 'move_to_location':
@@ -145,6 +220,10 @@ const Chatbot = () => {
 
             case 'search_poi':
                 return await searchPoi(args);
+
+            case 'set_directions':
+                console.log("FRONTEND: showRoute input:", args);
+                return await setDirections({ origin: args.origin || 'current', destination: args.destination });
 
             default:
                 throw new Error(`Unknown command: ${name}`);
@@ -173,6 +252,9 @@ const Chatbot = () => {
         try {
             const { data } = await axios.post(`/api/chat`, { messages: newMessages });
 
+            console.log("FRONTEND: Received from backend:", JSON.stringify(data, null, 2));
+
+
             // Show LLM reply if available
             const withReply = data.reply
                 ? [...newMessages, { role: 'assistant', content: data.reply }]
@@ -184,7 +266,7 @@ const Chatbot = () => {
             if (data.tool_calls?.length > 0) {
                 for (const toolCall of data.tool_calls) {
                     try {
-                        const result = await runTool(toolCall);
+                        const result = await runTool(toolCall, userMessage.content);
                         setMessages(prev => [
                             ...prev,
                             { role: 'assistant', content: `✅ ${result}` }

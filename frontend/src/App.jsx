@@ -10,7 +10,10 @@ const App = () => {
   const { position, setPosition, selectedPlace, setSelectedPlace } = useGeolocation();
   const { poiResults, setPoiResults, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
   const [showTransitLayer, setShowTransitLayer] = useState(false); // Show Transit Layer only for transit_station poiType
-  const searchRef = useRef();
+
+
+  const searchRef = useRef(); // Reference to Search input instance
+  const directionsRef = useRef(); // Reference to Origin/Destination input instance
 
   return (
     <AssistantContext.Provider value={{
@@ -29,9 +32,11 @@ const App = () => {
       showTransitLayer,
       setShowTransitLayer,
       searchRef,
+      directionsRef
     }}>
       <div className='text-center text-2xl font-bold'>
         <MapView
+          directionsRef={directionsRef}
           searchRef={searchRef}
           query={query}
           setQuery={setQuery}

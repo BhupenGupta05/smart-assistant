@@ -60,6 +60,7 @@ const MapControls = ({
     showTransitLayer,
     setShowTransitLayer,
     searchRef,
+    directionsRef,
     routes,
     getDirections,
     loading,
@@ -80,7 +81,7 @@ const MapControls = ({
 
 
         if (mode === "search") {
-            // Just show POI details; user will click "Directions"
+            // DO NOTHING
         } else if (mode === "directions") {
             if (activeField === "origin") setOrigin(normalizedPlace);
             else if (activeField === "destination") setDestination(normalizedPlace);
@@ -88,7 +89,7 @@ const MapControls = ({
         }
 
         setSelectedPlace(mode === "search" ? selectedPlace : null);
-    }, [selectedPlace, activeField, mode, setSelectedPlace]);
+    }, [selectedPlace, activeField, mode, setSelectedPlace, setOrigin, setDestination]);
 
 
 
@@ -113,13 +114,15 @@ const MapControls = ({
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef} />
 
-                    {/* 🏷️ POI CATEGORIES */}
+                    {/* 🏷️ POI CATEGORIES */} 
+                    {/* SUBTLE BUG ---- NEED TO FIX IT */}
                     <POICategory poiType={poiType} setPoiType={setShowTransitLayer ? setPoiType : setPoiType} clearPOIs={clearPOIs} refetchPOIs={refetchPOIs} />
                 </>
 
             )}
 
-            {mode === "directions" && (
+            {/* ALWAYS MOUNT IT */}
+            <div style={{ display: mode === "search" ? "none" : "block" }}>
                 <DirectionControls
                     origin={origin}
                     setOrigin={setOrigin}
@@ -130,20 +133,15 @@ const MapControls = ({
                     setPosition={setPosition}
                     selectedPlace={selectedPlace}
                     setSelectedPlace={setSelectedPlace}
-                    poiType={poiType}
-                    setPoiType={setPoiType}
-                    showTransitLayer={showTransitLayer}
-                    setShowTransitLayer={setShowTransitLayer}
-                    searchRef={searchRef}
                     routes={routes}
                     getDirections={getDirections}
                     loading={loading}
                     error={error}
                     setMode={setMode}
                     clearRoutes={clearRoutes}
+                    ref={directionsRef}
                 />
-            )}
-
+            </div>
         </>
     )
 }
