@@ -153,15 +153,6 @@ const DirectionControls = forwardRef(({
   }));
 
 
-  const confirmOrigin = () => {
-    if (originResults.length > 0) selectOrigin(originResults[0]);
-  };
-
-  const confirmDestination = () => {
-    if (destinationResults.length > 0) selectDestination(destinationResults[0]);
-  };
-
-
   // --- 3️⃣ ROUTE REQUEST ON CONFIRMED STATE ---
   const canRequestRoute = useMemo(
     () => Boolean(origin?.location && destination?.location),
@@ -216,11 +207,13 @@ const DirectionControls = forwardRef(({
             value={originInput}
             onFocus={() => setActiveField("origin")}
             onChange={(e) => setOriginInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") confirmOrigin();
+            onKeyDown={async (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const results = await fetchPlaces(originInput);
+                if (results.length > 0) selectOrigin(results[0]);
+              }
             }}
-          // onBlur={confirmOrigin}
-          // readOnly
           />
           <button
             className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500"
@@ -263,11 +256,13 @@ const DirectionControls = forwardRef(({
             value={destinationInput}
             onFocus={() => setActiveField("destination")}
             onChange={(e) => setDestinationInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") confirmDestination();
+            onKeyDown={async (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const results = await fetchPlaces(destinationInput);
+                if (results.length > 0) selectDestination(results[0]);
+              }
             }}
-          // onBlur={confirmDestination}
-          // readOnly
           />
           <button
             className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500"

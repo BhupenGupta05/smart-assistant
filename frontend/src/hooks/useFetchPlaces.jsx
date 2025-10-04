@@ -18,7 +18,7 @@ export const useFetchPlaces = (inputVal, justSelectedRef) => {
         }
         const handler = setTimeout(async () => {
             try {
-                const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(inputValue)}`;
+                const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(inputVal)}`;
                 const { data } = await axios.get(url);
                 setResults(data);
             } catch (err) {
