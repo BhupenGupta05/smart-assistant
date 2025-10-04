@@ -35,6 +35,9 @@ const DirectionControls = forwardRef(({
   const originResults = useFetchPlaces(originInput, justSelectedOrigin);
   const destinationResults = useFetchPlaces(destinationInput, justSelectedDestination);
 
+  // TO DISTINGUISH BETWEEN IF ROUTE IS FETCHED USING PROMPT OR BEING SET MANUALLY
+  const fromchatbotRef = useRef(false);
+
 
   // Sync originInput when origin prop changes externally
   useEffect(() => {
@@ -111,6 +114,7 @@ const DirectionControls = forwardRef(({
   useImperativeHandle(ref, () => ({
     ready: true,
     searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
+      fromchatbotRef.current = true;
       if (!query && fallbackCurrentLocation) {
         const pos = fallbackCurrentLocation; // [lat, lng]
         const fakePlace = {
@@ -132,6 +136,7 @@ const DirectionControls = forwardRef(({
     },
 
     searchAndSetDestination: async (query) => {
+      fromchatbotRef.current = true;
       const results = await fetchPlaces(query);
       if (results.length > 0) {
         selectDestination(results[0]);
@@ -141,6 +146,7 @@ const DirectionControls = forwardRef(({
     },
 
     calculateDirections: async (mode = "driving") => {
+      fromchatbotRef.current = true;
       if (origin?.location && destination?.location) {
         await getDirections(origin.location, destination.location, [mode]);
       }
@@ -160,14 +166,32 @@ const DirectionControls = forwardRef(({
   );
 
   useEffect(() => {
-    if (origin?.location && destination?.location) {
-      console.log("🧭 ORIGIN object:", origin);
-      console.log("🧭 DESTINATION object:", destination);
-      console.log("🧭 ORIGIN location:", origin.location);
-      console.log("🧭 DESTINATION location:", destination.location);
-      getDirections(origin.location, destination.location);
+    if (!destination?.location) {
+      return;
+    }
+    if (!origin?.location) {
+      if (!fromchatbotRef?.current) {
+        alert("Please set a starting point (origin) to get directions.");
+      }
+      return;
+    }
+    getDirections(origin.location, destination.location);
+    // if (origin?.location && destination?.location) {
+    //   console.log("🧭 ORIGIN object:", origin);
+    //   console.log("🧭 DESTINATION object:", destination);
+    //   console.log("🧭 ORIGIN location:", origin.location);
+    //   console.log("🧭 DESTINATION location:", destination.location);
+    //   getDirections(origin.location, destination.location);
+    // }
+
+    
+
+    // reset chatbot flag after each run
+    if (fromchatbotRef.current) {
+      fromchatbotRef.current = false;
     }
   }, [origin, destination, getDirections]);
+
 
   const swapEnds = () => {
     setOrigin(destination);
@@ -225,11 +249,11 @@ const DirectionControls = forwardRef(({
 
           {/* Origin results dropdown */}
           {activeField === "origin" && originResults.length > 0 && (
-            <ul className="absolute top-full left-0 right-0 bg-white shadow-md max-h-60 overflow-auto rounded-md z-[2000] mt-1">
+            <div className="absolute top-full left-0 right-0 bg-white overflow-auto z-[2000] rounded mt-1 max-h-60 overflow-y-auto shadow-md">
               {originResults.map((place) => (
-                <li
+                <div
                   key={place.place_id || place.id}
-                  className="p-2 cursor-pointer hover:bg-gray-100"
+                  className="p-2 font-medium cursor-pointer hover:bg-slate-300 text-sm border-slate-200 border-[1px]"
                   onMouseDown={(e) => {
                     e.preventDefault(); // <- prevents input blur
                     selectOrigin(place);
@@ -237,9 +261,9 @@ const DirectionControls = forwardRef(({
                   }}
                 >
                   {place.name || place.address}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
@@ -274,11 +298,11 @@ const DirectionControls = forwardRef(({
 
           {/* Destination results dropdown */}
           {activeField === "destination" && destinationResults.length > 0 && (
-            <ul className="absolute top-full left-0 right-0 bg-white shadow-md max-h-60 overflow-auto rounded-md z-[2000] mt-1">
+            <div className="absolute top-full left-0 right-0 bg-white overflow-auto z-[2000] rounded mt-1 max-h-60 overflow-y-auto shadow-md">
               {destinationResults.map((place) => (
-                <li
+                <div
                   key={place.place_id || place.id}
-                  className="p-2 cursor-pointer hover:bg-gray-100"
+                  className="p-2 font-medium cursor-pointer hover:bg-slate-300 text-sm border-slate-200 border-[1px]"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     selectDestination(place);
@@ -286,9 +310,9 @@ const DirectionControls = forwardRef(({
                   }}
                 >
                   {place.name || place.address}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
