@@ -1,190 +1,426 @@
-import { useEffect, useRef } from 'react'
-import POIDetails from './POIDetails';
-import { normalize } from './MapControls';
+// import { useEffect, useRef } from 'react'
+// import POIDetails from './POIDetails';
+// import { normalize } from './MapControls';
 
-const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, setActivePOIId, selectedPlace, setSelectedPlace, activeIdx, setActiveIdx, origin, setOrigin, destination, setDestination, setMode, position, clearRoutes }) => {
-    if (!poiType) return null;
+// const POISidebar = ({ poiType, poiResults, poiLoading, poiError, activePOIId, setActivePOIId, selectedPlace, setSelectedPlace, activeIdx, setActiveIdx, origin, setOrigin, destination, setDestination, setMode, position, clearRoutes }) => {
+//     if (!poiType) return null;
 
-    const itemRefs = useRef({});
+//     const itemRefs = useRef({});
+
+//     // BUG FIX: CLICKING ON PLACE CRETED A SNAPPY EFFECT BECAUSE OF scrollIntoView
+//     // WHEN USER MANUALL SELECTS A PLACE IN SIDEBAR, scrollIntoView SHOULD NOT WORK
+//     const userClickedRef = useRef(false);
+
+//     useEffect(() => {
+//         if (selectedPlace && !userClickedRef.current) {
+//             const poiId = selectedPlace.place_id || poiResults.indexOf(selectedPlace);
+//             const currentItem = itemRefs.current[poiId];
+
+//             if (currentItem) {
+//                 currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+//             }
+//         }
+//         // RESET FLAG
+//         userClickedRef.current = false;
+//     }, [selectedPlace, poiResults]);
+
+
+//     // Same function as in SearchControls
+//     const startDirectionsWith = (place) => {
+//         if(clearRoutes) clearRoutes();
+
+//         const destinationPlace = normalize(place);
+
+//         setDestination(destinationPlace);
+
+//         // Get current location as origin
+//         if (navigator.geolocation) {
+//             navigator.geolocation.getCurrentPosition(
+//                 (pos) => {
+//                     const currentLocation = {
+//                         name: "Current Location",
+//                         address: "Your current location",
+//                         location: [pos.coords.latitude, pos.coords.longitude],
+//                         lat: pos.coords.latitude,
+//                         lng: pos.coords.longitude,
+//                     };
+//                     setOrigin(currentLocation);
+//                 },
+//                 (err) => {
+//                     console.warn("⚠️ Failed to fetch current location:", err);
+//                     // Fallback to position prop if geolocation fails
+//                     if (position) {
+//                         setOrigin({
+//                             name: "Current Location",
+//                             address: "Your current location",
+//                             location: position,
+//                             lat: position[0],
+//                             lng: position[1],
+//                         });
+//                     }
+//                 }
+//             );
+//         }
+
+//         setMode("directions");
+//         setSelectedPlace(null);
+//     };
+
+//     if (selectedPlace) {
+//         return (
+//             <POIDetails
+//                 place={selectedPlace}
+//                 onBack={() => setSelectedPlace(null)}
+//                 onDirections={() => startDirectionsWith(selectedPlace)} />
+//         )
+//     }
+
+//     return (
+//         <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[35%] overflow-y-auto p-4 shadow-xl border-t rounded-t-lg'>
+//             <h2 className="text-lg font-semibold mb-3">Nearby Places</h2>
+
+//             {poiLoading && <p className="text-gray-500">Loading nearby places...</p>}
+//             {poiError && !poiLoading && <p className="text-red-500 mb-2">{poiError}</p>}
+//             {!poiError && !poiLoading && poiResults.length === 0 && <p>No places found.</p>}
+
+//             <ul className="space-y-3">
+//                 {poiResults.map((place, idx) => {
+//                     const poiId = place.place_id || idx;
+//                     const isActive = activePOIId === poiId;
+
+//                     // console.log(place.photos);
+
+
+//                     return (
+//                         <div
+//                             key={poiId}
+//                             ref={(ele) => (itemRefs.current[poiId] = ele)}
+//                             className={`flex flex-col sm:flex-row gap-3 border rounded-lg p-3 shadow-sm cursor-pointer transition-all duration-200 ${isActive ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50'
+//                                 }`}
+//                             onMouseEnter={() => setActivePOIId(poiId)}
+//                             onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
+//                             onClick={() => {
+//                                 userClickedRef.current = true;
+//                                 setSelectedPlace(place);
+//                                 setActivePOIId(poiId);
+//                             }}
+//                         >
+//                             {/* Image */}
+
+//                             {place.photos?.length > 0 ? (
+//                                 <img
+//                                     src={`http://localhost:5173/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
+//                                     alt={place.name}
+//                                     className="w-24 h-24 object-cover rounded-md border"
+//                                 />
+//                             ) : (
+//                                 <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-md text-xs text-gray-500">
+//                                     No Image
+//                                 </div>
+//                             )}
+
+//                             {/* Info */}
+//                             <div className="flex flex-col justify-between flex-1">
+//                                 <div>
+//                                     <p className="text-base font-semibold">{place.name}</p>
+//                                     {/* <p className="text-xs text-gray-500">{place.vicinity || place.address}</p> */}
+
+//                                     <div className="flex items-center gap-2 text-xs mt-1">
+//                                         <span>{place.rating} ⭐</span>
+//                                         <span>({place.user_ratings_total})</span>
+//                                         <span
+//                                             className={`font-semibold ${place.opening_hours ? 'text-green-600' : 'text-red-600'
+//                                                 }`}
+//                                         >
+//                                             {place.opening_hours
+//                                                 ? 'Open'
+//                                                 : 'Closed'}
+//                                         </span>
+//                                     </div>
+//                                 </div>
+
+//                                 {/* Utility Buttons */}
+//                                 <div className="flex gap-3 mt-2">
+//                                     <button 
+//                                     onClick={(e) => {
+//                                         e.stopPropagation();
+//                                         startDirectionsWith(place);
+//                                     }} 
+//                                     className='text-blue-600 text-xs underline'>
+//                                         Directions
+//                                     </button>
+//                                     {/* <a
+//                                         href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+//                                             place.name
+//                                         )}&destination_place_id=${place.place_id}`}
+//                                         target="_blank"
+//                                         rel="noopener noreferrer"
+//                                         className="text-blue-600 text-xs underline"
+//                                     >
+//                                         Directions
+//                                     </a> */}
+//                                     {place.website && (
+//                                         <a
+//                                             href={place.website}
+//                                             target="_blank"
+//                                             rel="noopener noreferrer"
+//                                             className="text-blue-600 text-xs underline"
+//                                         >
+//                                             Website
+//                                         </a>
+//                                     )}
+//                                     {place.formatted_phone_number && (
+//                                         <a
+//                                             href={`tel:${place.formatted_phone_number}`}
+//                                             className="text-blue-600 text-xs underline"
+//                                         >
+//                                             Call
+//                                         </a>
+//                                     )}
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     );
+//                 })}
+//             </ul>
+//         </div>
+//     )
+// }
+
+// export default POISidebar
+
+// CODE WITH STICKY HEADER AND BETTER UI
+
+import { useEffect, useRef, useState } from "react";
+import POIDetails from "./POIDetails";
+import { normalize } from "./MapControls";
+
+const POISidebar = ({
+  poiType,
+  poiResults,
+  poiLoading,
+  poiError,
+  activePOIId,
+  setActivePOIId,
+  selectedPlace,
+  setSelectedPlace,
+  activeIdx,
+  setActiveIdx,
+  origin,
+  setOrigin,
+  destination,
+  setDestination,
+  setMode,
+  position,
+  clearRoutes,
+}) => {
+  if (!poiType) return null;
+
+  const itemRefs = useRef({});
 
     // BUG FIX: CLICKING ON PLACE CRETED A SNAPPY EFFECT BECAUSE OF scrollIntoView
     // WHEN USER MANUALL SELECTS A PLACE IN SIDEBAR, scrollIntoView SHOULD NOT WORK
-    const userClickedRef = useRef(false);
+  const userClickedRef = useRef(false);
+  const containerRef = useRef(null); // HIDE DIVIDER ON TOP
+  const [showDivider, setShowDivider] = useState(false);
 
-    useEffect(() => {
-        if (selectedPlace && !userClickedRef.current) {
-            const poiId = selectedPlace.place_id || poiResults.indexOf(selectedPlace);
-            const currentItem = itemRefs.current[poiId];
+  // Scroll detection for header border
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-            if (currentItem) {
-                currentItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-        // RESET FLAG
-        userClickedRef.current = false;
-    }, [selectedPlace, poiResults]);
-
-
-    // Same function as in SearchControls
-    const startDirectionsWith = (place) => {
-        if(clearRoutes) clearRoutes();
-
-        const destinationPlace = normalize(place);
-
-        setDestination(destinationPlace);
-
-        // Get current location as origin
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const currentLocation = {
-                        name: "Current Location",
-                        address: "Your current location",
-                        location: [pos.coords.latitude, pos.coords.longitude],
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                    };
-                    setOrigin(currentLocation);
-                },
-                (err) => {
-                    console.warn("⚠️ Failed to fetch current location:", err);
-                    // Fallback to position prop if geolocation fails
-                    if (position) {
-                        setOrigin({
-                            name: "Current Location",
-                            address: "Your current location",
-                            location: position,
-                            lat: position[0],
-                            lng: position[1],
-                        });
-                    }
-                }
-            );
-        }
-
-        setMode("directions");
-        setSelectedPlace(null);
+    const handleScroll = () => {
+      setShowDivider(container.scrollTop > 8);
     };
 
-    if (selectedPlace) {
-        return (
-            <POIDetails
-                place={selectedPlace}
-                onBack={() => setSelectedPlace(null)}
-                onDirections={() => startDirectionsWith(selectedPlace)} />
-        )
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (selectedPlace && !userClickedRef.current) {
+      const poiId = selectedPlace.place_id || poiResults.indexOf(selectedPlace);
+      const currentItem = itemRefs.current[poiId];
+      if (currentItem) {
+        currentItem.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
 
+    // RESET FLAG
+    userClickedRef.current = false;
+  }, [selectedPlace, poiResults]);
+
+  const startDirectionsWith = (place) => {
+    if (clearRoutes) clearRoutes();
+
+    const destinationPlace = normalize(place);
+    setDestination(destinationPlace);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentLocation = {
+            name: "Current Location",
+            address: "Your current location",
+            location: [pos.coords.latitude, pos.coords.longitude],
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setOrigin(currentLocation);
+        },
+        (err) => {
+          console.warn("⚠️ Failed to fetch current location:", err);
+          if (position) {
+            setOrigin({
+              name: "Current Location",
+              address: "Your current location",
+              location: position,
+              lat: position[0],
+              lng: position[1],
+            });
+          }
+        }
+      );
+    }
+
+    setMode("directions");
+    setSelectedPlace(null);
+  };
+
+  if (selectedPlace) {
     return (
-        <div className='absolute bottom-0 left-0 right-0 z-10 bg-white max-h-[35%] overflow-y-auto p-4 shadow-xl border-t rounded-t-lg'>
-            <h2 className="text-lg font-semibold mb-3">Nearby Places</h2>
+      <POIDetails
+        place={selectedPlace}
+        onBack={() => setSelectedPlace(null)}
+        onDirections={() => startDirectionsWith(selectedPlace)}
+      />
+    );
+  }
 
-            {poiLoading && <p className="text-gray-500">Loading nearby places...</p>}
-            {poiError && !poiLoading && <p className="text-red-500 mb-2">{poiError}</p>}
-            {!poiError && !poiLoading && poiResults.length === 0 && <p>No places found.</p>}
+  return (
+    <div
+      ref={containerRef}
+      className="absolute bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-t-2xl shadow-xl max-h-[40%] overflow-y-auto transition-all duration-300"
+    >
+      {/* Header */}
+      <div
+        className={`sticky top-0 bg-white/90 backdrop-blur-md p-4 transition-all duration-300 ${
+          showDivider ? "border-b border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" : "border-none shadow-none"
+        }`}
+      >
+        <h2 className="text-lg font-semibold text-gray-800">
+          Nearby {poiType?.charAt(0).toUpperCase() + poiType?.slice(1)}
+        </h2>
+      </div>
 
-            <ul className="space-y-3">
-                {poiResults.map((place, idx) => {
-                    const poiId = place.place_id || idx;
-                    const isActive = activePOIId === poiId;
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        {poiLoading && <p className="text-gray-500 text-sm">Loading nearby places...</p>}
+        {poiError && !poiLoading && (
+          <p className="text-red-500 text-sm mb-2">{poiError}</p>
+        )}
+        {!poiError && !poiLoading && poiResults.length === 0 && (
+          <p className="text-gray-500 text-sm">No places found nearby.</p>
+        )}
 
-                    // console.log(place.photos);
+        <ul className="space-y-3">
+          {poiResults.map((place, idx) => {
+            const poiId = place.place_id || idx;
+            const isActive = activePOIId === poiId;
 
+            return (
+              <li
+                key={poiId}
+                ref={(el) => (itemRefs.current[poiId] = el)}
+                className={`flex flex-col sm:flex-row gap-3 border rounded-xl p-3 shadow-sm cursor-pointer transition-all duration-300 ${
+                  isActive
+                    ? "bg-blue-50 border-blue-400 shadow-md"
+                    : "hover:bg-gray-50"
+                }`}
+                onMouseEnter={() => setActivePOIId(poiId)}
+                onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
+                onClick={() => {
+                  userClickedRef.current = true;
+                  setSelectedPlace(place);
+                  setActivePOIId(poiId);
+                }}
+              >
+                {/* Image */}
+                {place.photos?.length > 0 ? (
+                  <img
+                    src={`http://localhost:5173/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
+                    alt={place.name}
+                    className="w-24 h-24 object-cover rounded-lg border"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-lg text-xs text-gray-500">
+                    No Image
+                  </div>
+                )}
 
-                    return (
-                        <div
-                            key={poiId}
-                            ref={(ele) => (itemRefs.current[poiId] = ele)}
-                            className={`flex flex-col sm:flex-row gap-3 border rounded-lg p-3 shadow-sm cursor-pointer transition-all duration-200 ${isActive ? 'bg-blue-50 border-blue-500' : 'hover:bg-gray-50'
-                                }`}
-                            onMouseEnter={() => setActivePOIId(poiId)}
-                            onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
-                            onClick={() => {
-                                userClickedRef.current = true;
-                                setSelectedPlace(place);
-                                setActivePOIId(poiId);
-                            }}
-                        >
-                            {/* Image */}
+                {/* Info */}
+                <div className="flex flex-col justify-between flex-1">
+                  <div>
+                    <p className="text-base font-semibold text-gray-800 truncate">
+                      {place.name}
+                    </p>
 
-                            {place.photos?.length > 0 ? (
-                                <img
-                                    src={`http://localhost:5173/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
-                                    alt={place.name}
-                                    className="w-24 h-24 object-cover rounded-md border"
-                                />
-                            ) : (
-                                <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-md text-xs text-gray-500">
-                                    No Image
-                                </div>
-                            )}
+                    <div className="flex items-center flex-wrap gap-2 text-xs mt-1 text-gray-600">
+                      {place.rating && (
+                        <span className="font-medium">{place.rating} ⭐</span>
+                      )}
+                      {place.user_ratings_total && (
+                        <span>({place.user_ratings_total})</span>
+                      )}
+                      <span
+                        className={`font-semibold ${
+                          place.opening_hours ? "text-green-600" : "text-red-500"
+                        }`}
+                      >
+                        {place.opening_hours ? "Open" : "Closed"}
+                      </span>
+                    </div>
+                  </div>
 
-                            {/* Info */}
-                            <div className="flex flex-col justify-between flex-1">
-                                <div>
-                                    <p className="text-base font-semibold">{place.name}</p>
-                                    {/* <p className="text-xs text-gray-500">{place.vicinity || place.address}</p> */}
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startDirectionsWith(place);
+                      }}
+                      className="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition"
+                    >
+                      Directions
+                    </button>
+                    {place.website && (
+                      <a
+                        href={place.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full hover:bg-purple-100 transition"
+                      >
+                        Website
+                      </a>
+                    )}
+                    {place.formatted_phone_number && (
+                      <a
+                        href={`tel:${place.formatted_phone_number}`}
+                        className="px-2 py-1 text-xs font-medium text-green-600 bg-green-50 rounded-full hover:bg-green-100 transition"
+                      >
+                        Call
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
-                                    <div className="flex items-center gap-2 text-xs mt-1">
-                                        <span>{place.rating} ⭐</span>
-                                        <span>({place.user_ratings_total})</span>
-                                        <span
-                                            className={`font-semibold ${place.opening_hours ? 'text-green-600' : 'text-red-600'
-                                                }`}
-                                        >
-                                            {place.opening_hours
-                                                ? 'Open'
-                                                : 'Closed'}
-                                        </span>
-                                    </div>
-                                </div>
+export default POISidebar;
 
-                                {/* Utility Buttons */}
-                                <div className="flex gap-3 mt-2">
-                                    <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        startDirectionsWith(place);
-                                    }} 
-                                    className='text-blue-600 text-xs underline'>
-                                        Directions
-                                    </button>
-                                    {/* <a
-                                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-                                            place.name
-                                        )}&destination_place_id=${place.place_id}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 text-xs underline"
-                                    >
-                                        Directions
-                                    </a> */}
-                                    {place.website && (
-                                        <a
-                                            href={place.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 text-xs underline"
-                                        >
-                                            Website
-                                        </a>
-                                    )}
-                                    {place.formatted_phone_number && (
-                                        <a
-                                            href={`tel:${place.formatted_phone_number}`}
-                                            className="text-blue-600 text-xs underline"
-                                        >
-                                            Call
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </ul>
-        </div>
-    )
-}
-
-export default POISidebar

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useAssistant } from '../hooks/useAssistant';
-import { useDirections } from '../hooks/useDirections';
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([
@@ -82,6 +81,8 @@ const Chatbot = () => {
                             return;
                         }
 
+
+
                         // const first = data.results[0];
 
                         // ✅ Backend already flattens lat/lng
@@ -116,7 +117,7 @@ const Chatbot = () => {
 
 
                         setPoiResults(places);
-
+                        setPoiType(args.type); // Change poi type according to prompt
                         setSelectedPlace(places[0]);
                         setPosition([places[0].lat, places[0].lng]);
 

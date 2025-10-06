@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const OpenAI = require('openai');
+const { aiRequestLimiter } = require('../middlewares/rateLimiter')
 
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -190,7 +191,7 @@ const tools = [
 
 ];
 
-router.post('/', async (req, res) => {
+router.post('/', aiRequestLimiter, async (req, res) => {
   const { messages } = req.body;
 
   if (!messages || !Array.isArray(messages)) {

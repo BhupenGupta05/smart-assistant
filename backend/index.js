@@ -6,6 +6,7 @@ const cors = require('cors');
 const chatRoute = require('./routes/chat');
 const poiRoute = require('./routes/searchPOIs');
 const directionsRoute = require('./routes/directions');
+const { requestLimiter } = require('./middlewares/rateLimiter');
 
 const app = express();
 // const server = require('http').createServer(app);
@@ -30,6 +31,8 @@ app.use(express.json());
 // app.get('/', (req, res) => {
 //     res.send('Welcome to the backend server!');
 // });
+
+app.use(requestLimiter);
 
 app.use('/api/chat', chatRoute);
 

@@ -64,7 +64,11 @@ router.get('/', async (req, res) => {
         res.json({ routes });
     } catch (error) {
         console.error("Directions error:", error);
-        res.status(500).json({ error: 'Internal server error' });
+        if (error.response?.status === 429) {
+            res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
+        } else {
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 })
 
