@@ -20,7 +20,7 @@ const POIDetails = ({ place, onBack, onDirections }) => {
           {place.photos.slice(0, 6).map((photo, idx) => (
             <img
               key={idx}
-              src={`http://localhost:5173/api/place-photo?photoRef=${photo.photo_reference}`}
+              src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${photo.photo_reference}`}
               alt={place.name}
               className="w-full mb-2 rounded-xl object-cover break-inside-avoid-column"
             />

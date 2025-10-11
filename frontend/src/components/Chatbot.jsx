@@ -11,8 +11,8 @@ const Chatbot = () => {
     const [loading, setLoading] = useState(false);
 
     const {
-        searchRef, 
-        directionsRef, 
+        searchRef,
+        directionsRef,
         setPosition,
         setSelectedPlace,
         setPoiType,
@@ -151,6 +151,8 @@ const Chatbot = () => {
         new Promise((resolve, reject) => {
             if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
 
+            console.log("Fetching current location...");
+            
             navigator.geolocation.getCurrentPosition(
                 (pos) => resolve({
                     name: "Current Location",
@@ -162,7 +164,8 @@ const Chatbot = () => {
                 (err) => reject(new Error("Failed to get current location")),
                 { enableHighAccuracy: true, timeout: 10000 }
             );
-    });
+            
+        });
 
     // --- Set Directions (controls origin & destination inputs) ---
     const setDirections = async ({ origin = 'current', destination }) => {
@@ -174,10 +177,14 @@ const Chatbot = () => {
 
         // If origin is current location, fetch coordinates for it and set ref's value
         if (origin.toLowerCase() === 'current location' || origin === "current") {
+            
             const pos = await getCurrentLocation();
+            
             success = await directionsRef.current.searchAndSetOrigin('', pos.location);
         } else {
+            
             success = await directionsRef.current.searchAndSetOrigin(origin);
+
         }
         if (!success) throw new Error('Failed to set origin');
 
@@ -189,7 +196,7 @@ const Chatbot = () => {
 
 
         dirRef.switchToDirectionsMode(); // SWITCH TO DIRETCIONS MODE
-        await dirRef.calculateDirections(mode); // CALCULATE ROUTE
+        await dirRef.calculateDirections(); // CALCULATE ROUTE
 
         return `✅ Directions set from ${origin} to ${destination.name || destination}`;
     };
@@ -223,7 +230,7 @@ const Chatbot = () => {
                 return await searchPoi(args);
 
             case 'set_directions':
-                console.log("FRONTEND: showRoute input:", args);
+                console.log("FRONTEND: setDestination input:", args);
                 return await setDirections({ origin: args.origin || 'current', destination: args.destination });
 
             default:
@@ -251,7 +258,7 @@ const Chatbot = () => {
         setLoading(true);
 
         try {
-            const { data } = await axios.post(`/api/chat`, { messages: newMessages });
+            const { data } = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/chat`, { messages: newMessages });
 
             console.log("FRONTEND: Received from backend:", JSON.stringify(data, null, 2));
 

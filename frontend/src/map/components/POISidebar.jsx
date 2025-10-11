@@ -348,7 +348,7 @@ const POISidebar = ({
                 {/* Image */}
                 {place.photos?.length > 0 ? (
                   <img
-                    src={`http://localhost:5173/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
+                    src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
                     alt={place.name}
                     className="w-24 h-24 object-cover rounded-lg border"
                   />

@@ -36,7 +36,7 @@ const DirectionControls = forwardRef(({
   const destinationResults = useFetchPlaces(destinationInput, justSelectedDestination);
 
   // TO DISTINGUISH BETWEEN IF ROUTE IS FETCHED USING PROMPT OR BEING SET MANUALLY
-  const fromchatbotRef = useRef(false);
+  // const fromchatbotRef = useRef(false);
 
 
   // Sync originInput when origin prop changes externally
@@ -114,7 +114,7 @@ const DirectionControls = forwardRef(({
   useImperativeHandle(ref, () => ({
     ready: true,
     searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
-      fromchatbotRef.current = true;
+      // fromchatbotRef.current = true;
       if (!query && fallbackCurrentLocation) {
         const pos = fallbackCurrentLocation; // [lat, lng]
         const fakePlace = {
@@ -136,7 +136,7 @@ const DirectionControls = forwardRef(({
     },
 
     searchAndSetDestination: async (query) => {
-      fromchatbotRef.current = true;
+      // fromchatbotRef.current = true;
       const results = await fetchPlaces(query);
       if (results.length > 0) {
         selectDestination(results[0]);
@@ -145,11 +145,17 @@ const DirectionControls = forwardRef(({
       return false;
     },
 
-    calculateDirections: async (mode = "driving") => {
-      fromchatbotRef.current = true;
+    calculateDirections: async () => {
       if (origin?.location && destination?.location) {
-        await getDirections(origin.location, destination.location, [mode]);
+        // Directly call getDirections for chatbot-triggered route
+        console.log("🤖 Chatbot-triggered route fetch");
+        await getDirections(origin.location, destination.location, mode="driving");
       }
+
+      // fromchatbotRef.current = true;
+
+      // console.log("REF CURRENT:", fromchatbotRef.current);
+      
     },
 
     // ✅ NEW: switch MapView to directions mode
@@ -166,16 +172,17 @@ const DirectionControls = forwardRef(({
   );
 
   useEffect(() => {
-    if (!destination?.location) {
-      return;
-    }
-    if (!origin?.location) {
-      if (!fromchatbotRef?.current) {
-        alert("Please set a starting point (origin) to get directions.");
-      }
-      return;
-    }
+    if (!origin?.location || !destination?.location) return;
+
+    // 🧠 Skip automatic fetch if it was triggered from chatbot
+    // if (fromchatbotRef.current) {
+    //   console.log("⏩ Skipping auto-fetch (chatbot flow)");
+    //   setTimeout(() => (fromchatbotRef.current = false), 200); // delay reset
+    //   return;
+    // }
+
     getDirections(origin.location, destination.location);
+
     // if (origin?.location && destination?.location) {
     //   console.log("🧭 ORIGIN object:", origin);
     //   console.log("🧭 DESTINATION object:", destination);
@@ -183,13 +190,6 @@ const DirectionControls = forwardRef(({
     //   console.log("🧭 DESTINATION location:", destination.location);
     //   getDirections(origin.location, destination.location);
     // }
-
-    
-
-    // reset chatbot flag after each run
-    if (fromchatbotRef.current) {
-      fromchatbotRef.current = false;
-    }
   }, [origin, destination, getDirections]);
 
 

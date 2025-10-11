@@ -14,9 +14,9 @@ const EMISSION_FACTORS = {
 
 router.get('/', async (req, res) => {
     try {
-        const { origin, destination, modes = "driving,walking,transit,bicycling" } = req.query;
+        const { origin, destination, modes = "driving,walking,transit" } = req.query;
 
-        if (!origin || !destination) {
+        if (!origin || !destination || origin === 'null,null') {
             return res.status(400).json({ error: 'Origin and destination are required' });
         }
 
