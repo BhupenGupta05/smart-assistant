@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import FlyToLocation from '../FlyToLocation'
-import Recenter from './Recenter'
 import POIMarker from './POIMarker'
 import "leaflet/dist/leaflet.css";
 import { userIcon, transitIcon, poiIcon, highlightedPoiIcon, smallIcon } from '../icons/markers'
@@ -151,25 +150,7 @@ const MapRenderer = ({
             {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
             <FlyToLocation />
 
-            {/* RECENTER BUTTON */} 
-            {(selectedPlace || poiType || position) && (
-                // <Recenter
-                //     mapRef={mapRef}
-                //     setPosition={setPosition}
-                //     setSelectedPlace={setSelectedPlace}
-                // />
-
-                // NOW, THIS ACCOMODATES CENTERING ROUTE ALSO
-                <Recenter
-                    mapRef={mapRef}
-                    mode={mode}
-                    routes={routes}
-                    selectedMode={selectedMode}
-                    setPosition={setPosition}
-                    setSelectedPlace={setSelectedPlace}
-                />
-
-            )}
+            
         </MapContainer>
     )
 }

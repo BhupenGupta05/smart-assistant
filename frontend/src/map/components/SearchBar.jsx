@@ -88,11 +88,11 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
     }));
 
     return (
-        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3 rounded-md'>
-            <div className='relative w-full'>
+        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[36%] sm:w-[33%] md:w-[30%] lg:w-[27%] rounded-md'>
+            <div className='relative w-full flex items-center'>
                 <input
                     type="text"
-                    className='w-full p-2 rounded bg-white shadow-md border-slate-200 text-sm focus:outline-none font-medium'
+                    className='w-full p-2 rounded bg-white shadow-md border-slate-200 text-xs focus:outline-none font-medium sm:text-sm md:text-base'
                     placeholder='Search...'
                     value={setQuery ? query : internalQuery}
                     onChange={(e) => {
@@ -110,7 +110,7 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
                 />
 
                 <button className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer'>
-                    <Search size={18} />
+                    <Search className='w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5' />
                 </button>
             </div>
 
@@ -119,7 +119,7 @@ const SearchBar = forwardRef(({ query = '', setQuery, setPosition, setSelectedPl
                     {results.map((place, idx) => (
                         <div
                             key={idx}
-                            className='p-2 font-medium cursor-pointer hover:bg-slate-300 text-sm border-slate-200 border-[1px]'
+                            className='p-2 font-medium cursor-pointer hover:bg-slate-300 text-xs sm:text-sm md:text-base border-slate-200 border-[1px]'
                             onMouseDown={() => handlePlaceSelect(place)}
                         >
                             📍 {place.address}

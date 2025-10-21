@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useAssistant } from '../hooks/useAssistant';
+import { MessagesSquare, X } from 'lucide-react';
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([
@@ -9,6 +10,26 @@ const Chatbot = () => {
 
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const chatRef = useRef(null);
+
+    // LOGIC TO HIDE CHATBOT ON MOBILE
+
+    // useEffect(() => {
+    //     const handleResize = () => {
+    //         if (window.innerWidth >= 768) {
+    //             setIsOpen(true);
+    //         } else {
+    //             setIsOpen(false);
+    //         }
+    //     };
+    //     handleResize();
+    //     window.addEventListener('resize', handleResize);
+    //     return () => window.removeEventListener('resize', handleResize);
+    // }, []);
+
+
+    const toggleChat = () => setIsOpen(!isOpen);
 
     const {
         searchRef,
@@ -24,6 +45,10 @@ const Chatbot = () => {
 
     // CONTROLLING SEARCH BAR USING CHATBOT PROMPT
     const moveToLocation = async (location) => {
+        // if(directionsRef.current?.switchToSearchMode) {
+        //     directionsRef.current.switchToSearchMode();
+        //      console.log("🧭 Switched to search mode before moving map");
+        // }
         if (location === 'current') {
             return new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(
@@ -152,7 +177,7 @@ const Chatbot = () => {
             if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
 
             console.log("Fetching current location...");
-            
+
             navigator.geolocation.getCurrentPosition(
                 (pos) => resolve({
                     name: "Current Location",
@@ -164,11 +189,11 @@ const Chatbot = () => {
                 (err) => reject(new Error("Failed to get current location")),
                 { enableHighAccuracy: true, timeout: 10000 }
             );
-            
+
         });
 
     // --- Set Directions (controls origin & destination inputs) ---
-    const setDirections = async ({ origin = 'current', destination }) => {
+    const setDirections = async ({ origin = 'current', destination, mode = 'driving' }) => {
         const dirRef = await waitForRef(directionsRef);
         if (!dirRef) throw new Error('Directions controls not ready');
         if (!destination) throw new Error('Destination is required');
@@ -177,12 +202,12 @@ const Chatbot = () => {
 
         // If origin is current location, fetch coordinates for it and set ref's value
         if (origin.toLowerCase() === 'current location' || origin === "current") {
-            
+
             const pos = await getCurrentLocation();
-            
+
             success = await directionsRef.current.searchAndSetOrigin('', pos.location);
         } else {
-            
+
             success = await directionsRef.current.searchAndSetOrigin(origin);
 
         }
@@ -204,19 +229,21 @@ const Chatbot = () => {
 
     const runTool = async (tool, lastUserMessage) => {
         console.log("Running tool:", tool.function.name, "with args:", tool.function.arguments);
-        const { name, arguments: argsJSON } = tool.function;
+        const { name: rawName, arguments: argsJSON } = tool.function;
         const args = JSON.parse(argsJSON);
+
+        let command = rawName;
 
         // FORCING CHATBOT IF "ROUTE" KEYWORD IS INCLUDED IN PROMPT, 
         // THEN RUN set_directions INSTEAD OF move_to_location
-        if (name === 'move_to_location' && lastUserMessage.toLowerCase().includes("route")) {
-            name = 'set_directions';
+        if (command === 'move_to_location' && lastUserMessage.toLowerCase().includes("route")) {
+            command = 'set_directions';
             args.destination = { name: args.location };
         }
 
         console.log("FRONTEND: Parsed args:", args);
 
-        switch (name) {
+        switch (command) {
             case 'move_to_location':
                 return await moveToLocation(args.location);
 
@@ -231,10 +258,10 @@ const Chatbot = () => {
 
             case 'set_directions':
                 console.log("FRONTEND: setDestination input:", args);
-                return await setDirections({ origin: args.origin || 'current', destination: args.destination });
+                return await setDirections({ origin: args.origin || 'current', destination: args.destination, mode: args.mode || 'driving' });
 
             default:
-                throw new Error(`Unknown command: ${name}`);
+                throw new Error(`Unknown command: ${command}`);
         }
     };
 
@@ -312,26 +339,51 @@ const Chatbot = () => {
     };
 
     return (
-        <div className='chatbot'>
-            <div className='chat-header'>🤖 Smart Assistant</div>
-            <div className="chat-messages">
-                {messages.map((msg, i) => (
-                    <div key={i} className={`message ${msg.role}`}>
-                        {msg.content}
+        <>
+            {/* Floating Button */}
+            {!isOpen && (
+                <button
+                    onClick={toggleChat}
+                    className="fixed bottom-5 right-5 z-[9999] bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition active:scale-95"
+                >
+                    <MessagesSquare className='w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600' />
+                </button>
+            )}
+
+            {/* IMPLEMENT ANIMATE SLIDE-DOWN */}
+
+            {isOpen && (
+                <div ref={chatRef} className='chatbot animate-slide-up z-[9999]'>
+                    <div className='chat-header flex justify-between items-center'>
+                        <span>🤖 Smart Assistant</span>
+                        <button
+                            onClick={toggleChat}
+                            className="text-white hover:text-gray-300 transition"
+                        >
+                            <X className='w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5' />
+                        </button>
                     </div>
-                ))}
-                {loading && <div className="message assistant">Thinking...</div>}
-            </div>
-            <input
-                type="text"
-                placeholder="Ask a question..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
-                className={`p-2 text-sm outline-none border-t-[1px] border-t-slate-300 ${loading ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
-            />
-        </div>
+                    <div className="chat-messages">
+                        {messages.map((msg, i) => (
+                            <div key={i} className={`message ${msg.role}`}>
+                                {msg.content}
+                            </div>
+                        ))}
+                        {loading && <div className="message assistant">Thinking...</div>}
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Ask a question..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        disabled={loading}
+                        className={`p-2 text-sm outline-none border-t-[1px] border-t-slate-300 ${loading ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
+                    />
+                </div>
+            )}
+        </>
+
     );
 };
 

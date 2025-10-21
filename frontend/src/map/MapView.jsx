@@ -8,6 +8,7 @@ import MapControls from './components/MapControls';
 import MapRenderer from './components/MapRenderer';
 import DirectionsPanel from '../components/DirectionsPanel';
 import { useDirections } from '../hooks/useDirections'
+import Recenter from './components/Recenter';
 
 
 const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef }) => {
@@ -137,6 +138,26 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         selectedMode={selectedMode}
                         setSelectedMode={setSelectedMode} />
                 </div>
+
+                {/* RECENTER BUTTON */}
+                {(selectedPlace || poiType || position) && (
+                    // <Recenter
+                    //     mapRef={mapRef}
+                    //     setPosition={setPosition}
+                    //     setSelectedPlace={setSelectedPlace}
+                    // />
+
+                    // NOW, THIS ACCOMODATES CENTERING ROUTE ALSO
+                    <Recenter
+                        mapRef={mapRef}
+                        mode={mode}
+                        routes={routes}
+                        selectedMode={selectedMode}
+                        setPosition={setPosition}
+                        setSelectedPlace={setSelectedPlace}
+                    />
+
+                )}
 
 
                 {/* POI SIDEBAR */}

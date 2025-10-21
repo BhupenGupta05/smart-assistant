@@ -300,7 +300,7 @@ const POISidebar = ({
   return (
     <div
       ref={containerRef}
-      className="absolute bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-t-2xl shadow-xl max-h-[40%] overflow-y-auto transition-all duration-300"
+      className="absolute bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-t-2xl shadow-xl max-h-[35%] overflow-y-auto transition-all duration-300"
     >
       {/* Header */}
       <div

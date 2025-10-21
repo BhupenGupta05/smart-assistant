@@ -33,9 +33,9 @@ const Recenter = ({ mapRef, mode, routes, selectedMode, setPosition, setSelected
         );
     }
     return (
-        <button className='absolute bottom-48 right-5 z-[1000] bg-white p-2 rounded-full shadow-md border hover:bg-gray-100 transition'
+        <button className='absolute bottom-48 right-5 z-[9999] bg-white p-1 sm:p-[6px] md:p-2 rounded-full shadow-md border hover:bg-gray-100 transition cursor-pointer active:scale-95'
             onClick={handleRecenter}>
-            <Locate size={20} className='text-blue-600' />
+            <Locate className='w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600' />
         </button>
     )
 }
