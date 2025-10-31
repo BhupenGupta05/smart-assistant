@@ -106,6 +106,7 @@ const MapRenderer = ({
                 />
             )}
 
+
             {/* SELECTED LOCATION */}
             {mode === "search" && selectedPlace && selectedLat != null && selectedLng != null && (
                 <Marker position={[selectedLat, selectedLng]} icon={userIcon}>
@@ -147,10 +148,11 @@ const MapRenderer = ({
             {/* NEARBY POIs */}
             {mode === "search" && memoizedPOIMarkers}
 
+
             {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
             <FlyToLocation />
 
-            
+
         </MapContainer>
     )
 }

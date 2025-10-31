@@ -10,8 +10,7 @@ const App = () => {
   const { position, setPosition, selectedPlace, setSelectedPlace } = useGeolocation();
   const { poiResults, setPoiResults, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
   const [showTransitLayer, setShowTransitLayer] = useState(false); // Show Transit Layer only for transit_station poiType
-
-
+  
   const searchRef = useRef(); // Reference to Search input instance
   const directionsRef = useRef(); // Reference to Origin/Destination input instance
 

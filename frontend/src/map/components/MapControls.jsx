@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import SearchControls from "../controls/SearchControls";
 import DirectionControls from "../controls/DirectionControls";
 import POICategory from "./POICategory";
+import Chatbot from "../../components/Chatbot";
 
 // Helper function to normalize place data from various formats
 export const normalize = (place) => {
@@ -114,7 +115,7 @@ const MapControls = ({
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef} />
 
-                    {/* 🏷️ POI CATEGORIES */} 
+                    {/* 🏷️ POI CATEGORIES */}
                     {/* SUBTLE BUG ---- NEED TO FIX IT */}
                     <POICategory poiType={poiType} setPoiType={setShowTransitLayer ? setPoiType : setPoiType} clearPOIs={clearPOIs} refetchPOIs={refetchPOIs} />
                 </>
@@ -141,6 +142,10 @@ const MapControls = ({
                     clearRoutes={clearRoutes}
                     ref={directionsRef}
                 />
+            </div>
+
+            <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
+                <Chatbot />
             </div>
         </>
     )

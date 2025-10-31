@@ -67,8 +67,8 @@ const SearchControls = ({
         setPosition={setPosition}
         setSelectedPlace={setSelectedPlace}
       />
-      
-     
+
+
 
       {/* DETAILS BOTTOM BAR */}
       {selectedPlace && (
@@ -81,9 +81,9 @@ const SearchControls = ({
       )}
 
       {/* Chatbot - bottom right corner */}
-      <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
+      {/* <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
         <Chatbot />
-      </div>
+      </div> */}
 
       {/* AQI INDICATOR USING USEAQI HOOK */}
       {!aqiLoading && aqi && (
@@ -99,11 +99,12 @@ const SearchControls = ({
       {poiType === 'transit_station' && (
         <button
           onClick={() => setShowTransitLayer(!showTransitLayer)}
-          className="absolute top-[130px] right-4 z-[1000] bg-white px-4 py-2 rounded-full shadow-md border text-sm font-medium hover:bg-gray-100 transition"
+          className="absolute top-[130px] right-4 z-[1000] bg-white px-3 py-1 rounded-full shadow-md border text-xs md:text-sm font-medium hover:bg-gray-100 transition"
         >
           {showTransitLayer ? "Hide Transit" : "Show Transit"}
         </button>
       )}
+
     </>
   )
 }

@@ -337,9 +337,9 @@ const DirectionControls = forwardRef(({
         </div>
       </div>
       {/* Chatbot - bottom right corner */}
-      <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
+      {/* <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
         <Chatbot />
-      </div>
+      </div> */}
     </>
 
   );

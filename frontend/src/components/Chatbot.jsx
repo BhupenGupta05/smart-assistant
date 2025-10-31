@@ -13,21 +13,6 @@ const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const chatRef = useRef(null);
 
-    // LOGIC TO HIDE CHATBOT ON MOBILE
-
-    // useEffect(() => {
-    //     const handleResize = () => {
-    //         if (window.innerWidth >= 768) {
-    //             setIsOpen(true);
-    //         } else {
-    //             setIsOpen(false);
-    //         }
-    //     };
-    //     handleResize();
-    //     window.addEventListener('resize', handleResize);
-    //     return () => window.removeEventListener('resize', handleResize);
-    // }, []);
-
 
     const toggleChat = () => setIsOpen(!isOpen);
 
