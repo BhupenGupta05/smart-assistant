@@ -7,6 +7,8 @@ import { useFetchPlaces } from "../../hooks/useFetchPlaces";
 const DEBOUNCE_DELAY = 300;
 
 const DirectionControls = forwardRef(({
+  query,
+  setQuery,
   origin,
   setOrigin,
   destination,
@@ -139,6 +141,7 @@ const DirectionControls = forwardRef(({
     searchAndSetDestination: async (query) => {
       // fromchatbotRef.current = true;
       const results = await fetchPlaces(query);
+
       if (results.length > 0) {
         selectDestination(results[0]);
         return true;
@@ -164,9 +167,44 @@ const DirectionControls = forwardRef(({
       if (setMode) setMode("directions");
     },
 
-    // switchToSearchMode: () => {
-    //   if(setMode) setMode("search");
-    // }
+    switchToSearchMode: () => {
+      if (setMode) setMode("search");
+
+      if (clearRoutes) clearRoutes();
+      setOrigin(null);
+      setDestination(null);
+      setOriginInput("");
+      setDestinationInput("");
+
+      // Clear active selection and markers
+      setSelectedPlace(null);
+
+      // Optionally reset focused input
+      setActiveField(null);
+
+      console.log("🧹 Cleared routes, markers, and inputs");
+    },
+
+    searchLocation: async (location) => {
+      try {
+        const results = await fetchPlaces(location);
+        console.log("RESULT: ", results);
+
+        if (results.length === 0) return false;
+
+        const place = results[0];
+        setSelectedPlace(place);
+        setPosition([place.lat, place.lng]);
+
+        if (setQuery) setQuery(place.address);
+
+        return true;
+      } catch (err) {
+        console.error("Failed to search and select:", err);
+        return false;
+      }
+
+    }
   }));
 
 

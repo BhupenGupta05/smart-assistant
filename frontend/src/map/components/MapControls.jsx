@@ -99,6 +99,8 @@ const MapControls = ({
             {mode === "search" && (
                 <>
                     <SearchControls
+                        query={query}
+                        setQuery={setQuery}
                         setOrigin={setOrigin}
                         setPosition={setPosition}
                         selectedPlace={selectedPlace}
@@ -125,6 +127,8 @@ const MapControls = ({
             {/* ALWAYS MOUNT IT */}
             <div style={{ display: mode === "search" ? "none" : "block" }}>
                 <DirectionControls
+                    query={query}
+                    setQuery={setQuery}
                     origin={origin}
                     setOrigin={setOrigin}
                     destination={destination}

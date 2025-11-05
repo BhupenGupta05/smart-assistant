@@ -7,6 +7,8 @@ import "leaflet/dist/leaflet.css"
 
 
 const SearchControls = ({
+  query,
+  setQuery,
   setOrigin,
   setPosition,
   selectedPlace,
@@ -62,8 +64,8 @@ const SearchControls = ({
     <>
       <SearchBar
         ref={searchRef}
-        // query={query}
-        // setQuery={setQuery}
+        query={query}
+        setQuery={setQuery}
         setPosition={setPosition}
         setSelectedPlace={setSelectedPlace}
       />

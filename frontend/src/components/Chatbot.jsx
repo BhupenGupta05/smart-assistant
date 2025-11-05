@@ -30,11 +30,13 @@ const Chatbot = () => {
 
     // CONTROLLING SEARCH BAR USING CHATBOT PROMPT
     const moveToLocation = async (location) => {
-        // if(directionsRef.current?.switchToSearchMode) {
-        //     directionsRef.current.switchToSearchMode();
-        //      console.log("🧭 Switched to search mode before moving map");
-        // }
+        if(directionsRef.current?.switchToSearchMode) {
+            directionsRef.current.switchToSearchMode();
+             console.log("🧭 Switched to search mode before moving map");
+        }
         if (location === 'current') {
+            console.log("🧭 Moving to current location via chatbot");
+            
             return new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
@@ -47,7 +49,16 @@ const Chatbot = () => {
                 );
             });
         } else {
-            const success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
+            let success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
+
+            if(!success && directionsRef.current?.switchToSearchMode) {
+                console.log("Inside directionsref");
+                
+                success = await directionsRef.current.searchLocation(location);
+            }
+            console.log(success);
+            
+            // const success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
             if (!success) throw new Error(`Could not find location: "${location}". Try a more specific address.`);
             return `Successfully moved to ${location}`;
         }
