@@ -218,8 +218,8 @@ const POISidebar = ({
 
   const itemRefs = useRef({});
 
-    // BUG FIX: CLICKING ON PLACE CRETED A SNAPPY EFFECT BECAUSE OF scrollIntoView
-    // WHEN USER MANUALL SELECTS A PLACE IN SIDEBAR, scrollIntoView SHOULD NOT WORK
+  // BUG FIX: CLICKING ON PLACE CRETED A SNAPPY EFFECT BECAUSE OF scrollIntoView
+  // WHEN USER MANUALL SELECTS A PLACE IN SIDEBAR, scrollIntoView SHOULD NOT WORK
   const userClickedRef = useRef(false);
   const containerRef = useRef(null); // HIDE DIVIDER ON TOP
   const [showDivider, setShowDivider] = useState(false);
@@ -304,9 +304,8 @@ const POISidebar = ({
     >
       {/* Header */}
       <div
-        className={`sticky top-0 bg-white/90 backdrop-blur-md p-4 transition-all duration-300 ${
-          showDivider ? "border-b border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" : "border-none shadow-none"
-        }`}
+        className={`sticky top-0 bg-white/90 backdrop-blur-md p-4 transition-all duration-300 ${showDivider ? "border-b border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" : "border-none shadow-none"
+          }`}
       >
         <h2 className="text-lg font-semibold text-gray-800">
           Nearby {poiType?.charAt(0).toUpperCase() + poiType?.slice(1)}
@@ -332,11 +331,10 @@ const POISidebar = ({
               <li
                 key={poiId}
                 ref={(el) => (itemRefs.current[poiId] = el)}
-                className={`flex flex-col sm:flex-row gap-3 border rounded-xl p-3 shadow-sm cursor-pointer transition-all duration-300 ${
-                  isActive
+                className={`flex flex-col sm:flex-row gap-3 border rounded-xl p-3 shadow-sm cursor-pointer transition-all duration-300 ${isActive
                     ? "bg-blue-50 border-blue-400 shadow-md"
                     : "hover:bg-gray-50"
-                }`}
+                  }`}
                 onMouseEnter={() => setActivePOIId(poiId)}
                 onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
                 onClick={() => {
@@ -348,9 +346,12 @@ const POISidebar = ({
                 {/* Image */}
                 {place.photos?.length > 0 ? (
                   <img
+                    key={idx}
                     src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
                     alt={place.name}
-                    className="w-24 h-24 object-cover rounded-lg border"
+                    loading="lazy"
+                    onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
+                    className="w-24 h-24 object-cover rounded-lg border transition-opacity duration-700 ease-in-out"
                   />
                 ) : (
                   <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-lg text-xs text-gray-500">
@@ -359,7 +360,7 @@ const POISidebar = ({
                 )}
 
                 {/* Info */}
-                <div className="flex flex-col justify-between flex-1">
+                {place.user_ratings_total !== 'NA' && (<div className="flex flex-col justify-between flex-1">
                   <div>
                     <p className="text-base font-semibold text-gray-800 truncate">
                       {place.name}
@@ -373,9 +374,8 @@ const POISidebar = ({
                         <span>({place.user_ratings_total})</span>
                       )}
                       <span
-                        className={`font-semibold ${
-                          place.opening_hours ? "text-green-600" : "text-red-500"
-                        }`}
+                        className={`font-semibold ${place.opening_hours ? "text-green-600" : "text-red-500"
+                          }`}
                       >
                         {place.opening_hours ? "Open" : "Closed"}
                       </span>
@@ -412,7 +412,7 @@ const POISidebar = ({
                       </a>
                     )}
                   </div>
-                </div>
+                </div>)}
               </li>
             );
           })}

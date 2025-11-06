@@ -4,6 +4,9 @@ import { Navigation, Bookmark, Share2 } from "lucide-react";
 const POIDetails = ({ place, onBack, onDirections }) => {
   if (!place) return null;
 
+  // console.log("PLACE: ", place);
+
+
   return (
     <div className="bg-white h-full overflow-y-auto p-5 rounded-2xl shadow-sm">
       {/* Back Button */}
@@ -22,7 +25,9 @@ const POIDetails = ({ place, onBack, onDirections }) => {
               key={idx}
               src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${photo.photo_reference}`}
               alt={place.name}
-              className="w-full mb-2 rounded-xl object-cover break-inside-avoid-column"
+              loading="lazy"
+              onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
+              className="w-full mb-2 rounded-xl object-cover break-inside-avoid-column transition-opacity duration-700 ease-in-out"
             />
           ))}
         </div>
@@ -43,7 +48,7 @@ const POIDetails = ({ place, onBack, onDirections }) => {
       </div>
 
       {/* Ratings and Status */}
-      <div className="flex items-center gap-3 text-sm text-gray-700 mb-5">
+      {place.user_ratings_total !== 'NA' && (<div className="flex items-center gap-3 text-sm text-gray-700 mb-5">
         {place.rating && (
           <span className="font-medium">{place.rating} ⭐</span>
         )}
@@ -54,26 +59,38 @@ const POIDetails = ({ place, onBack, onDirections }) => {
         )}
         {place.opening_hours && (
           <span
-            className={`font-medium ${
-              place.opening_hours.open_now
-                ? "text-green-600"
-                : "text-red-500"
-            }`}
+            className={`font-medium ${place.opening_hours.open_now
+              ? "text-green-600"
+              : "text-red-500"
+              }`}
           >
             {place.opening_hours.open_now ? "Open now" : "Closed"}
           </span>
         )}
-      </div>
+      </div>)}
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => onDirections(normalize(place))}
+          title="Get directions to this place"
           className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition"
         >
           <Navigation size={14} />
           Directions
         </button>
+
+        {/* <div className="relative group">
+          <button
+            onClick={() => onDirections(normalize(place))}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition"
+          >
+            <Navigation size={14} />
+          </button>
+          <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+            Get directions
+          </span>
+        </div> */}
 
         {place.website && (
           <a
@@ -105,6 +122,8 @@ const POIDetails = ({ place, onBack, onDirections }) => {
           Share
         </button>
       </div>
+
+
     </div>
   );
 };
