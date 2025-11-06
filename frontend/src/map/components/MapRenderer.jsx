@@ -5,6 +5,8 @@ import POIMarker from './POIMarker'
 import "leaflet/dist/leaflet.css";
 import { userIcon, transitIcon, poiIcon, highlightedPoiIcon, smallIcon } from '../icons/markers'
 import DirectionsLayer from '../../components/DirectionsLayer'
+import MarkerClusterGroup from 'react-leaflet-cluster';
+import { createClusterCustomIcon } from '../utils/CustomClusterIcon';
 
 const MapRenderer = ({
     mapRef,
@@ -146,7 +148,17 @@ const MapRenderer = ({
 
 
             {/* NEARBY POIs */}
-            {mode === "search" && memoizedPOIMarkers}
+            {mode === "search" && poiResults.length > 0 && (
+                <MarkerClusterGroup
+                    chunkedLoading
+                    showCoverageOnHover={false}
+                    spiderfyOnMaxZoom={true}
+                    maxClusterRadius={40}
+                    iconCreateFunction={createClusterCustomIcon}
+                >
+                    {memoizedPOIMarkers}
+                </MarkerClusterGroup>
+            )}
 
 
             {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
