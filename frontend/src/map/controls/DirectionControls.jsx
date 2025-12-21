@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { Locate, MapPin, ArrowDownUp, X } from "lucide-react";
 import axios from "axios";
-import Chatbot from "../../components/Chatbot";
 import { useFetchPlaces } from "../../hooks/useFetchPlaces";
 
 const DEBOUNCE_DELAY = 300;

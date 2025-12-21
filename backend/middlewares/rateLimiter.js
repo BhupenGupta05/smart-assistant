@@ -9,6 +9,14 @@ const requestLimiter = rateLimit({
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
+const tileRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1000, // Limit each IP to 1000 requests per `window` (here, per 15 minutes)
+    message: 'Too many tile requests, please try again after 15 minutes',
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
 // FOR OPENROUTER API USAGE
 const aiRequestLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -18,4 +26,4 @@ const aiRequestLimiter = rateLimit({
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
-module.exports = { requestLimiter, aiRequestLimiter };
+module.exports = { requestLimiter, tileRateLimiter, aiRequestLimiter };

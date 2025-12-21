@@ -5,11 +5,14 @@
 // This will keep trying to fetch POIs until it succeeds
 // or the component is unmounted
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+const CACHE_TTL = 60000; //I MINUTE
+
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useGeolocation } from './useGeolocationContext';
 import axios from 'axios';
 
 const POIContext = createContext();
+
 
 export const POIProvider = ({ children }) => {
 
@@ -18,22 +21,45 @@ export const POIProvider = ({ children }) => {
     const [poiType, setPoiType] = useState(null); // Default POI type
     const [poiResults, setPoiResults] = useState([]); // Store POI results
     const [poiError, setPoiError] = useState(null); // Store POI error if any
-    const [poiLoading, setPoiLoading] = useState(false); // Store POI loading state
+    const [poiLoading, setPoiLoading] = useState(false); // Sonst cahetore POI loading state
 
-    
+    const cacheRef = useRef(new Map());
+    const abortRef = useRef(null);
+
     // Function to fetch POIs based on current coordinates and selected POI type
     const fetchPOIs = useCallback(async () => {
         const coords = getCoords();
 
         if (!coords || !poiType) return;
+
+        const [lat, lng] = coords;
+        const cacheKey = `${lat.toFixed(5)},${lng.toFixed(5)}-${poiType}`;
+
+        // USE CACHED DATA IF VALID
+        const cached = cacheRef.current.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+            console.log("FETCHING FROM CACHE");
+            setPoiResults(cached.data);
+            return;
+        }
+
+        // ABORT PREVIOUS REQUESTS
+        if (abortRef.current) abortRef.current.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
         setPoiLoading(true);
         try {
             const url = `${import.meta.env.VITE_BASE_URL}/api/nearby?lat=${coords[0]}&lng=${coords[1]}&radius=1500&type=${poiType}`;
-            const { data } = await axios.get(url);
+            const { data } = await axios.get(url, { signal: controller.signal });
             setPoiResults(data);
             setPoiError(null);
 
+            // CACHE THE RESULT
+            cacheRef.current.set(cacheKey, { data, timestamp: Date.now() });
+
         } catch (error) {
+            if (err.name === 'CanceledError') return; //IGNORE CANCELED REQUESTS
             console.error("Failed to fetch POIs:", error.message);
             setPoiResults([]);
             setPoiError("Could not connect to the POI service.");
@@ -48,6 +74,11 @@ export const POIProvider = ({ children }) => {
     // Fetch POIs when coordinates or POI type changes
     useEffect(() => {
         fetchPOIs();
+
+        return () => {
+            if (abortRef.current) abortRef.current.abort();
+        }
+
     }, [fetchPOIs])
 
 
@@ -57,10 +88,17 @@ export const POIProvider = ({ children }) => {
 
         const interval = setInterval(() => {
             fetchPOIs();
-        }, 5000);
+        }, 15000);
 
         return () => clearInterval(interval);
     }, [poiError, fetchPOIs])
+
+    // CLEANUP ON UNMOUNT
+    useEffect(() => {
+        return () => {
+            if (abortRef.current) abortRef.current.abort();
+        }
+    }, [])
 
 
     return (
@@ -74,7 +112,7 @@ export const usePOI = () => {
     const context = useContext(POIContext);
 
     if (!context) {
-        throw new Error("usePOI must be used within a GeolocationProvider");
+        throw new Error("usePOI must be used within a POIProvider");
     }
 
     return context;

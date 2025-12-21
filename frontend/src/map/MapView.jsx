@@ -1,14 +1,16 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, lazy, useCallback } from 'react'
 import "leaflet/dist/leaflet.css";
 import { usePOI } from '../hooks/usePOIContext';
 import { useGeolocation } from '../hooks/useGeolocationContext';
 import { useAQI } from '../hooks/useAQI';
-import POISidebar from './components/POISidebar';
+const POISidebar = lazy(() => import('./components/POISidebar'));
 import MapControls from './components/MapControls';
+// const MapControls = lazy(() => import('./components/MapControls'));
 import MapRenderer from './components/MapRenderer';
-import DirectionsPanel from '../components/DirectionsPanel';
+// const MapRenderer = lazy(() => import( './components/MapRenderer'));
+const DirectionsPanel = lazy(() => import('../components/DirectionsPanel'));
+const Recenter = lazy(() => import('./components/Recenter'));
 import { useDirections } from '../hooks/useDirections'
-import Recenter from './components/Recenter';
 
 
 const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef }) => {
@@ -25,7 +27,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
 
-    const activePOIId = selectedPlace?.place_id || hoverPOIId; // Use selected place ID or hover ID for active POI
+    const activePOIId = useMemo(() => selectedPlace?.place_id || hoverPOIId, [selectedPlace, hoverPOIId]); // Use selected place ID or hover ID for active POI
 
     const { routes, loading: dirLoading, error: dirError, getDirections, clearRoutes } = useDirections();
 
@@ -58,7 +60,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
 
     // USING WITH A PROXY SERVER
-    const tileUrl = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
+    const tileUrl = useMemo(() => `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`, []);
 
 
     // Disable Transit Layer Automatically When POI Type Changes
@@ -66,7 +68,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         if (poiType !== 'transit_station') {
             setShowTransitLayer(false);
         }
-    }, [poiType]);
+    }, [poiType, setShowTransitLayer]);
 
 
     // By default, set selectedMode to first available mode when routes change
@@ -76,6 +78,10 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         }
     }, [routes])
 
+    const handleHoverPOI = useCallback((id) => setHoverPOIId(id), []);
+    const handleSelectedPlace = useCallback((place) => setSelectedPlace(place), []);
+    const handleSetOrigin = useCallback((val) => setOrigin(val), []);
+    const handleSetDestination = useCallback((val) => setDestination(val), []);
 
 
 

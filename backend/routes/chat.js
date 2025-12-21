@@ -191,7 +191,7 @@ const tools = [
 
 ];
 
-router.post('/', aiRequestLimiter, async (req, res) => {
+router.post('/', aiRequestLimiter, async (req, res, next) => {
   const { messages } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
@@ -226,9 +226,9 @@ router.post('/', aiRequestLimiter, async (req, res) => {
       res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
     } else if (error.response?.status >= 500) {
       res.status(500).json({ error: 'OpenRouter service unavailable. Please try again later.' });
-    } else {
-      res.status(500).json({ error: 'Something went wrong with the AI assistant.' });
     }
+    error.context = 'AI_CHAT_FAILURE';
+    next(error);
   }
 });
 

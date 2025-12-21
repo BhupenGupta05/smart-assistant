@@ -6,7 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { userIcon, transitIcon, poiIcon, highlightedPoiIcon, smallIcon } from '../icons/markers'
 import DirectionsLayer from '../../components/DirectionsLayer'
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import { createClusterCustomIcon } from '../utils/CustomClusterIcon';
+import { createClusterCustomIcon } from '../icons/CustomClusterIcon';
 
 const MapRenderer = ({
     mapRef,

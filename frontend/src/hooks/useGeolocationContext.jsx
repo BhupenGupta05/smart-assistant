@@ -4,7 +4,7 @@
 // It will also update the position when the user selects a place from suggestions
 // If the user denies geolocation permission, it will default to New Delhi
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 const GeolocationContext = createContext();
 
@@ -35,8 +35,18 @@ export const GeolocationProvider = ({ children }) => {
         );
     }, []);
 
+    const value = useMemo(() => ({
+        position, 
+        setPosition, 
+        selectedPlace, 
+        setSelectedPlace, 
+        getCoords, 
+        error, 
+        setError
+    }), [position, selectedPlace, getCoords, error])
+
     return (
-        <GeolocationContext.Provider value={{ position, setPosition, selectedPlace, setSelectedPlace, getCoords, error, setError }}>
+        <GeolocationContext.Provider value={value}>
             {children}
         </GeolocationContext.Provider>
     );

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
+const axiosInstance = require('../utils/axiosInstance');
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   const { query, type, open_now = false, radius = 2000, location } = req.body;
   console.log("REQUEST BODY:", req.body);
 
@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
   try {
     const url = `${process.env.BASE_URL}/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=${radius}&keyword=${encodeURIComponent(query)}${open_now ? "&opennow=true" : ""}${type ? `&type=${type}` : ""}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
-    const { data } = await axios.get(url);
+    const { data } = await axiosInstance.get(url);
 
     console.log("DATA:", data);
 
@@ -33,10 +33,9 @@ router.post('/', async (req, res) => {
     console.error("POI search error:", error.message);
     if (error.response?.status === 429) {
       res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
-    } else {
-      res.status(500).json({ error: "Failed to fetch POIs" });
     }
-
+    error.context = 'POI_SEARCH_FAILED';
+    next(error);
   }
 });
 

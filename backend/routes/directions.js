@@ -1,5 +1,5 @@
 const express = require('express');
-const axios = require('axios');
+const axiosInstance = require('../utils/axiosInstance');
 const polyline = require('@mapbox/polyline');
 const router = express.Router();
 
@@ -12,7 +12,7 @@ const EMISSION_FACTORS = {
 };
 
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
     try {
         const { origin, destination, modes = "driving,walking,transit" } = req.query;
 
@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
                 origin
             )}&destination=${encodeURIComponent(destination)}&mode=${mode}&departure_time=now&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
-            const { data } = await axios.get(url);
+            const { data } = await axiosInstance.get(url);
 
             console.log("DATA FETCHED: ", data);
 
@@ -67,7 +67,8 @@ router.get('/', async (req, res) => {
         if (error.response?.status === 429) {
             res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
         } else {
-            res.status(500).json({ error: 'Internal server error' });
+            error.context = 'DIRECTIONS_API_ERROR';
+            next(error);
         }
     }
 })
