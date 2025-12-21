@@ -25,6 +25,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
 
     const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
+
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
 
     const activePOIId = useMemo(() => selectedPlace?.place_id || hoverPOIId, [selectedPlace, hoverPOIId]); // Use selected place ID or hover ID for active POI

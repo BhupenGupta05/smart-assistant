@@ -70,7 +70,7 @@ const MapControls = ({
     setMode,
     clearRoutes,
     clearPOIs,
-    refetchPOIs
+    refetchPOIs,
 }) => {
 
     useEffect(() => {
@@ -97,6 +97,7 @@ const MapControls = ({
     return (
         <>
             {mode === "search" && (
+
                 <>
                     <SearchControls
                         query={query}

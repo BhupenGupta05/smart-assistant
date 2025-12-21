@@ -20,10 +20,11 @@ export const GeolocationProvider = ({ children }) => {
 
     // For the initial render, try to get the user's current location
     useEffect(() => {
-        if(!navigator.geolocation) {
+        if (!navigator.geolocation) {
             setError("Geolocation is not supported by your browser");
             return;
         }
+
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 setPosition([pos.coords.latitude, pos.coords.longitude]);
@@ -31,18 +32,22 @@ export const GeolocationProvider = ({ children }) => {
             (err) => {
                 console.error("Geolocation error:", err);
                 setError("Unable to retrieve your location");
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
             }
         );
     }, []);
 
     const value = useMemo(() => ({
-        position, 
-        setPosition, 
-        selectedPlace, 
-        setSelectedPlace, 
-        getCoords, 
-        error, 
-        setError
+        position,
+        setPosition,
+        selectedPlace,
+        setSelectedPlace,
+        getCoords,
+        error,
+        setError,
     }), [position, selectedPlace, getCoords, error])
 
     return (
