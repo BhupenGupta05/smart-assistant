@@ -1,5 +1,5 @@
-import SearchBar from "../components/SearchBar"
-import POIDetails from "../components/POIDetails"
+import SearchBar from "../../features/search/ui/SearchBar"
+import POIDetails from "../../features/poi/ui/POIDetails"
 import AQIIndicator from "../components/AQIIndicator"
 import Chatbot from "../../components/Chatbot"
 import { normalize } from "../components/MapControls"

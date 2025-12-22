@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect } from "react";
 import SearchControls from "../controls/SearchControls";
 import DirectionControls from "../controls/DirectionControls";
-import POICategory from "./POICategory";
+import POICategory from "../../features/poi/ui/POICategory";
 import Chatbot from "../../components/Chatbot";
 
 // Helper function to normalize place data from various formats
@@ -71,6 +71,9 @@ const MapControls = ({
     clearRoutes,
     clearPOIs,
     refetchPOIs,
+    showMore,
+    onCategorySelect,
+    closeMore
 }) => {
 
     useEffect(() => {
@@ -120,7 +123,7 @@ const MapControls = ({
 
                     {/* 🏷️ POI CATEGORIES */}
                     {/* SUBTLE BUG ---- NEED TO FIX IT */}
-                    <POICategory poiType={poiType} setPoiType={setShowTransitLayer ? setPoiType : setPoiType} clearPOIs={clearPOIs} refetchPOIs={refetchPOIs} />
+                    <POICategory poiType={poiType} showMore={showMore} onCategorySelect={onCategorySelect} closeMore={closeMore} />
                 </>
 
             )}

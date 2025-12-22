@@ -33,14 +33,14 @@ const sections = [
         items: [
             { label: "Parks", type: "park", icon: Trees },
             { label: "Tourist Attractions", type: "tourist_attraction", icon: Binoculars },
-            { label: "Movie Theaters", type: "movie_theater", icon: Clapperboard},
+            { label: "Movie Theaters", type: "movie_theater", icon: Clapperboard },
         ],
     }
 ];
 
-const POIMore = ({ onClose, setPoiType, refetchPOIs }) => {
+const POIMore = ({ onClose, onSelect }) => {
     console.log("Rendering POIMore");
-    
+
     return (
         <div className="fixed inset-0 bg-white z-[1000] animate-slide-up overflow-y-auto">
             {/* Header */}
@@ -62,11 +62,9 @@ const POIMore = ({ onClose, setPoiType, refetchPOIs }) => {
                             {section.items.map(({ label, type, icon: Icon }) => (
                                 <button
                                     key={type}
-                                    onClick={() => {
-                                        setPoiType(type);
-                                        refetchPOIs();
-                                        onClose();
-                                    }}
+                                    onClick={() =>
+                                        onSelect(type)
+                                    }
                                     className="flex gap-2 items-center bg-gray-100 hover:bg-gray-200 rounded-lg p-3 text-sm text-gray-800 transition"
                                 >
                                     <Icon size={16} />

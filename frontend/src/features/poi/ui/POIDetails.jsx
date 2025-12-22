@@ -1,4 +1,3 @@
-import { normalize } from "./MapControls";
 import { Navigation, Bookmark, Share2 } from "lucide-react";
 
 const POIDetails = ({ place, onBack, onDirections }) => {
@@ -72,7 +71,7 @@ const POIDetails = ({ place, onBack, onDirections }) => {
       {/* Actions */}
       <div className="flex flex-wrap gap-2">
         <button
-          onClick={() => onDirections(normalize(place))}
+          onClick={() => onDirections(place)}
           title="Get directions to this place"
           className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition"
         >

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import FlyToLocation from '../FlyToLocation'
-import POIMarker from './POIMarker'
+import POIMarker from '../../features/poi/ui/POIMarker';
 import "leaflet/dist/leaflet.css";
 import { userIcon, transitIcon, poiIcon, highlightedPoiIcon, smallIcon } from '../icons/markers'
 import DirectionsLayer from '../../components/DirectionsLayer'

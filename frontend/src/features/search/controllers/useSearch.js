@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { searchPlaces } from "./search.api";
+import { searchPlaces } from "../search.api";
 
 export default function useSearchController({ externalQuery, onExternalQueryChange, onSelectPlace, onSetPosition }) {
     const [internalQuery, setInternalQuery] = useState("");

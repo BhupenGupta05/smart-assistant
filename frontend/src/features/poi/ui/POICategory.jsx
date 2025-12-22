@@ -13,21 +13,14 @@ const categories = [
     { label: "More", type: "more", icon: Ellipsis }
 ]
 
-const POICategory = ({ poiType, setPoiType, clearPOIs, refetchPOIs }) => {
-    const [showMore, setShowMore] = useState(false);
-    const handleCategoryClick = (type) => {
-        if(type === "more") {
-            setShowMore(true);
-            return; 
-        }
-        if (poiType === type) {
-            setPoiType(null);
-            clearPOIs();
-        } else {
-            setPoiType(type);
-            refetchPOIs();
-        }
-    }
+const POICategory = ({ poiType, showMore, onCategorySelect, closeMore }) => {
+
+    // CLOSE MORE PAGE WHEN A CATEGORY IS SELECTED
+    const handleSelect = (type) => {
+        onCategorySelect(type);
+        closeMore(); 
+    };
+
     return (
         <>
             <div className='absolute top-[80px] left-1 right-1 z-[999] flex justify-center'>
@@ -35,7 +28,7 @@ const POICategory = ({ poiType, setPoiType, clearPOIs, refetchPOIs }) => {
                     {categories.map(({ label, type, icon: Icon }) => (
                         <button
                             key={type}
-                            onClick={() => handleCategoryClick(type)}
+                            onClick={() => onCategorySelect(type)}
                             className={`flex gap-2 md:gap-3 items-center whitespace-nowrap text-xs md:text-sm px-4 py-1 rounded-full shadow-xs md:shadow-sm transition ${poiType === type ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'
                                 }`}
                         >
@@ -48,9 +41,8 @@ const POICategory = ({ poiType, setPoiType, clearPOIs, refetchPOIs }) => {
 
             {showMore && (
                 <POIMore
-                    onClose={() => setShowMore(false)}
-                    setPoiType={setPoiType}
-                    refetchPOIs={refetchPOIs} />
+                    onClose={closeMore}
+                    onSelect={handleSelect} />
             )}
         </>
     )

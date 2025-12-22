@@ -2,12 +2,12 @@ import { useState, useRef, useEffect, useMemo, lazy, useCallback } from 'react'
 import "leaflet/dist/leaflet.css";
 import { usePOI } from '../hooks/usePOIContext';
 import { useGeolocation } from '../hooks/useGeolocationContext';
+import usePOIInteraction from '../features/poi/controllers/usePOIInteraction';
+import usePOICategory from '../features/poi/controllers/usePOICategory';
 import { useAQI } from '../hooks/useAQI';
-const POISidebar = lazy(() => import('./components/POISidebar'));
+const POISidebar = lazy(() => import('../features/poi/ui/POISidebar'));
 import MapControls from './components/MapControls';
-// const MapControls = lazy(() => import('./components/MapControls'));
 import MapRenderer from './components/MapRenderer';
-// const MapRenderer = lazy(() => import( './components/MapRenderer'));
 const DirectionsPanel = lazy(() => import('../components/DirectionsPanel'));
 const Recenter = lazy(() => import('./components/Recenter'));
 import { useDirections } from '../hooks/useDirections'
@@ -28,11 +28,20 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
     const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
 
+    const poiCategory = usePOICategory();
+
     const activePOIId = useMemo(() => selectedPlace?.place_id || hoverPOIId, [selectedPlace, hoverPOIId]); // Use selected place ID or hover ID for active POI
 
     const { routes, loading: dirLoading, error: dirError, getDirections, clearRoutes } = useDirections();
 
-
+    const poiInteraction = usePOIInteraction({
+        setOrigin,
+        setDestination,
+        setMode,
+        setSelectedPlace,
+        clearRoutes,
+        position
+    })
 
     // | Check                                                                  | What it's doing                                     | Why it's needed                    |
     // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
@@ -77,12 +86,25 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         if (routes?.length) {
             setSelectedMode(routes[0].mode);
         }
-    }, [routes])
+    }, [routes]);
 
-    const handleHoverPOI = useCallback((id) => setHoverPOIId(id), []);
-    const handleSelectedPlace = useCallback((place) => setSelectedPlace(place), []);
-    const handleSetOrigin = useCallback((val) => setOrigin(val), []);
-    const handleSetDestination = useCallback((val) => setDestination(val), []);
+    const handleCategoryIntent = useCallback((type) => {
+        if (!type) return;
+
+        if (poiType === type) {
+            setPoiType(null);
+            clearPOIs();
+            return;
+        }
+
+        setPoiType(type);
+        refetchPOIs();
+    }, [poiType, setPoiType, clearPOIs, refetchPOIs]);
+
+    // const handleHoverPOI = useCallback((id) => setHoverPOIId(id), []);
+    // const handleSelectedPlace = useCallback((place) => setSelectedPlace(place), []);
+    // const handleSetOrigin = useCallback((val) => setOrigin(val), []);
+    // const handleSetDestination = useCallback((val) => setDestination(val), []);
 
 
 
@@ -119,7 +141,13 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 setMode={setMode}
                 clearRoutes={clearRoutes}
                 clearPOIs={clearPOIs}
-                refetchPOIs={refetchPOIs} />
+                refetchPOIs={refetchPOIs}
+                showMore={poiCategory.showMore}
+                onCategorySelect={(type) => {
+                    const intent = poiCategory.onCategorySelect(type);
+                    handleCategoryIntent(intent);
+                }}
+                closeMore={poiCategory.closeMore} />
 
 
             <div className='fixed inset-0 overflow-hidden'>
@@ -178,11 +206,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         setActivePOIId={setHoverPOIId}
                         selectedPlace={selectedPlace}
                         setSelectedPlace={setSelectedPlace}
-                        setOrigin={setOrigin} // NEW
-                        setDestination={setDestination}
-                        setMode={setMode}
-                        position={position}
-                        clearRoutes={clearRoutes} />
+                        onDirections={poiInteraction.startDirectionsWith} />
                 )}
 
                 {mode === "directions" && (
