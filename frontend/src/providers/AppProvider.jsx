@@ -1,6 +1,6 @@
 import React from 'react'
 import { GeolocationProvider } from '../hooks/useGeolocationContext'
-import { POIProvider } from '../hooks/usePOIContext'
+import { POIProvider } from '../features/poi/hooks/usePOIContext'
 
 const AppProvider = ({ children }) => {
   return (

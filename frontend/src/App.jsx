@@ -1,6 +1,6 @@
 import { AssistantContext } from './hooks/useAssistant'
 import { useGeolocation } from './hooks/useGeolocationContext'
-import { usePOI } from './hooks/usePOIContext'
+import { usePOI } from './features/poi/hooks/usePOIContext'
 import { useState, useRef, useMemo, useCallback } from 'react'
 import MapView from './map/MapView'
 

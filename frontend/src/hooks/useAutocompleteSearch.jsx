@@ -1,82 +1,40 @@
+// NOT USED ANYWHERE
 import { useState } from "react";
+import { usePlacesSearch } from "./usePlacesSearch";
 
-export const useAutocompleteSearch = (initialQuery = null) => {
-    const [query, setQuery] = useState(initialQuery?.address || "");
-    const [place, setPlace] = useState(initialQuery);
-    const [results, setResults] = useState([]);
-    const [showResults, setShowResults] = useState(false);
-    const [loading, setLoading] = useState(false);
-    
-    const cacheRef = useRef(new Map());
+export const useAutocompleteSearch = (initialPlace = null) => {
+  const [query, setQuery] = useState(initialPlace?.address || "");
+  const [selectedPlace, setSelectedPlace] = useState(initialPlace);
+  const [showResults, setShowResults] = useState(false);
 
-    // Handle search query input and fetch results
-    const handleSearch = async (searchQuery) => {
-        if (!searchQuery || searchQuery.length < 3) return [];
+  const { results, loading } = usePlacesSearch(query);
 
-        const key = searchQuery.toLowerCase().trim();
-        if (cacheRef.current.has(key)) {
-            console.log("Cached result found for query:", searchQuery);
-            const cached = cacheRef.current.get(key);
-            setResults(cached);
-            return cached;
-        }
+  const handlePlaceSelect = (place) => {
+    if (!place?.lat || !place?.lng) return;
 
-        try {
-            setLoading(true);
-            const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(searchQuery)}`;
-            const { data } = await axios.get(url);
+    setSelectedPlace(place);
+    setQuery(place.address);
+    setShowResults(false);
+  };
 
-            // console.log("Search result", data);
+  /**
+   * Used by Chatbot / external commands
+   * Example: "Search cafes near CP"
+   */
+  const setFromExternal = async (place) => {
+    if (!place) return;
+    handlePlaceSelect(place);
+  };
 
-
-            setResults(data);
-            cacheRef.current.set(key, data);
-            return data;
-        } catch (error) {
-            console.error('Search error:', error);
-            setResults([]);
-            return [];
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Debounced search
-    useEffect(() => {
-        if (query.trim() !== "") {
-            const timer = setTimeout(() => handleSearch(query), 300);
-            return () => clearTimeout(timer);
-        } else {
-            setResults([]);
-            return;
-        }
-    }, [query]);
-
-    // Handle place selection
-    const handlePlaceSelect = (place) => {
-        if (place?.lat === null || place?.lng === null) return;
-        
-        setPlace(place);
-        setQuery(place.address);
-        setResults([]);
-
-        setShowResults(false);
-    };
-
-    const setFromExterenal = async (query) => {
-        const data = await handleSearch(query);
-        if(data.length > 0) handlePlaceSelect(data[0]);
-    }
-
-    return {
-        query,
-        setQuery,
-        results,
-        showResults,
-        setShowResults,
-        loading,
-        place,
-        handlePlaceSelect,
-        setFromExterenal
-    }
-}
+  return {
+    query,
+    setQuery,
+    results,
+    loading,
+    showResults,
+    setShowResults,
+    selectedPlace,
+    handlePlaceSelect,
+    setFromExternal,
+  };
+};

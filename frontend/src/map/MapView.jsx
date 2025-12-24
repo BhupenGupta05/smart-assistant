@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, lazy, useCallback } from 'react'
 import "leaflet/dist/leaflet.css";
-import { usePOI } from '../hooks/usePOIContext';
+import { usePOI } from '../features/poi/hooks/usePOIContext';
 import { useGeolocation } from '../hooks/useGeolocationContext';
 import usePOIInteraction from '../features/poi/controllers/usePOIInteraction';
 import usePOICategory from '../features/poi/controllers/usePOICategory';
