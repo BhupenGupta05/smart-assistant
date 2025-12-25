@@ -14,9 +14,11 @@ export const usePOIController = () => {
   const [error, setError] = useState(null);
 
   const loadPOIs = useCallback(async () => {
+     console.log('LOAD POIS START', poiType)
     if (!poiType) return;
 
     const coords = getCoords();
+    console.log('COORDS USED FOR POI:', coords)
     if (!coords) return;
 
     setLoading(true);
@@ -25,6 +27,8 @@ export const usePOIController = () => {
     try {
       const [lat, lng] = coords;
       const data = await fetchPOIs({ lat, lng, type: poiType });
+      console.log('POI FETCHED:', data);
+      
       setPoiResults(data);
     } catch (err) {
       if (err.name === "CanceledError") return;
@@ -38,6 +42,7 @@ export const usePOIController = () => {
 
   // Fetch when type or location changes
   useEffect(() => {
+     console.log('POI EFFECT TRIGGERED:', poiType)
     loadPOIs();
     return cancel;
   }, [loadPOIs, cancel]);
@@ -57,6 +62,6 @@ export const usePOIController = () => {
     loading,
     error,
     refetchPOIs: loadPOIs,
-    clear: () => setPoiResults([]),
+    clearPOIs: () => setPoiResults([]),
   };
 };

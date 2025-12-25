@@ -22,21 +22,21 @@ const Chatbot = () => {
         setPosition,
         setSelectedPlace,
         setPoiType,
-        setPoiResults,
-        refetchPOIs,
+        // setPoiResults,
+        // refetchPOIs,
         setQuery,
         setShowTransitLayer
     } = useAssistant();
 
     // CONTROLLING SEARCH BAR USING CHATBOT PROMPT
     const moveToLocation = async (location) => {
-        if(directionsRef.current?.switchToSearchMode) {
+        if (directionsRef.current?.switchToSearchMode) {
             directionsRef.current.switchToSearchMode();
-             console.log("🧭 Switched to search mode before moving map");
+            console.log("🧭 Switched to search mode before moving map");
         }
         if (location === 'current') {
             console.log("🧭 Moving to current location via chatbot");
-            
+
             return new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
@@ -51,13 +51,13 @@ const Chatbot = () => {
         } else {
             let success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
 
-            if(!success && directionsRef.current?.switchToSearchMode) {
+            if (!success && directionsRef.current?.switchToSearchMode) {
                 console.log("Inside directionsref");
-                
+
                 success = await directionsRef.current.searchLocation(location);
             }
             console.log(success);
-            
+
             // const success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
             if (!success) throw new Error(`Could not find location: "${location}". Try a more specific address.`);
             return `Successfully moved to ${location}`;
@@ -68,7 +68,7 @@ const Chatbot = () => {
     const setPoi = (poi) => {
         if (!poi) throw new Error("No POI type specified");
         setPoiType(poi);
-        refetchPOIs?.();
+        // refetchPOIs?.();
         return `Showing ${poi} places nearby`;
     };
 
@@ -80,80 +80,10 @@ const Chatbot = () => {
 
     // DISPLAYING POIs USING CHATBOT PROMPT
     const searchPoi = (args) => {
-        if (!args.query) throw new Error("No query provided for POI search");
-
-        return new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    try {
-                        const { data } = await axios.post("/api/search_poi", {
-                            query: args.query,
-                            type: args.type || null,
-                            open_now: args.open_now || false,
-                            radius: args.radius || 2000,
-                            location: {
-                                lat: pos.coords.latitude,
-                                lng: pos.coords.longitude
-                            }
-                        });
-
-                        if (!data.results || data.results.length === 0) {
-                            resolve("No places found for your query.");
-                            return;
-                        }
-
-
-
-                        // const first = data.results[0];
-
-                        // ✅ Backend already flattens lat/lng
-                        // setSelectedPlace(first);
-                        // if (first.lat && first.lng) {
-                        //     setPosition([first.lat, first.lng]);
-                        // }
-
-                        // resolve(`Found ${data.results.length} places for "${args.query}". Showing the first one: ${first.name}`);
-
-                        const places = data.results.map((place) => {
-                            const lat =
-                                typeof place.geometry?.location?.lat === "function"
-                                    ? place.geometry.location.lat()
-                                    : place.geometry?.location?.lat;
-
-                            const lng =
-                                typeof place.geometry?.location?.lng === "function"
-                                    ? place.geometry.location.lng()
-                                    : place.geometry?.location?.lng;
-
-
-                            return {
-                                name: place.name,
-                                lat,
-                                lng,
-                                rating: place.rating || "N/A",
-                                address: place.vicinity || place.formatted_address || "",
-                                place_id: place.place_id,
-                            };
-                        });
-
-
-                        setPoiResults(places);
-                        setPoiType(args.type); // Change poi type according to prompt
-                        setSelectedPlace(places[0]);
-                        setPosition([places[0].lat, places[0].lng]);
-
-                        // ✅ Just count + first place name
-                        const message = `Found ${places.length} places for "${args.query}". Currently showing: ${places[0].name}`;
-
-                        resolve(message);
-                    } catch (err) {
-                        reject(new Error("Failed to search POIs. Try again."));
-                    }
-                },
-                () => reject(new Error("Failed to get location for POI search.")),
-                { timeout: 10000, enableHighAccuracy: true }
-            );
-        });
+        if (!args.type && !args.query) throw new Error("What kind of place are you looking for?");
+        const poi = args.type || args.query;
+        setPoiType(poi); // triggers automatic fetching
+        return `Showing nearby ${poi}`;
     };
 
     // HELPER FUNCTION
@@ -250,7 +180,8 @@ const Chatbot = () => {
                 return toggleTransit();
 
             case 'search_poi':
-                return await searchPoi(args);
+                return searchPoi(args);
+
 
             case 'set_directions':
                 console.log("FRONTEND: setDestination input:", args);

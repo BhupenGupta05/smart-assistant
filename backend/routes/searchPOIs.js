@@ -19,9 +19,20 @@ router.post('/', async (req, res, next) => {
     console.log("DATA:", data);
 
 
-    if (data.status !== "OK") {
-      return res.status(400).json({ error: data.status, details: data.error_message });
+    if (data.status === "ZERO_RESULTS") {
+      return res.json({
+        results: [],
+        next_page_token: null
+      });
     }
+
+    if (data.status !== "OK") {
+      return res.status(400).json({
+        error: data.status,
+        details: data.error_message
+      });
+    }
+
 
     res.json({
       results: data.results,
