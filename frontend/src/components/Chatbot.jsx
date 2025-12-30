@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import axios from 'axios';
 import { useAssistant } from '../hooks/useAssistant';
 import { MessagesSquare, X } from 'lucide-react';
+import { useCurrentLocation } from '../features/search/hooks/useCurrentLocation';
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([
@@ -13,6 +14,8 @@ const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const chatRef = useRef(null);
 
+    const { getCurrentLocation } = useCurrentLocation();
+
 
     const toggleChat = () => setIsOpen(!isOpen);
 
@@ -21,11 +24,10 @@ const Chatbot = () => {
         directionsRef,
         setPosition,
         setSelectedPlace,
-        setPoiType,
-        // setPoiResults,
-        // refetchPOIs,
         setQuery,
-        setShowTransitLayer
+        setShowTransitLayer,
+        poiIntent,
+        onPOIIntent
     } = useAssistant();
 
     // CONTROLLING SEARCH BAR USING CHATBOT PROMPT
@@ -37,17 +39,13 @@ const Chatbot = () => {
         if (location === 'current') {
             console.log("🧭 Moving to current location via chatbot");
 
-            return new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        setPosition([pos.coords.latitude, pos.coords.longitude]);
-                        setSelectedPlace(null);
-                        resolve("Moved to current location");
-                    },
-                    () => reject(new Error("Failed to get current location. Please check location permissions.")),
-                    { timeout: 10000, enableHighAccuracy: true }
-                );
-            });
+            const [lat, lng] = await getCurrentLocation();
+            setPosition([lat, lng]);
+
+            setSelectedPlace(null);
+
+            return "Moved to current location";
+
         } else {
             let success = await searchRef.current?.searchLocationAndSelectFirst(location); // CONTROLLING SEARCH FUNCTIONALITY USING IMPERATIVE HANDLE
 
@@ -64,27 +62,12 @@ const Chatbot = () => {
         }
     };
 
-    // SETTING POIs USING CHATBOT PROMPT
-    const setPoi = (poi) => {
-        if (!poi) throw new Error("No POI type specified");
-        setPoiType(poi);
-        // refetchPOIs?.();
-        return `Showing ${poi} places nearby`;
-    };
-
     // TOGGLING TRANSIT LAYER USING CHATBOT PROMPT
     const toggleTransit = () => {
         setShowTransitLayer(prev => !prev);
         return "Toggled transit layer";
     };
 
-    // DISPLAYING POIs USING CHATBOT PROMPT
-    const searchPoi = (args) => {
-        if (!args.type && !args.query) throw new Error("What kind of place are you looking for?");
-        const poi = args.type || args.query;
-        setPoiType(poi); // triggers automatic fetching
-        return `Showing nearby ${poi}`;
-    };
 
     // HELPER FUNCTION
     // WAITING TILL THE DIRECTION REF MOUNTS SO THAT WE CAN SET ORIGIN/DESTINATION IN INPUTS
@@ -96,28 +79,7 @@ const Chatbot = () => {
         }
         return ref.current;
     };
-
-    // Utility: FETCH COORDINATES FROM STRING
-    const getCurrentLocation = () =>
-        new Promise((resolve, reject) => {
-            if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
-
-            console.log("Fetching current location...");
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => resolve({
-                    name: "Current Location",
-                    address: "Your current location",
-                    location: [pos.coords.latitude, pos.coords.longitude],
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude
-                }),
-                (err) => reject(new Error("Failed to get current location")),
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-
-        });
-
+    
     // --- Set Directions (controls origin & destination inputs) ---
     const setDirections = async ({ origin = 'current', destination, mode = 'driving' }) => {
         const dirRef = await waitForRef(directionsRef);
@@ -129,9 +91,9 @@ const Chatbot = () => {
         // If origin is current location, fetch coordinates for it and set ref's value
         if (origin.toLowerCase() === 'current location' || origin === "current") {
 
-            const pos = await getCurrentLocation();
+           const [lat, lng] = await getCurrentLocation();
 
-            success = await directionsRef.current.searchAndSetOrigin('', pos.location);
+            success = await directionsRef.current.searchAndSetOrigin('', [lat,lng]);
         } else {
 
             success = await directionsRef.current.searchAndSetOrigin(origin);
@@ -174,13 +136,13 @@ const Chatbot = () => {
                 return await moveToLocation(args.location);
 
             case 'set_poi_type':
-                return setPoi(args.poi);
+                return onPOIIntent(args.type || args.query);
 
             case 'toggle_transit_layer':
                 return toggleTransit();
 
             case 'search_poi':
-                return searchPoi(args);
+                return onPOIIntent(args.type || args.query);
 
 
             case 'set_directions':

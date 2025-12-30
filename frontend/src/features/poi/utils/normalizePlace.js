@@ -1,5 +1,5 @@
 // Helper function to normalize place data from various formats
-export const normalize = (place) => {
+export const normalizePlace = (place) => {
     if (!place) return null;
 
     let lat, lng;
@@ -19,9 +19,9 @@ export const normalize = (place) => {
         lat = place.lat;
         lng = place.lng;
         console.log("📍 direct lat/lng detected:", lat, lng);
-    } else {
-        console.warn("⚠️ normalize: no coordinates found in place", place);
-    }
+    } 
+
+    if (lat == null || lng == null) return null;
 
     return {
         name: place.name || place.formatted_address,
@@ -29,5 +29,6 @@ export const normalize = (place) => {
         location: [lat, lng],
         lat,
         lng,
+        place_id: place.place_id || place.id
     };
 };

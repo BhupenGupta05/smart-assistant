@@ -1,12 +1,12 @@
+import { DirectionsProvider } from '../features/directions/context/DirectionsContext'
 import { GeolocationProvider } from '../hooks/useGeolocationContext'
-import { POIProvider } from '../features/poi/hooks/usePOIContext' 
 
 const AppProvider = ({ children }) => {
   return (
     <GeolocationProvider>
-      <POIProvider>
+      <DirectionsProvider>
         {children}
-      </POIProvider>
+      </DirectionsProvider>
     </GeolocationProvider>
   )
 }

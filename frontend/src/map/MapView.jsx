@@ -1,111 +1,91 @@
-import { useState, useRef, useEffect, useMemo, lazy, useCallback } from 'react'
+import { useRef, useEffect, useMemo, lazy } from 'react'
 import "leaflet/dist/leaflet.css";
-import { usePOI } from '../features/poi/hooks/usePOIContext';
-import { useGeolocation } from '../hooks/useGeolocationContext';
 import usePOIInteraction from '../features/poi/controllers/usePOIInteraction';
 import usePOICategory from '../features/poi/controllers/usePOICategory';
-import { useAQI } from '../hooks/useAQI';
-const POISidebar = lazy(() => import('../features/poi/ui/POISidebar'));
-import MapControls from './components/MapControls';
+
+import MapControls from '../map/components/mapControls/ui/MapControls'
 import MapRenderer from './components/MapRenderer';
-const DirectionsPanel = lazy(() => import('../components/DirectionsPanel'));
-const Recenter = lazy(() => import('./components/Recenter'));
-import { useDirections } from '../hooks/useDirections'
 
+import { useMap } from './controllers/useMap';
+import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
+import { useMapDataController } from './controllers/useMapDataController';
+import { useTransitLayer } from '../features/transit-layer/controllers/useTransitLayer'
 
-const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef }) => {
+const POISidebar = lazy(() => import('../features/poi/ui/POISidebar'));
+const DirectionsPanel = lazy(() => import('../features/directions/ui/DirectionsPanel'));
+const Recenter = lazy(() => import('../components/Recenter'));
+
+const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef, poiIntent }) => {
     const mapRef = useRef(null); // Using same map instance
+    const lastAIIntentRef = useRef(null);
 
-    const [mode, setMode] = useState("search"); // Mode is basically either we want to just search for a place or get directions
-    const [selectedMode, setSelectedMode] = useState(null); // Mode of transportation for directions: driving, walking, transit
-    const [origin, setOrigin] = useState(null);  // Confirmed origin coordinates
-    const [destination, setDestination] = useState(null); // Confirmed destination coordinates
-    const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
-    const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
+    const map = useMap();
+    const {
+        position,
+        setPosition,
+        selectedPlace,
+        setSelectedPlace,
+
+        aqi,
+        aqiLoading,
+        aqiError,
+
+        poiResults,
+        poiLoading,
+        poiError,
+        poiType,
+        setPoiType,
+        refetchPOIs,
+        clearPOIs
+    } = useMapDataController();
 
 
-    const { position, setPosition, selectedPlace, setSelectedPlace, getCoords } = useGeolocation();
+    const {
+        //states 
+        mode,
+        selectedMode,
+        origin,
+        destination,
+        activeField,
+        hoverPOIId,
+        activePOIId,
 
-    const { poiResults, poiLoading, poiError, poiType, setPoiType, refetchPOIs, clearPOIs } = usePOI();
+        //setters
+        setMode,
+        setSelectedMode,
+        setOrigin,
+        setDestination,
+        setActiveField,
+        setHoverPOIId } = map;
+
 
     const poiCategory = usePOICategory();
 
-    const activePOIId = useMemo(() => selectedPlace?.place_id || hoverPOIId, [selectedPlace, hoverPOIId]); // Use selected place ID or hover ID for active POI
-
-    const { routes, loading: dirLoading, error: dirError, getDirections, clearRoutes } = useDirections();
+    const directions = useDirectionsController({ selectedMode, setSelectedMode });
 
     const poiInteraction = usePOIInteraction({
         setOrigin,
         setDestination,
         setMode,
         setSelectedPlace,
-        clearRoutes,
+        clearRoutes: directions.clearRoutes,
         position
     })
-
-    // | Check                                                                  | What it's doing                                     | Why it's needed                    |
-    // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
-    // | `rawCoords &&`                                                         | Makes sure `rawCoords` is not `null` or `undefined` | Avoids crashes                     |
-    // | `Array.isArray(rawCoords)`                                             | Makes sure it's an array                            | Coordinates should be `[lat, lng]` |
-    // | `rawCoords.length === 2`                                               | Ensures there are exactly 2 items                   | Should be lat & lng only           |
-    // | `typeof rawCoords[0] === 'number' && typeof rawCoords[1] === 'number'` | Makes sure both are numbers                         | Prevents invalid API calls         |
-    // | `rawCoords[0] && rawCoords[1]`                                         | Makes sure neither value is `0`, `null`, or `NaN`   | Some APIs reject these             |
-
-    const rawCoords = getCoords();
-
-    const coords = useMemo(() => {
-        return (
-            rawCoords &&
-            Array.isArray(rawCoords) &&
-            rawCoords.length === 2 &&
-            typeof rawCoords[0] === 'number' &&
-            typeof rawCoords[1] === 'number' &&
-            rawCoords[0] &&
-            rawCoords[1]
-        ) ? rawCoords : null;
-    }, [rawCoords]);
-
-
-    const { aqi, aqiLoading, aqiError } = useAQI(coords?.[0] ?? null, coords?.[1] ?? null);
-
 
     // USING WITH A PROXY SERVER
     const tileUrl = useMemo(() => `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`, []);
 
+    useTransitLayer({ poiType, showTransitLayer, setShowTransitLayer });
 
-    // Disable Transit Layer Automatically When POI Type Changes
     useEffect(() => {
-        if (poiType !== 'transit_station') {
-            setShowTransitLayer(false);
-        }
-    }, [poiType, setShowTransitLayer]);
+        if (!poiIntent) return;
 
+        if(lastAIIntentRef.current === poiIntent) return;
 
-    // By default, set selectedMode to first available mode when routes change
-    useEffect(() => {
-        if (routes?.length) {
-            setSelectedMode(routes[0].mode);
-        }
-    }, [routes]);
+        lastAIIntentRef.current = poiIntent;
 
-    const handleCategoryIntent = useCallback((type) => {
-        if (!type) return;
-
-        if (poiType === type) {
-            setPoiType(null);
-            clearPOIs();
-            return;
-        }
-
-        setPoiType(type);
-        refetchPOIs();
-    }, [poiType, setPoiType, clearPOIs, refetchPOIs]);
-
-    // const handleHoverPOI = useCallback((id) => setHoverPOIId(id), []);
-    // const handleSelectedPlace = useCallback((place) => setSelectedPlace(place), []);
-    // const handleSetOrigin = useCallback((val) => setOrigin(val), []);
-    // const handleSetDestination = useCallback((val) => setDestination(val), []);
-
+        setPoiType(poiIntent);
+    }, [poiIntent, setPoiType]);
 
 
     return (
@@ -133,19 +113,20 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 setShowTransitLayer={setShowTransitLayer}
                 searchRef={searchRef}
                 directionsRef={directionsRef}
-                routes={routes}
-                getDirections={getDirections}
-                loading={dirLoading}
-                error={dirError}
+                routes={directions.routes}
+                getDirections={directions.getDirections}
+                loading={directions.loading}
+                error={directions.error}
                 mode={mode}
                 setMode={setMode}
-                clearRoutes={clearRoutes}
+                clearRoutes={directions.clearRoutes}
                 clearPOIs={clearPOIs}
                 refetchPOIs={refetchPOIs}
                 showMore={poiCategory.showMore}
                 onCategorySelect={(type) => {
                     const intent = poiCategory.onCategorySelect(type);
-                    handleCategoryIntent(intent);
+                    if (!intent) return;
+                    setPoiType(intent);
                 }}
                 closeMore={poiCategory.closeMore} />
 
@@ -167,7 +148,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         showTransitLayer={showTransitLayer}
                         tileUrl={tileUrl}
                         setPosition={setPosition}
-                        routes={routes}
+                        routes={directions.routes}
                         mode={mode}
                         setMode={setMode}
                         selectedMode={selectedMode}
@@ -176,17 +157,11 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
                 {/* RECENTER BUTTON */}
                 {(selectedPlace || poiType || position) && (
-                    // <Recenter
-                    //     mapRef={mapRef}
-                    //     setPosition={setPosition}
-                    //     setSelectedPlace={setSelectedPlace}
-                    // />
-
                     // NOW, THIS ACCOMODATES CENTERING ROUTE ALSO
                     <Recenter
                         mapRef={mapRef}
                         mode={mode}
-                        routes={routes}
+                        routes={directions.routes}
                         selectedMode={selectedMode}
                         setPosition={setPosition}
                         setSelectedPlace={setSelectedPlace}
@@ -211,7 +186,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
                 {mode === "directions" && (
                     <DirectionsPanel
-                        routes={routes}
+                        routes={directions.routes}
                         selectedMode={selectedMode}
                         setSelectedMode={setSelectedMode}
                         directionsRef={directionsRef} />

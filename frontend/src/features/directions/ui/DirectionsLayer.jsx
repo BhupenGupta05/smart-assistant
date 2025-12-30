@@ -1,5 +1,5 @@
 import { Polyline, Popup } from "react-leaflet";
-import FitBounds from '../map/components/FitBounds'
+import FitBounds from '../../../components/FitBounds'
 
 export default function DirectionsLayer({ routes, selectedMode, setSelectedMode }) {
   if (!routes?.length) return null;

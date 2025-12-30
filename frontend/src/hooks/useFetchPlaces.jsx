@@ -1,6 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+export async function fetchPlaces(query) {
+    if (!query || query.length < 3) return [];
+
+    try {
+        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+        const { data } = await axios.get(url);
+        return data || [];
+    } catch (err) {
+        console.error("fetchPlaces error:", err);
+        return [];
+    }
+}
+
+
 const DEBOUNCE_DELAY = 300;
 
 export const useFetchPlaces = (inputVal, justSelectedRef) => {
@@ -17,14 +31,8 @@ export const useFetchPlaces = (inputVal, justSelectedRef) => {
             return;
         }
         const handler = setTimeout(async () => {
-            try {
-                const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(inputVal)}`;
-                const { data } = await axios.get(url);
-                setResults(data);
-            } catch (err) {
-                console.error("Search error:", err);
-                setResults([]);
-            }
+            const places = await fetchPlaces(inputVal);
+            setResults(places);
         }, DEBOUNCE_DELAY);
 
         return () => clearTimeout(handler);

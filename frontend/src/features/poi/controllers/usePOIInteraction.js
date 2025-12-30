@@ -1,4 +1,4 @@
-import { normalize } from "../utils/normalize";
+import { normalizePlace } from "../utils/normalizePlace";
 
 export default function usePOIInteraction({
     setOrigin,
@@ -11,7 +11,7 @@ export default function usePOIInteraction({
     const startDirectionsWith = (place) => {
         if (clearRoutes) clearRoutes();
 
-        const destinationPlace = normalize(place);
+        const destinationPlace = normalizePlace(place);
         setDestination(destinationPlace);
 
         if (navigator.geolocation) {

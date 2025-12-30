@@ -1,45 +1,13 @@
 // Component to manage map controls for searching locations and getting directions
 
 import "leaflet/dist/leaflet.css";
-import { useEffect } from "react";
-import SearchControls from "../controls/SearchControls";
-import DirectionControls from "../controls/DirectionControls";
-import POICategory from "../../features/poi/ui/POICategory";
-import Chatbot from "../../components/Chatbot";
-
-// Helper function to normalize place data from various formats
-export const normalize = (place) => {
-    if (!place) return null;
-
-    let lat, lng;
-
-    if (place.geometry?.location) {
-        lat = typeof place.geometry.location.lat === "function"
-            ? place.geometry.location.lat()
-            : place.geometry.location.lat;
-        lng = typeof place.geometry.location.lng === "function"
-            ? place.geometry.location.lng()
-            : place.geometry.location.lng;
-        console.log("🌍 geometry.location detected:", lat, lng);
-    } else if (Array.isArray(place.location)) {
-        [lat, lng] = place.location;
-        console.log("📦 array location detected:", lat, lng);
-    } else if (place.lat !== undefined && place.lng !== undefined) {
-        lat = place.lat;
-        lng = place.lng;
-        console.log("📍 direct lat/lng detected:", lat, lng);
-    } else {
-        console.warn("⚠️ normalize: no coordinates found in place", place);
-    }
-
-    return {
-        name: place.name || place.formatted_address,
-        address: place.formatted_address || place.name,
-        location: [lat, lng],
-        lat,
-        lng,
-    };
-};
+import SearchControls from "../../../controls/searchControls/ui/Container";
+import DirectionControls from '../../../controls/directionControls/ui/Container'
+import POICategory from "../../../../features/poi/ui/POICategory";
+import Chatbot from "../../../../components/Chatbot";
+import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
+import { getCurrentPosition } from "../../../../features/search/utils/getCurrentPosition";
+import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
 
 const MapControls = ({
     query,
@@ -76,26 +44,16 @@ const MapControls = ({
     closeMore
 }) => {
 
-    useEffect(() => {
-        if (!selectedPlace) return;
-
-        const normalizedPlace = normalize(selectedPlace);
-
-        // console.log("normalizedPlace", normalizedPlace);
-
-
-        if (mode === "search") {
-            // DO NOTHING
-        } else if (mode === "directions") {
-            if (activeField === "origin") setOrigin(normalizedPlace);
-            else if (activeField === "destination") setDestination(normalizedPlace);
-            setActiveField(null);
-        }
-
-        setSelectedPlace(mode === "search" ? selectedPlace : null);
-    }, [selectedPlace, activeField, mode, setSelectedPlace, setOrigin, setDestination]);
-
-
+    useSearchSelection({
+        selectedPlace,
+        mode,
+        activeField,
+        setPosition,
+        setOrigin,
+        setDestination,
+        setActiveField,
+        clearSelection: () => setSelectedPlace(null)
+    })
 
     return (
         <>
@@ -119,10 +77,10 @@ const MapControls = ({
                         setPoiType={setPoiType}
                         showTransitLayer={showTransitLayer}
                         setShowTransitLayer={setShowTransitLayer}
-                        searchRef={searchRef} />
+                        searchRef={searchRef}
+                    />
 
                     {/* 🏷️ POI CATEGORIES */}
-                    {/* SUBTLE BUG ---- NEED TO FIX IT */}
                     <POICategory poiType={poiType} showMore={showMore} onCategorySelect={onCategorySelect} closeMore={closeMore} />
                 </>
 

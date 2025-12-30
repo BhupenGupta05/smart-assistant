@@ -1,11 +1,9 @@
 //behavior (when / why to fetch)
 
 import { useCallback, useEffect, useState } from "react";
-import { useGeolocation } from "../../../hooks/useGeolocationContext";
 import { usePOIFetcher } from "./usePOIFetcher";
 
-export const usePOIController = () => {
-  const { getCoords } = useGeolocation();
+export const usePOIController = ({ position }) => {
   const { fetchPOIs, cancel } = usePOIFetcher();
 
   const [poiType, setPoiType] = useState(null);
@@ -14,18 +12,14 @@ export const usePOIController = () => {
   const [error, setError] = useState(null);
 
   const loadPOIs = useCallback(async () => {
-     console.log('LOAD POIS START', poiType)
-    if (!poiType) return;
+    if (!poiType || !position) return;
 
-    const coords = getCoords();
-    console.log('COORDS USED FOR POI:', coords)
-    if (!coords) return;
+    const { lat, lng } = position;
 
     setLoading(true);
     setError(null);
 
     try {
-      const [lat, lng] = coords;
       const data = await fetchPOIs({ lat, lng, type: poiType });
       console.log('POI FETCHED:', data);
       
@@ -38,7 +32,7 @@ export const usePOIController = () => {
     } finally {
       setLoading(false);
     }
-  }, [poiType, getCoords, fetchPOIs]);
+  }, [poiType, position, fetchPOIs]);
 
   // Fetch when type or location changes
   useEffect(() => {
