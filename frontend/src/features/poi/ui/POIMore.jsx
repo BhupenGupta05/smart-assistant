@@ -1,4 +1,4 @@
-import { Binoculars, Clapperboard, Coffee, Croissant, IceCreamCone, IndianRupee, Landmark, LibraryBig, Martini, PillBottle, Plug, ShoppingBag, Siren, Sofa, Trees, X } from "lucide-react";
+import { Bed, Fuel, Binoculars, Clapperboard, Croissant, IceCreamCone, IndianRupee, LibraryBig, Martini, PillBottle, Plug, ShoppingBag, Siren, Sofa, Trees, X } from "lucide-react";
 
 const sections = [
     {
@@ -6,8 +6,8 @@ const sections = [
         items: [
             { label: "Bakeries", type: "bakery", icon: Croissant },
             { label: "Bars & Pubs", type: "bar", icon: Martini },
-            { label: "Cafes", type: "cafe", icon: Coffee },
             { label: "Ice Cream", type: "ice_cream", icon: IceCreamCone },
+            { label: "Hotels", type: "lodging", icon: Bed },
         ],
     },
     {
@@ -24,8 +24,8 @@ const sections = [
         items: [
             { label: "Pharmacies", type: "pharmacy", icon: PillBottle },
             { label: "Police Stations", type: "police", icon: Siren },
-            { label: "Banks", type: "bank", icon: Landmark },
             { label: "ATMs", type: "atm", icon: IndianRupee },
+            { label: "Petrol", type: "gas_station", icon: Fuel },
         ],
     },
     {
