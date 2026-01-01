@@ -286,7 +286,7 @@ app.get('/api/search', async (req, res, next) => {
 
         // Step 2: Fetch details for top candidate (you can expand this to multiple)
         const detailedResults = await Promise.all(
-            candidates.slice(0, 1).map(async (place) => {
+            candidates.slice(0, 3).map(async (place) => {
                 const detailsUrl = `${process.env.BASE_URL}/place/details/json?place_id=${place.place_id}&fields=name,formatted_address,geometry,photo,rating,user_ratings_total,opening_hours,website,formatted_phone_number,place_id&key=${apiKey}`;
                 const detailsRes = await axiosInstance.get(detailsUrl);
 

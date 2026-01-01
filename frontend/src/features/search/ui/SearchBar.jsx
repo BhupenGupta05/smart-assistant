@@ -16,12 +16,12 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace }
     }));
 
     return (
-        <div className='absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[36%] sm:w-[33%] md:w-[30%] lg:w-[27%] rounded-md'>
-            <div className='relative w-full flex items-center'>
+        <div className='absolute top-4 left-4 z-[1000] w-[36%] sm:w-[33%] md:w-[30%] lg:w-[27%] rounded-md md:left-6 md:right-6 flex flex-col gap-3 '>
+            <div className='relative w-full flex items-center flex-1 group'>
                 <input
                     type="text"
-                    className='w-full p-2 rounded bg-white shadow-md border-slate-200 text-xs focus:outline-none font-medium sm:text-sm md:text-base'
-                    placeholder='Search...'
+                    className='w-full px-4 py-2 bg-white border-slate-200 text-xs text-slate-600 outline-none md:px-6 md:py-3 font-medium md:text-sm backdrop-blur-md shadow-lg ring-1 ring-black/5 rounded transition-all focus-visible:ring-2 focus-visible:ring-cyan-400/50'
+                    placeholder='Search location, places...'
                     value={controller.value}
                     onChange={(e) => {
                         controller.updateQuery(e.target.value);
@@ -35,19 +35,41 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace }
                 </button>
             </div>
 
+
             {controller.showResults && controller.results.length > 0 && (
-                <div className='bg-white rounded mt-1 max-h-60 overflow-y-auto shadow-md'>
+                <div
+                    className="
+      mt-1 max-h-64 overflow-y-auto
+      rounded-xl
+      bg-white/90 backdrop-blur-md
+      shadow-lg
+      ring-1 ring-black/5
+    "
+                >
                     {controller.results.map((place, idx) => (
                         <div
                             key={idx}
-                            className='p-2 font-medium cursor-pointer hover:bg-slate-300 text-xs sm:text-sm md:text-base border-slate-200 border-[1px]'
+                            className="
+          flex items-start gap-3
+          px-4 py-3
+          cursor-pointer
+          text-xs md:text-sm font-medium
+          text-slate-700
+
+          transition-colors
+          hover:bg-cyan-50/70
+
+          border-b border-black/5
+          last:border-b-0
+        "
                             onMouseDown={() => controller.selectPlace(place)}
                         >
-                            📍 {place.address}
+                            <span className="leading-snug">📍 {place.address}</span>
                         </div>
                     ))}
                 </div>
             )}
+
         </div>
     );
 });
