@@ -9,11 +9,12 @@ const directionsRoute = require('./routes/directions');
 const { tileRateLimiter, requestLimiter } = require('./middlewares/rateLimiter');
 const { validateCoordinates } = require('./utils/validation');
 
-// LRU CACHE TO STORE POI, AQI, AND SEARCH RESULTS
+// LRU CACHE TO STORE POI, AQI, WEATHER AND SEARCH RESULTS
 const poiCache = new LRUCache({ max: 500, ttl: 1000 * 60 * 5 });
 const aqiCache = new LRUCache({ max: 300, ttl: 1000 * 60 * 5 });
 const searchCache = new LRUCache({ max: 300, ttl: 1000 * 60 * 5 });
 const photoCache = new LRUCache({ max: 200, ttl: 1000 * 60 * 60 });
+const weatherCache = new LRUCache({ max: 300, ttl: 1000 * 60 * 5 }); //new
 
 const app = express();
 // const server = require('http').createServer(app);
@@ -55,6 +56,63 @@ app.get('/api/tiles/:z/:x/:y', tileRateLimiter, async (req, res, next) => {
     }
 })
 
+app.get('/api/weather', async (req, res, next) => {
+    const { lat, lon } = req.query;
+
+    if (!lat || !lon) {
+        return res.status(400).json({ error: 'Missing lat/lon parameters' });
+    }
+
+    const validation = validateCoordinates(lat, lon);
+    if (!validation.valid) {
+        return res.status(400).json({ error: validation.error });
+    }
+
+    const key = `${validation.latitude.toFixed(4)},${validation.longitude.toFixed(4)}`;
+
+    // Serve from cache if recent
+    if (weatherCache.has(key)) {
+        return res.json(weatherCache.get(key));
+    }
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${validation.latitude}&lon=${validation.longitude}&units=metric&appid=${process.env.OPENWEATHER_AQI_API_KEY}`;
+
+    try {
+        const { data } = await axiosInstance.get(url);
+
+        const response = {
+            location: {
+                lat: validation.latitude,
+                lon: validation.longitude,
+            },
+            weather: {
+                condition: data.weather?.[0]?.main ?? 'Unknown',
+                icon: data.weather?.[0]?.icon ?? null,
+                temperature: Number(data.main?.temp ?? 0),
+                feels_like: Number(data.main?.feels_like ?? 0),
+                humidity: Number(data.main?.humidity ?? 0),
+                visibilityKm: data.visibility ? +(data.visibility / 1000).toFixed(1) : null,
+                wind: {
+                    speed: Number(data.wind?.speed ?? 0),
+                    direction: Number(data.wind?.deg ?? 0)
+                }
+            },
+            meta: {
+                units: 'metric',
+                provider: 'OpenWeather',
+                timestamp: Date.now()
+            }
+        };
+
+        weatherCache.set(key, response);
+
+        res.json(response);
+    } catch (error) {
+        error.context = 'WEATHER_FETCH_FAILED';
+        next(error);
+    }
+})
+
 // PROXY ROUTE
 app.get('/api/aqi', async (req, res, next) => {
     const { lat, lon } = req.query;
@@ -92,8 +150,6 @@ app.get('/api/aqi', async (req, res, next) => {
     } catch (error) {
         error.context = 'AQI_FETCH_FAILED';
         next(error);
-        // console.error('AQI fetch error:', error.message);
-        // res.status(500).json({ error: 'Failed to fetch AQI' });
     }
 })
 
@@ -109,7 +165,7 @@ app.get('/api/place-photo', async (req, res, next) => {
 
     // CACHE HIT
     const cached = photoCache.get(photoRef);
-    if(cached) {
+    if (cached) {
         res.setHeader('Content-Type', 'image/jpeg');
         res.setHeader('x-cache', 'HIT');
         return res.send(cached);

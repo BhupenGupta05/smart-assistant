@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from 'react-leaflet'
 import FlyToLocation from '../FlyToLocation'
 import POIMarker from '../../features/poi/ui/POIMarker';
 import "leaflet/dist/leaflet.css";
@@ -97,8 +97,20 @@ const MapRenderer = ({
 
 
     return (
-        <MapContainer center={centerPosition} ref={mapRef} zoom={13} style={{ height: "100%", width: "100%" }} >
-            <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' />
+        <MapContainer
+            center={centerPosition}
+            ref={mapRef}
+            zoom={13}
+            zoomControl={false}
+            style={{ height: "100%", width: "100%" }}
+        >
+            <ZoomControl position="bottomleft" />
+            {/* <TileLayer url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' /> */}
+            <TileLayer
+                attribution='&copy; OpenStreetMap contributors'
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            />
+
 
             {/* TRANSIT LAYER */}
             {showTransitLayer && (

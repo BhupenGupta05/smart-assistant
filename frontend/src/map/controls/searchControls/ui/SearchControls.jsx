@@ -47,14 +47,14 @@ const SearchControls = ({
       )}
 
       {/* AQI INDICATOR USING USEAQI HOOK */}
-      {!aqiLoading && aqi && (
+      {/* {!aqiLoading && aqi && (
         <div className="absolute top-4 right-4 z-[1000]">
           <AQIIndicator
             aqi={aqi}
             loading={false}
             error={aqiError} />
         </div>
-      )}
+      )} */}
 
       {/* TOGGLE TRANSIT LAYER */}
       {poiType === 'transit_station' && (

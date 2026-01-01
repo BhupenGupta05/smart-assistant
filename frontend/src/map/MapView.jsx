@@ -10,6 +10,7 @@ import { useMap } from './controllers/useMap';
 import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
 import { useMapDataController } from './controllers/useMapDataController';
 import { useTransitLayer } from '../features/transit-layer/controllers/useTransitLayer'
+import WeatherContextPanel from '../features/weather/ui/WeatherContextPanel';
 
 const POISidebar = lazy(() => import('../features/poi/ui/POISidebar'));
 const DirectionsPanel = lazy(() => import('../features/directions/ui/DirectionsPanel'));
@@ -30,6 +31,13 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         aqiLoading,
         aqiError,
 
+        weather,
+        weatherLoading,
+        weatherError,
+
+        envLoading,
+        envError,
+
         poiResults,
         poiLoading,
         poiError,
@@ -38,7 +46,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         refetchPOIs,
         clearPOIs
     } = useMapDataController();
-
 
     const {
         //states 
@@ -80,7 +87,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     useEffect(() => {
         if (!poiIntent) return;
 
-        if(lastAIIntentRef.current === poiIntent) return;
+        if (lastAIIntentRef.current === poiIntent) return;
 
         lastAIIntentRef.current = poiIntent;
 
@@ -167,6 +174,14 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         setSelectedPlace={setSelectedPlace}
                     />
 
+                )}
+
+                {(selectedPlace || poiType || position) && !weatherError && !weatherLoading && (
+                    <WeatherContextPanel
+                        aqi={aqi}
+                        weather={weather}
+                        loading={envLoading}
+                        error={envError} />
                 )}
 
 

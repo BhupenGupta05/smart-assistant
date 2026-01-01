@@ -3,14 +3,14 @@ import axios from "axios";
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
-export const useAQIFetch = () => {
-  const [aqi, setAqi] = useState(null);
+export const useWeatherFetch = () => {
+  const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const cacheRef = useRef(new Map());
 
-  const fetchAQI = useCallback(
+  const fetchWeather = useCallback(
     async (lat, lon, signal) => {
       if (!lat || !lon) return;
 
@@ -20,7 +20,7 @@ export const useAQIFetch = () => {
       // 🟢 Serve from cache
       const cached = cacheRef.current.get(key);
       if (cached && now - cached.timestamp < CACHE_TTL) {
-        setAqi(cached.data);
+        setWeather(cached.data);
         return;
       }
 
@@ -29,26 +29,26 @@ export const useAQIFetch = () => {
 
       try {
         const { data } = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/aqi`,
+          `${import.meta.env.VITE_BASE_URL}/api/weather`,
           {
             params: { lat, lon },
             signal
           }
         );
-        
-        if (data?.aqi !== undefined) {
-          setAqi(data.aqi);
+
+        if (data?.weather !== undefined) {
+          setWeather(data.weather);
           cacheRef.current.set(key, {
-            data: data.aqi,
+            data: data.weather,
             timestamp: now
           });
         } else {
-          throw new Error("Invalid AQI data");
+          throw new Error("Invalid weather data");
         }
       } catch (err) {
         if (err.name === "CanceledError") return;
         setError(err);
-        setAqi(null);
+        setWeather(null);
       } finally {
         setLoading(false);
       }
@@ -57,9 +57,9 @@ export const useAQIFetch = () => {
   );
 
   return {
-    aqi,
+    weather,
     loading,
     error,
-    fetchAQI
+    fetchWeather
   };
 };

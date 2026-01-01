@@ -1,5 +1,6 @@
 import { useGeolocation } from "../../hooks/useGeolocationContext";
 import { useAQI } from "../../features/aqi/controllers/useAQI";
+import { useWeather } from "../../features/weather/controllers/useWeather";
 import { usePOIController } from "../../features/poi/hooks/usePOIController";
 import { useMemo } from "react";
 import { useDebouncedPosition } from "./useDebouncedPosition";
@@ -39,9 +40,16 @@ export const useMapDataController = () => {
         position: debouncedPosition
     });
 
+    const weather = useWeather({
+        position: debouncedPosition
+    })
+
     const poi = usePOIController({
         position: debouncedPosition
     });
+
+    const envLoading = aqi.loading || weather.loading;
+    const envError = aqi.error || weather.error;
 
     return {
         /* ---------------- Location ---------------- */
@@ -55,6 +63,15 @@ export const useMapDataController = () => {
         aqi: aqi.aqi,
         aqiLoading: aqi.loading,
         aqiError: aqi.error,
+
+        /* ---------------- WEATHER ---------------- */
+        weather: weather.weather,
+        weatherLoading: weather.loading,
+        weatherError: weather.error,
+
+        /* ---------------- ENV STATES ---------------- */
+        envLoading,
+        envError,
 
         /* ---------------- POI ---------------- */
         poiResults: poi.poiResults,
