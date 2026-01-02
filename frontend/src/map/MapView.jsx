@@ -82,7 +82,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     // USING WITH A PROXY SERVER
     const tileUrl = useMemo(() => `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`, []);
 
-    useTransitLayer({ poiType, showTransitLayer, setShowTransitLayer });
+    // useTransitLayer({ poiType, showTransitLayer, setShowTransitLayer });
 
     useEffect(() => {
         if (!poiIntent) return;

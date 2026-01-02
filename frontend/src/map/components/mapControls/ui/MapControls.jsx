@@ -5,8 +5,6 @@ import SearchControls from "../../../controls/searchControls/ui/Container";
 import DirectionControls from '../../../controls/directionControls/ui/Container'
 import POICategory from "../../../../features/poi/ui/POICategory";
 import Chatbot from "../../../../components/Chatbot";
-import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
-import { getCurrentPosition } from "../../../../features/search/utils/getCurrentPosition";
 import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
 
 const MapControls = ({
@@ -79,6 +77,7 @@ const MapControls = ({
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef}
                     />
+
 
                     {/* 🏷️ POI CATEGORIES */}
                     <POICategory poiType={poiType} showMore={showMore} onCategorySelect={onCategorySelect} closeMore={closeMore} />

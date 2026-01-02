@@ -95,12 +95,15 @@ const MapRenderer = ({
 
     // console.log("MODE: ", mode);
 
+    // console.log("Transit ON:", showTransitLayer, tileUrl);
+
+
 
     return (
         <MapContainer
             center={centerPosition}
             ref={mapRef}
-            zoom={13}
+            zoom={15}
             zoomControl={false}
             style={{ height: "100%", width: "100%" }}
         >
@@ -115,6 +118,7 @@ const MapRenderer = ({
             {showTransitLayer && (
                 <TileLayer
                     url={tileUrl}
+                    zIndex={10}
                     attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, © OpenStreetMap contributors'
                 />
             )}

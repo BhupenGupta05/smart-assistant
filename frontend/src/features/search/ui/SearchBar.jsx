@@ -16,11 +16,11 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace }
     }));
 
     return (
-        <div className='absolute top-4 left-4 z-[1000] w-[36%] sm:w-[33%] md:w-[30%] lg:w-[27%] rounded-md flex flex-col gap-3 '>
+        <div className='w-full flex flex-col gap-3'>
             <div className='relative w-full flex items-center flex-1'>
                 <input
                     type="text"
-                    className='w-full px-4 py-2 bg-white border-slate-200 text-xs text-slate-600 outline-none md:px-5 md:py-2 lg:px-6 lg:py-3 font-medium md:text-sm backdrop-blur-md shadow-lg ring-1 ring-black/5 rounded-2xl transition-all focus-visible:ring-2 focus-visible:ring-cyan-400/50'
+                    className='w-full px-4 py-[10px] bg-white border-slate-200 text-xs text-slate-600 outline-none md:px-5 md:py-2 lg:px-5 lg:py-[10px] font-medium md:text-sm backdrop-blur-md shadow-lg ring-1 ring-black/5 rounded-2xl transition-all focus-visible:ring-2 focus-visible:ring-cyan-400/50'
                     placeholder='Search location, places...'
                     value={controller.value}
                     onChange={(e) => {
@@ -75,5 +75,4 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace }
 });
 
 export default SearchBar;
-
 
