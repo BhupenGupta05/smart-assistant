@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import SearchControls from "../../../controls/searchControls/ui/Container";
 import DirectionControls from '../../../controls/directionControls/ui/Container'
 import POICategory from "../../../../features/poi/ui/POICategory";
-import Chatbot from "../../../../components/Chatbot";
+import Chatbot from "../../../../components/chatbot/ui/Chatbot";
 import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
 
 const MapControls = ({
@@ -19,11 +19,7 @@ const MapControls = ({
     setPosition,
     selectedPlace,
     setSelectedPlace,
-    aqi,
-    aqiLoading,
-    aqiError,
     poiType,
-    setPoiType,
     showTransitLayer,
     setShowTransitLayer,
     searchRef,
@@ -35,8 +31,6 @@ const MapControls = ({
     mode,
     setMode,
     clearRoutes,
-    clearPOIs,
-    refetchPOIs,
     showMore,
     onCategorySelect,
     closeMore
@@ -61,18 +55,8 @@ const MapControls = ({
                     <SearchControls
                         query={query}
                         setQuery={setQuery}
-                        setOrigin={setOrigin}
                         setPosition={setPosition}
-                        selectedPlace={selectedPlace}
                         setSelectedPlace={setSelectedPlace}
-                        setDestination={setDestination}
-                        setActiveField={setActiveField}
-                        setMode={setMode}
-                        aqi={aqi}
-                        aqiLoading={aqiLoading}
-                        aqiError={aqiError}
-                        poiType={poiType}
-                        setPoiType={setPoiType}
                         showTransitLayer={showTransitLayer}
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef}

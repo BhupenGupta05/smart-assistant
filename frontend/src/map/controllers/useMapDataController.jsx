@@ -1,5 +1,5 @@
 import { useGeolocation } from "../../hooks/useGeolocationContext";
-import { useAQI } from "../../features/aqi/controllers/useAQI";
+import { useAQI } from "../../features/weather/aqi/controllers/useAQI";
 import { useWeather } from "../../features/weather/controllers/useWeather";
 import { usePOIController } from "../../features/poi/hooks/usePOIController";
 import { useMemo } from "react";
@@ -66,8 +66,6 @@ export const useMapDataController = () => {
 
         /* ---------------- WEATHER ---------------- */
         weather: weather.weather,
-        weatherLoading: weather.loading,
-        weatherError: weather.error,
 
         /* ---------------- ENV STATES ---------------- */
         envLoading,

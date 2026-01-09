@@ -4,15 +4,17 @@ import usePOIInteraction from '../features/poi/controllers/usePOIInteraction';
 import usePOICategory from '../features/poi/controllers/usePOICategory';
 
 import MapControls from '../map/components/mapControls/ui/MapControls'
-import MapRenderer from './components/MapRenderer';
+import MapRenderer from '../map/components/mapRenderer/ui/MapRenderer'
 
 import { useMap } from './controllers/useMap';
 import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
 import { useMapDataController } from './controllers/useMapDataController';
-import { useTransitLayer } from '../features/transit-layer/controllers/useTransitLayer'
-import WeatherContextPanel from '../features/weather/ui/WeatherContextPanel';
+import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
+import Sidebar from '../features/poi/ui/Sidebar';
+import POIDetails from '../features/poi/ui/POIDetails';
 
-const POISidebar = lazy(() => import('../features/poi/ui/POISidebar'));
+// const POISidebar = lazy(() => import('../features/poi/ui/POISidebar'));
+const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
 const DirectionsPanel = lazy(() => import('../features/directions/ui/DirectionsPanel'));
 const Recenter = lazy(() => import('../components/Recenter'));
 
@@ -32,8 +34,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         aqiError,
 
         weather,
-        weatherLoading,
-        weatherError,
 
         envLoading,
         envError,
@@ -55,7 +55,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         destination,
         activeField,
         hoverPOIId,
-        activePOIId,
 
         //setters
         setMode,
@@ -63,7 +62,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         setOrigin,
         setDestination,
         setActiveField,
-        setHoverPOIId } = map;
+        setHoverPOIId,
+    } = map;
 
 
     const poiCategory = usePOICategory();
@@ -111,11 +111,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
-                aqi={aqi}
-                aqiLoading={aqiLoading}
-                aqiError={aqiError}
                 poiType={poiType}
-                setPoiType={setPoiType}
                 showTransitLayer={showTransitLayer}
                 setShowTransitLayer={setShowTransitLayer}
                 searchRef={searchRef}
@@ -127,8 +123,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 mode={mode}
                 setMode={setMode}
                 clearRoutes={directions.clearRoutes}
-                clearPOIs={clearPOIs}
-                refetchPOIs={refetchPOIs}
                 showMore={poiCategory.showMore}
                 onCategorySelect={(type) => {
                     const intent = poiCategory.onCategorySelect(type);
@@ -148,19 +142,29 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         destination={destination}
                         selectedPlace={selectedPlace}
                         poiResults={poiResults}
-                        activePOIId={activePOIId}
+                        hoverPOIId={hoverPOIId} //new
                         setHoverPOIId={setHoverPOIId}
                         setSelectedPlace={setSelectedPlace}
                         poiType={poiType}
                         showTransitLayer={showTransitLayer}
                         tileUrl={tileUrl}
-                        setPosition={setPosition}
                         routes={directions.routes}
                         mode={mode}
-                        setMode={setMode}
                         selectedMode={selectedMode}
                         setSelectedMode={setSelectedMode} />
                 </div>
+
+                {/* DESKTOP POI SIDEBAR */}
+                {selectedPlace && (
+                    <Sidebar
+                        place={selectedPlace}
+                        onNavigate={poiInteraction.startDirectionsWith}
+                        onClose={() => setSelectedPlace(null)}
+                    />
+                )}
+
+
+
 
                 {/* RECENTER BUTTON */}
                 {(selectedPlace || poiType || position) && (
@@ -176,8 +180,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
                 )}
 
-                {(selectedPlace || poiType || position) && !weatherError && !weatherLoading && (
-                    <WeatherContextPanel
+                {(selectedPlace || poiType || position) && (
+                    <ResponsiveWeatherWidget
                         aqi={aqi}
                         weather={weather}
                         loading={envLoading}
@@ -185,19 +189,21 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 )}
 
 
-                {/* POI SIDEBAR */}
-                {mode === "search" && (
-                    <POISidebar
+                {/* BOTTOMSHEET */}
+                {/* HIDE BOTTOMSHEET WHEN A PLACE IS SELECTED ON MOBILE ONLY */}
+                {mode === "search" && !selectedPlace && (
+                    <BottomSheet
                         poiType={poiType}
                         poiResults={poiResults}
                         poiLoading={poiLoading}
                         poiError={poiError}
-                        activePOIId={activePOIId}
-                        setActivePOIId={setHoverPOIId}
                         selectedPlace={selectedPlace}
                         setSelectedPlace={setSelectedPlace}
-                        onDirections={poiInteraction.startDirectionsWith} />
+                        setHoverPOIId={setHoverPOIId}
+                        onDirections={poiInteraction.startDirectionsWith}
+                    />
                 )}
+
 
                 {mode === "directions" && (
                     <DirectionsPanel

@@ -1,9 +1,9 @@
-import { Ellipsis, Utensils, Coffee, Hospital, TramFront, Landmark } from 'lucide-react'
+import { Ellipsis, Utensils, Coffee, Stethoscope, TramFront, Landmark } from 'lucide-react'
 import POIMore from './POIMore'
 
 const categories = [
     { label: "Restaurants", type: "restaurant", icon: Utensils },
-    { label: "Health", type: "hospital", icon: Hospital },
+    { label: "Health", type: "hospital", icon: Stethoscope },
     { label: "Cafes", type: "cafe", icon: Coffee },
     { label: "Banks", type: "bank", icon: Landmark },
     { label: "Transit", type: "transit_station", icon: TramFront },

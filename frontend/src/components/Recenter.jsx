@@ -79,7 +79,7 @@ const Recenter = ({ mapRef, mode, routes, selectedMode, setPosition, setSelected
         <button
             ref={buttonRef}
             className='absolute bottom-48 right-5 z-[9999]
-    bg-white p-1 sm:p-[6px] md:p-2
+    bg-white p-[6px] sm:p-2 md:p-[10px]
     rounded-full shadow-md border
     hover:bg-gray-100 transition
     active:scale-95

@@ -1,12 +1,12 @@
-import { useMemo } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from 'react-leaflet'
-import FlyToLocation from '../FlyToLocation'
-import POIMarker from '../../features/poi/ui/POIMarker';
+import FlyToLocation from '../../../../components/FlyToLocation';
+import POIMarker from '../../../../features/poi/ui/POIMarker';
 import "leaflet/dist/leaflet.css";
-import { userIcon, transitIcon, poiIcon, highlightedPoiIcon, smallIcon } from '../icons/markers'
-import DirectionsLayer from '../../features/directions/ui/DirectionsLayer';
+import { userIcon, smallIcon } from '../../../icons/markers'
+import DirectionsLayer from '../../../../features/directions/ui/DirectionsLayer';
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import { createClusterCustomIcon } from '../icons/CustomClusterIcon';
+import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
+import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
 
 const MapRenderer = ({
     mapRef,
@@ -15,89 +15,31 @@ const MapRenderer = ({
     destination,
     selectedPlace,
     poiResults,
-    activePOIId,
+    hoverPOIId,
     setHoverPOIId,
     setSelectedPlace,
     poiType,
     showTransitLayer,
     tileUrl,
-    setPosition,
     routes,
     mode,
-    setMode,
     selectedMode,
     setSelectedMode
 }) => {
-
-    // MEMOIZE ALL POI MARKERS
-    const memoizedPOIMarkers = useMemo(() => {
-        return poiResults.map((poi, idx) => {
-
-            const poiId = poi.place_id || idx;
-            const isActive = activePOIId === poiId;
-
-            const icon = poiType === 'transit_station'
-                ? transitIcon
-                : (isActive ? highlightedPoiIcon : poiIcon);
-
-            // Safe lat/lng access
-            // const lat = poi.lat ?? poi.geometry?.location?.lat
-            // const lng = poi.lng ?? poi.geometry?.location?.lng
-
-            const lat =
-                poi.lat ??
-                (typeof poi.geometry?.location?.lat === "function"
-                    ? poi.geometry.location.lat()
-                    : poi.geometry?.location?.lat);
-
-            const lng =
-                poi.lng ??
-                (typeof poi.geometry?.location?.lng === "function"
-                    ? poi.geometry.location.lng()
-                    : poi.geometry?.location?.lng);
-
-            if (lat == null || lng == null) return null;
-
-            return (
-                <POIMarker
-                    key={poiId}
-                    poi={{ ...poi, lat, lng }}
-                    poiId={poiId}
-                    icon={icon}
-                    onMouseOver={(id) => setHoverPOIId(id)}
-                    onMouseOut={() => {
-                        if (!selectedPlace || selectedPlace.place_id !== poiId) {
-                            setHoverPOIId(null);
-                        }
-                    }}
-                    onClick={(poi) => {
-                        setSelectedPlace(poi);
-                        setHoverPOIId(null);
-                    }}
-                />
-            )
-        })
-    }, [poiResults, activePOIId, poiType, selectedPlace])
-
-    // Safe selectedPlace coords
-    const selectedLat = selectedPlace?.lat ?? selectedPlace?.geometry?.location?.lat
-    const selectedLng = selectedPlace?.lng ?? selectedPlace?.geometry?.location?.lng
-
-
-    const centerPosition = useMemo(() => {
-        if (destination) return [destination.lat, destination.lng];   // prioritize destination
-        if (origin) return [origin.lat, origin.lng];                 // else origin
-        if (selectedLat != null && selectedLng != null) return [selectedLat, selectedLng];
-        if (position) return position;                               // fallback to current location
-        return [28.6139, 77.2090];                                   // ultimate fallback (Delhi or any default)
-    }, [destination, origin, selectedLat, selectedLng, position]);
-
-
-    // console.log("MODE: ", mode);
-
-    // console.log("Transit ON:", showTransitLayer, tileUrl);
-
-
+    const {
+        memoizedPOIMarkers,
+        centerPosition,
+        selectedLat,
+        selectedLng
+    } = useMapRendererLogic({
+        poiResults,
+        hoverPOIId,
+        poiType,
+        selectedPlace,
+        destination,
+        origin,
+        position
+    });
 
     return (
         <MapContainer
@@ -167,11 +109,28 @@ const MapRenderer = ({
                 <MarkerClusterGroup
                     chunkedLoading
                     showCoverageOnHover={false}
-                    spiderfyOnMaxZoom={true}
+                    spiderfyOnMaxZoom
                     maxClusterRadius={40}
                     iconCreateFunction={createClusterCustomIcon}
                 >
-                    {memoizedPOIMarkers}
+                    {memoizedPOIMarkers.map(({ poiId, poi, icon }) => (
+                        <POIMarker
+                            key={poiId}
+                            poi={poi}
+                            poiId={poiId}
+                            icon={icon}
+                            onMouseOver={() => setHoverPOIId(poiId)}
+                            onMouseOut={() => {
+                                if (!selectedPlace || selectedPlace.place_id !== poiId) {
+                                    setHoverPOIId(null);
+                                }
+                            }}
+                            onClick={() => {
+                                setSelectedPlace(poi);
+                                setHoverPOIId(null);
+                            }}
+                        />
+                    ))}
                 </MarkerClusterGroup>
             )}
 

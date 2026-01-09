@@ -8,6 +8,7 @@ const poiRoute = require('./routes/searchPOIs');
 const directionsRoute = require('./routes/directions');
 const { tileRateLimiter, requestLimiter } = require('./middlewares/rateLimiter');
 const { validateCoordinates } = require('./utils/validation');
+const {calculateAQI} = require('./utils/calculateAQI');
 
 // LRU CACHE TO STORE POI, AQI, WEATHER AND SEARCH RESULTS
 const poiCache = new LRUCache({ max: 500, ttl: 1000 * 60 * 5 });
@@ -137,15 +138,30 @@ app.get('/api/aqi', async (req, res, next) => {
 
     try {
         const { data } = await axiosInstance.get(url);
+        
 
-        const aqi = data?.list?.[0]?.main?.aqi;
-        if (!aqi) {
+        const entry = data?.list?.[0];
+        if (!entry) {
             return res.status(502).json({ error: 'Invalid AQI response' });
         }
 
-        const result = { aqi };
-        aqiCache.set(key, result);
+        const pm25 = entry.components?.pm2_5;
+        const aqiOWM = entry.main?.aqi;
 
+        if (pm25 == null) {
+            return res.status(502).json({ error: 'PM2.5 data missing' });
+        }
+
+        const actualAQI = calculateAQI(pm25);
+
+        const result = {
+            aqi: actualAQI,        // ← REAL AQI (0–500)
+            category: aqiOWM,      // ← OpenWeatherMap index (1–5)
+            pm25,
+            pm10: entry.components.pm10
+        };
+
+        aqiCache.set(key, result);
         res.json(result);
     } catch (error) {
         error.context = 'AQI_FETCH_FAILED';
@@ -234,7 +250,8 @@ app.get('/api/nearby', async (req, res, next) => {
             photos: place.photos,
             user_ratings_total: place.user_ratings_total || 'NA',
             rating: place.rating || 'NA',
-            opening_hours: place.opening_hours?.open_now ?? 'NA'
+            opening_hours: place.opening_hours?.open_now ?? 'NA',
+            phone: place.international_phone_number || place.formatted_phone_number || 'NA'
         }))
 
         poiCache.set(key, simplifiedResults);

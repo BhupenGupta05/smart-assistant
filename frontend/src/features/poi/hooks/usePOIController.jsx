@@ -21,7 +21,6 @@ export const usePOIController = ({ position }) => {
 
     try {
       const data = await fetchPOIs({ lat, lng, type: poiType });
-      console.log('POI FETCHED:', data);
       
       setPoiResults(data);
     } catch (err) {
@@ -36,7 +35,6 @@ export const usePOIController = ({ position }) => {
 
   // Fetch when type or location changes
   useEffect(() => {
-     console.log('POI EFFECT TRIGGERED:', poiType)
     loadPOIs();
     return cancel;
   }, [loadPOIs, cancel]);

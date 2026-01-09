@@ -17,7 +17,7 @@ export const useWeatherFetch = () => {
       const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
       const now = Date.now();
 
-      // 🟢 Serve from cache
+      // Serve from cache
       const cached = cacheRef.current.get(key);
       if (cached && now - cached.timestamp < CACHE_TTL) {
         setWeather(cached.data);

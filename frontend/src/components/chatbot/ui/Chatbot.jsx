@@ -1,0 +1,73 @@
+import { MessagesSquare, X } from 'lucide-react';
+import { useChatbotLogic } from '../controllers/useChatbotLogic';
+
+const Chatbot = () => {
+    const {
+    messages,
+    input,
+    loading,
+    isOpen,
+    chatRef,
+    setInput,
+    toggleChat,
+    sendMessage
+  } = useChatbotLogic();
+
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !loading) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
+
+    return (
+        <>
+            {/* Floating Button */}
+            {!isOpen && (
+                <button
+                    onClick={toggleChat}
+                    className="fixed bottom-5 right-5 z-[9999] bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition active:scale-95"
+                >
+                    <MessagesSquare className='w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600' />
+                </button>
+            )}
+
+            {/* IMPLEMENT ANIMATE SLIDE-DOWN */}
+
+            {isOpen && (
+                <div ref={chatRef} className='chatbot animate-slide-up z-[9999]'>
+                    <div className='chat-header flex justify-between items-center'>
+                        <span>🤖 Smart Assistant</span>
+                        <button
+                            onClick={toggleChat}
+                            className="text-white hover:text-gray-300 transition"
+                        >
+                            <X className='w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5' />
+                        </button>
+                    </div>
+                    <div className="chat-messages">
+                        {messages.map((msg, i) => (
+                            <div key={i} className={`message ${msg.role}`}>
+                                {msg.content}
+                            </div>
+                        ))}
+                        {loading && <div className="message assistant">Thinking...</div>}
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Ask a question..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        disabled={loading}
+                        className={`p-2 text-sm outline-none border-t-[1px] border-t-slate-300 ${loading ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
+                    />
+                </div>
+            )}
+        </>
+
+    );
+};
+
+export default Chatbot;

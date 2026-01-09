@@ -59,7 +59,6 @@ export default function DirectionsPanel({
         {hasRoutes ? filteredRoutes
           .map((route, idx) => {
             const isActive = route.mode === selectedMode;
-            console.log("ROUTE: ", route);
 
             return (
               <div
