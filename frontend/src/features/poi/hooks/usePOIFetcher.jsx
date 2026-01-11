@@ -4,6 +4,7 @@
 
 import { useCallback, useRef } from "react";
 import axios from "axios";
+import useNetwork from "../../network/hooks/useNetwork";
 
 const CACHE_TTL = 60_000; // 1 minute
 
@@ -11,8 +12,15 @@ export const usePOIFetcher = () => {
   const cacheRef = useRef(new Map());
   const abortRef = useRef(null);
 
+  const isOnline = useNetwork();
+
+
   const fetchPOIs = useCallback(async ({ lat, lng, type }) => {
     if (!lat || !lng || !type) return [];
+
+    if (!isOnline) {
+        return [];
+      }
 
     const cacheKey = `${lat.toFixed(5)},${lng.toFixed(5)}-${type}`;
     const cached = cacheRef.current.get(cacheKey);

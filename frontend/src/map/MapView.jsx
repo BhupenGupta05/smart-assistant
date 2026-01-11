@@ -18,7 +18,7 @@ const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
 const DirectionsPanel = lazy(() => import('../features/directions/ui/DirectionsPanel'));
 const Recenter = lazy(() => import('../components/Recenter'));
 
-const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef, poiIntent }) => {
+const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef, poiIntent, isOnline }) => {
     const mapRef = useRef(null); // Using same map instance
     const lastAIIntentRef = useRef(null);
 
@@ -129,7 +129,9 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                     if (!intent) return;
                     setPoiType(intent);
                 }}
-                closeMore={poiCategory.closeMore} />
+                closeMore={poiCategory.closeMore}
+                isOnline={isOnline} 
+                />
 
 
             <div className='fixed inset-0 overflow-hidden'>

@@ -29,7 +29,7 @@ router.get('/', async (req, res, next) => {
 
             const { data } = await axiosInstance.get(url);
 
-            console.log("DATA FETCHED: ", data);
+            // console.log("DATA FETCHED: ", data);
 
 
             if (data.status !== 'OK' || !data.routes.length) return null;

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDirectionsContext } from "../context/DirectionsContext";
+import { useDirectionsContext } from "../context/useDirectionsContext";
 
 export const useDirectionsController = ({ selectedMode, setSelectedMode }) => {
     const { routes, loading, error, getDirections, clearRoutes } = useDirectionsContext();

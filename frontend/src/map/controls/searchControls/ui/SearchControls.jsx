@@ -10,7 +10,8 @@ const SearchControls = ({
   setSelectedPlace,
   showTransitLayer,
   setShowTransitLayer,
-  searchRef
+  searchRef,
+  isOnline
 }) => {
 
   return (
@@ -32,6 +33,7 @@ const SearchControls = ({
             setQuery={setQuery}
             setPosition={setPosition}
             setSelectedPlace={setSelectedPlace}
+            isOnline={isOnline}
           />
         </div>
 

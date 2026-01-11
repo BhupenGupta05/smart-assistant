@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useNetwork from "../features/network/hooks/useNetwork";
 import axios from "axios";
 
 export async function fetchPlaces(query) {
@@ -19,8 +20,13 @@ const DEBOUNCE_DELAY = 300;
 
 export const useFetchPlaces = (inputVal, justSelectedRef) => {
     const [results, setResults] = useState([]);
+    const isOnline = useNetwork();
 
     useEffect(() => {
+        if(!isOnline) {
+            setResults([]);
+            return;
+        }
         if (justSelectedRef?.current) {
             justSelectedRef.current = false;
             return;

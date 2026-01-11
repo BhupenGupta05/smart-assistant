@@ -8,7 +8,7 @@ const poiRoute = require('./routes/searchPOIs');
 const directionsRoute = require('./routes/directions');
 const { tileRateLimiter, requestLimiter } = require('./middlewares/rateLimiter');
 const { validateCoordinates } = require('./utils/validation');
-const {calculateAQI} = require('./utils/calculateAQI');
+const { calculateAQI } = require('./utils/calculateAQI');
 
 // LRU CACHE TO STORE POI, AQI, WEATHER AND SEARCH RESULTS
 const poiCache = new LRUCache({ max: 500, ttl: 1000 * 60 * 5 });
@@ -138,7 +138,7 @@ app.get('/api/aqi', async (req, res, next) => {
 
     try {
         const { data } = await axiosInstance.get(url);
-        
+
 
         const entry = data?.list?.[0];
         if (!entry) {

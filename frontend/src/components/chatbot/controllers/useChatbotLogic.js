@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import axios from "axios";
 import { useAssistant } from "../../../hooks/useAssistant";
 import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
+import useNetwork from "../../../features/network/hooks/useNetwork";
 
 export const useChatbotLogic = () => {
   const [messages, setMessages] = useState([
@@ -12,6 +13,7 @@ export const useChatbotLogic = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const chatRef = useRef(null);
+  const isOnline = useNetwork();
 
   const { getCurrentLocation } = useCurrentLocation();
 
@@ -65,8 +67,8 @@ export const useChatbotLogic = () => {
   /* ---------------- Directions ---------------- */
 
 
- // HELPER FUNCTION
-    // WAITING TILL THE DIRECTION REF MOUNTS SO THAT WE CAN SET ORIGIN/DESTINATION IN INPUTS
+  // HELPER FUNCTION
+  // WAITING TILL THE DIRECTION REF MOUNTS SO THAT WE CAN SET ORIGIN/DESTINATION IN INPUTS
   const waitForRef = async (ref, retries = 10, delay = 200) => {
     let count = 0;
     while ((!ref.current || !ref.current.ready) && count < retries) {
@@ -106,6 +108,9 @@ export const useChatbotLogic = () => {
   /* ---------------- Tool Runner ---------------- */
 
   const runTool = async (tool, lastUserMessage) => {
+    if (!isOnline) {
+      throw new Error("You are offline. This action requires internet.");
+    }
     const { name, arguments: argsJSON } = tool.function;
     const args = JSON.parse(argsJSON);
 
@@ -142,6 +147,15 @@ export const useChatbotLogic = () => {
 
   const sendMessage = async () => {
     if (loading || !input.trim()) return;
+
+    if (!isOnline) {
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "📴 You’re offline. I can’t fetch new answers right now." }
+      ]);
+      setInput("");
+      return;
+    }
 
     const userMessage = { role: "user", content: input };
     const nextMessages = [...messages, userMessage];

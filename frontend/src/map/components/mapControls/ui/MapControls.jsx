@@ -33,7 +33,8 @@ const MapControls = ({
     clearRoutes,
     showMore,
     onCategorySelect,
-    closeMore
+    closeMore,
+    isOnline
 }) => {
 
     useSearchSelection({
@@ -60,6 +61,7 @@ const MapControls = ({
                         showTransitLayer={showTransitLayer}
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef}
+                        isOnline={isOnline}
                     />
 
 

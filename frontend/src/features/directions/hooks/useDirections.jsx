@@ -1,7 +1,8 @@
 // Custom hook to fetch directions between two points using various modes of transportation
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import axios from "axios";
+import useNetwork from "../../network/hooks/useNetwork";
 
 //HELPER
 const normalizeCoords = (point) => {
@@ -26,10 +27,18 @@ export const useDirections = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const abortRef = useRef(null);
+  const isOnline = useNetwork();
+
   // Clear routes and errors
   const clearRoutes = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     setRoutes([]);
     setError(null);
+    setLoading(false);
   }, []);
 
   // Fetch directions between origin and destination
@@ -37,13 +46,28 @@ export const useDirections = () => {
     const originCoords = normalizeCoords(origin);
     const destCoords = normalizeCoords(destination);
 
-    if (!origin || !destination) {
-       console.error("Invalid coordinates:", { origin, destination });
+    if (!originCoords || !destCoords) {
+      console.error("Invalid coordinates:", { origin, destination });
       setRoutes([]);
-       setError("Invalid origin or destination");
+      setError("Invalid origin or destination");
+      setLoading(false);
       return;
     }
-    
+
+    if (!isOnline) {
+      setError("You are offline");
+      setRoutes([]);
+      setLoading(false);
+      return;
+    }
+
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     setError(null);
 
@@ -54,18 +78,17 @@ export const useDirections = () => {
         modes: modes.join(","),
       });
 
-      const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/directions?${qs}`);
-      console.log("📍 Routes received:", data.routes);
+      const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/directions?${qs}`, { signal: controller.signal });
       setRoutes(data.routes || []);
       setError(null);
     } catch (e) {
-      console.error("Directions fetch failed:", e.message);
+      if (e.name === "CanceledError" || e.name === "AbortError") return;
       setRoutes([]);
       setError("Could not fetch directions");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isOnline]);
 
   return { routes, getDirections, clearRoutes, loading, error };
 };

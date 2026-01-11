@@ -1,4 +1,4 @@
-import { DirectionsProvider } from '../features/directions/context/DirectionsContext'
+import { DirectionsProvider } from '../features/directions/context/DirectionsProvider'
 import { GeolocationProvider } from '../hooks/useGeolocationContext'
 
 const AppProvider = ({ children }) => {

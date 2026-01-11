@@ -2,7 +2,7 @@ import { useImperativeHandle, forwardRef } from 'react';
 import { Search } from 'lucide-react';
 import useSearch from '../controllers/useSearch'
 
-const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace }, ref) => {
+const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace, isOnline }, ref) => {
 
     const controller = useSearch({
         externalQuery: query,
@@ -28,9 +28,12 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace }
                     }}
                     onFocus={() => controller.setShowResults(true)}
                     onBlur={() => setTimeout(() => controller.setShowResults(false), 150)}
+                    disabled={!isOnline}
                 />
 
-                <button className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer'>
+                <button
+                    disabled={!isOnline}
+                    className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer'>
                     <Search className='w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5' />
                 </button>
             </div>
