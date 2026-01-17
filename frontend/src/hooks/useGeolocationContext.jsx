@@ -5,11 +5,18 @@
 // If the user denies geolocation permission, it will default to New Delhi
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import useNetwork from '../features/network/hooks/useNetwork';
+import { loadLocation, saveLocation } from '../features/offline/utils/locationCache';
 
 const GeolocationContext = createContext();
 
 export const GeolocationProvider = ({ children }) => {
-    const [position, setPosition] = useState([28.6139, 77.2090]); // It is the coordinates of user's current location
+    const isOnline = useNetwork();
+    // Try to load cached location on initial render
+    const [position, setPosition] = useState(() => {
+        const cached = loadLocation();
+        return cached ? [cached.lat, cached.lng] : [28.6139, 77.2090];
+    });
     const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
     const [error, setError] = useState(null);
 
@@ -25,20 +32,46 @@ export const GeolocationProvider = ({ children }) => {
             return;
         }
 
+        // If offline, use cached location and don't attempt geolocation
+        if (!isOnline) {
+            const cached = loadLocation();
+            if (cached) {
+                console.log("📴 OFFLINE: Using cached location");
+                setPosition([cached.lat, cached.lng]);
+            }
+            return;
+        }
+
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                setPosition([pos.coords.latitude, pos.coords.longitude]);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                setPosition([lat, lng]);
+                setError(null);
+
+                // ✅ Save to cache for offline use
+                saveLocation(lat, lng);
+                console.log("📍 Location saved to cache");
             },
             (err) => {
                 console.error("Geolocation error:", err);
-                setError("Unable to retrieve your location");
+                // Fallback to cached location
+                const cached = loadLocation();
+                if (cached) {
+                    console.log("⚠️ Geolocation failed, using cached location");
+                    setPosition([cached.lat, cached.lng]);
+                    setError("Using last known location");
+                } else {
+                    setError("Unable to retrieve your location");
+                }
             },
             {
                 enableHighAccuracy: true,
                 timeout: 5000,
             }
         );
-    }, []);
+    }, [isOnline]);
 
     const value = useMemo(() => ({
         position,
@@ -48,7 +81,7 @@ export const GeolocationProvider = ({ children }) => {
         getCoords,
         error,
         setError,
-    }), [position, selectedPlace, getCoords, error])
+    }), [position, selectedPlace, error])
 
     return (
         <GeolocationContext.Provider value={value}>

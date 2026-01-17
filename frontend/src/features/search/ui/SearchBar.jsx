@@ -20,7 +20,7 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace, 
             <div className='relative w-full flex items-center flex-1'>
                 <input
                     type="text"
-                    className='w-full px-4 py-[10px] bg-white border-slate-200 text-xs text-slate-600 outline-none md:px-5 md:py-2 lg:px-5 lg:py-[10px] font-medium md:text-sm backdrop-blur-md shadow-lg ring-1 ring-black/5 rounded-2xl transition-all focus-visible:ring-2 focus-visible:ring-cyan-400/50'
+                    className={`w-full px-4 py-[10px] bg-white border-slate-200 text-xs text-slate-600 outline-none md:px-5 md:py-2 lg:px-5 lg:py-[10px] font-medium md:text-sm backdrop-blur-md shadow-lg ring-1 ring-black/5 rounded-2xl transition-all focus-visible:ring-2 focus-visible:ring-cyan-400/50`}
                     placeholder='Search location, places...'
                     value={controller.value}
                     onChange={(e) => {
@@ -33,7 +33,7 @@ const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace, 
 
                 <button
                     disabled={!isOnline}
-                    className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer'>
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer`}>
                     <Search className='w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5' />
                 </button>
             </div>

@@ -1,4 +1,5 @@
 import { Star, MapPin, Navigation2 } from "lucide-react";
+import useNetwork from "../../network/hooks/useNetwork";
 
 export default function POICard({
     poi,
@@ -8,6 +9,9 @@ export default function POICard({
     onMouseLeave,
     onDirections
 }) {
+
+    const isOnline = useNetwork();
+
 
     return (
         <div
@@ -44,16 +48,20 @@ export default function POICard({
                     <h3 className="text-left text-sm md:text-base font-semibold text-foreground truncate">{poi.name}</h3>
 
                     <div className="flex items-center gap-1 mt-1 text-amber-500">
-                        <span className="text-xs md:text-sm">{poi.rating}</span>
-                        <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={`w-3 h-3 ${i < Math.floor(poi.rating || 0) ? 'fill-current' : 'text-gray-200'}`}
-                                />
-                            ))}
-                        </div>
-                        <span className="text-xs text-muted-foreground ml-1 text-slate-700 font-light">({Math.floor(Math.random() * 500) + 50})</span>
+                        <span className="text-xs md:text-sm">{poi.rating === "NA" ? "No Ratings yet" : poi.rating}</span>
+                        {poi.rating !== "NA" && (
+                            <div className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        className={`w-3 h-3 ${i < Math.floor(poi.rating || 0) ? 'fill-current' : 'text-gray-200'}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                        {poi.user_ratings_total !== "NA" && (
+                            <span className="text-xs text-muted-foreground ml-1 text-slate-700 font-light">({poi.user_ratings_total})</span>
+                        )}
                     </div>
 
 
@@ -74,6 +82,7 @@ export default function POICard({
                 <div className="overflow-hidden">
                     <div className="mt-4 flex gap-2">
                         <button
+                            disabled={!isOnline}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onDirections(poi);
