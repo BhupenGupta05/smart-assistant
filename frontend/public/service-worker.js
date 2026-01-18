@@ -1,6 +1,6 @@
 const APP_CACHE = "app-shell-v1";
 const IMAGE_CACHE = "image-cache-v1"; //POI IMAGES
-const TILE_CACHE = "map-tiles-v1"; //MAP TILES
+// const TILE_CACHE = "map-tiles-v1"; //MAP TILES
 
 
 const APP_SHELL = [
@@ -24,7 +24,7 @@ self.addEventListener("activate", (event) => {
         caches.keys().then((keys) =>
             Promise.all(
                 keys
-                    .filter((key) => ![APP_CACHE, IMAGE_CACHE, TILE_CACHE].includes(key))
+                    .filter((key) => ![APP_CACHE, IMAGE_CACHE].includes(key))
                     .map((key) => caches.delete(key))
             ))
     )
@@ -43,10 +43,10 @@ self.addEventListener("fetch", (event) => {
     }
 
     // MAP TILE CACHE LOGIC
-    if (url.hostname.includes("tile.thunderforest.com") || url.hostname.includes("basemaps.cartocdn.com")) {
-        event.respondWith(cacheMapTile(request));
-        return;
-    }
+    // if (url.hostname.includes("tile.thunderforest.com") || url.hostname.includes("basemaps.cartocdn.com")) {
+    //     event.respondWith(cacheMapTile(request));
+    //     return;
+    // }
 
     // APP SHELL CACHE
     event.respondWith(
@@ -76,23 +76,23 @@ async function handleImageRequest(request) {
 }
 
 
-async function cacheMapTile(request) {
-    const cache = await caches.open(TILE_CACHE);
+// async function cacheMapTile(request) {
+//     const cache = await caches.open(TILE_CACHE);
 
-    const cached = await cache.match(request);
-    if (cached) return cached;
+//     const cached = await cache.match(request);
+//     if (cached) return cached;
 
-    try {
-        const response = await fetch(request);
-        if (response.ok) {
-            cache.put(request, response.clone());
-            limitCacheSize(TILE_CACHE, 600);
-        }
-        return response;
-    } catch (error) {
-        return new Response("", { status: 404 });
-    }
-}
+//     try {
+//         const response = await fetch(request);
+//         if (response.ok) {
+//             cache.put(request, response.clone());
+//             limitCacheSize(TILE_CACHE, 600);
+//         }
+//         return response;
+//     } catch (error) {
+//         return new Response("", { status: 404 });
+//     }
+// }
 
 
 async function limitCacheSize(cacheName, maxItems) {

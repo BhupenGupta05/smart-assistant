@@ -33,11 +33,11 @@ export default function BottomSheet({
     return (
         <div
             ref={containerRef}
-            className="absolute bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-end pb-6 md:pb-8 px-4 h-screen text-slate-700">
+            className="absolute bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-end pb-6 md:pb-8 px-4 h-screen text-slate-700 pointer-events-none">
 
             {/* Mobile/Desktop Responsive Container */}
             <div
-                className="w-full pointer-events-auto"
+                className="w-full"
             >
                 {/* Handle Bar for Mobile Drag hint (Visual only for now) */}
                 <div className="w-full flex justify-center mb-2 md:hidden">
