@@ -29,3 +29,16 @@ export function loadCache(key, maxAge = Infinity) {
         return null;
     }
 }
+
+// FOR ACCESSING TIMESTAMP ONLY
+export function loadCacheMeta(key) {
+    try {
+        const raw = localStorage.getItem(PREFIX + key);
+        if (!raw) return null;
+
+        const { timestamp } = JSON.parse(raw);
+        return timestamp;
+    } catch {
+        return null;
+    }
+}

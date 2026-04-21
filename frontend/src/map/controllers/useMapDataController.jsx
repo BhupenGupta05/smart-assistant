@@ -5,7 +5,8 @@ import { usePOIController } from "../../features/poi/hooks/usePOIController";
 import { useMemo } from "react";
 import { useDebouncedPosition } from "./useDebouncedPosition";
 
-export const useMapDataController = () => {
+
+export const useMapDataController = ({ poiIntent }) => {
     const geolocation = useGeolocation();
     const { getCoords } = geolocation;
 
@@ -26,8 +27,8 @@ export const useMapDataController = () => {
             raw.length === 2 &&
             typeof raw[0] === "number" &&
             typeof raw[1] === "number" &&
-            raw[0] &&
-            raw[1]
+            raw[0] != null &&
+            raw[1] != null
         ) {
             return { lat: raw[0], lng: raw[1] };
         }
@@ -35,6 +36,13 @@ export const useMapDataController = () => {
     }, [getCoords]);
 
     const debouncedPosition = useDebouncedPosition(position, 600);
+
+    const canRenderEnv = useMemo(() => {
+        return Boolean(debouncedPosition && typeof debouncedPosition.lat === "number"
+            && typeof debouncedPosition.lng === "number"
+        );
+    }, [debouncedPosition]);
+
 
     const aqi = useAQI({
         position: debouncedPosition
@@ -45,11 +53,13 @@ export const useMapDataController = () => {
     })
 
     const poi = usePOIController({
-        position: debouncedPosition
+        position: debouncedPosition,
+        poiIntent
     });
 
     const envLoading = aqi.loading || weather.loading;
     const envError = aqi.error || weather.error;
+
 
     return {
         /* ---------------- Location ---------------- */
@@ -58,6 +68,9 @@ export const useMapDataController = () => {
         setPosition: geolocation.setPosition,
         selectedPlace: geolocation.selectedPlace,
         setSelectedPlace: geolocation.setSelectedPlace,
+
+        /* ---------------- ENV RENDER GATE ---------------- */
+        canRenderEnv,
 
         /* ---------------- AQI ---------------- */
         aqi: aqi.aqi,

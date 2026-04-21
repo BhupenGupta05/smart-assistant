@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import axios from "axios";
 import useNetwork from "../../../network/hooks/useNetwork";
+import { loadAQI, saveAQI } from "../../../offline/utils/aqiCache";
+import { lastUpdated } from '../../../offline/utils/lastUpdated' 
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
@@ -17,8 +19,20 @@ export const useAQIFetch = () => {
     async (lat, lon, signal) => {
       if (!lat || !lon) return;
 
-      if(!isOnline) {
-        setLoading(false);
+      if (!isOnline) {
+        const cachedAQI = loadAQI(lat, lon, 2 * 60 * 60 * 1000); //2h
+        console.log(cachedAQI);
+        
+        if (cachedAQI) {
+          setAqi({
+            data: cachedAQI.data,
+            timestamp: cachedAQI.timestamp,
+            source: "cache",
+            lastUpdatedText: lastUpdated(cachedAQI.timestamp)
+          });
+        } else {
+          setAqi(null);
+        }
         return;
       }
 
@@ -26,9 +40,14 @@ export const useAQIFetch = () => {
       const now = Date.now();
 
       // 🟢 Serve from cache
-      const cached = cacheRef.current.get(key);
-      if (cached && now - cached.timestamp < CACHE_TTL) {
-        setAqi(cached.data);
+      const memoryCached = cacheRef.current.get(key);
+      if (memoryCached && now - memoryCached.timestamp < CACHE_TTL) {
+        setAqi({
+          data: memoryCached.data,
+          timestamp: memoryCached.timestamp,
+          source: "cache",
+          lastUpdatedText: lastUpdated(memoryCached.timestamp)
+        });
         return;
       }
 
@@ -43,13 +62,19 @@ export const useAQIFetch = () => {
             signal
           }
         );
-        
+
         if (data?.aqi !== undefined) {
-          setAqi(data.aqi);
+          setAqi({
+            data: data.aqi,
+            timestamp: now,
+            source: "network",
+            lastUpdatedText: null
+          });
           cacheRef.current.set(key, {
             data: data.aqi,
             timestamp: now
           });
+          saveAQI(lat, lon, data.aqi);
         } else {
           throw new Error("Invalid AQI data");
         }
@@ -60,7 +85,7 @@ export const useAQIFetch = () => {
       } finally {
         setLoading(false);
       }
-    },[isOnline]);
+    }, [isOnline]);
 
   return {
     aqi,

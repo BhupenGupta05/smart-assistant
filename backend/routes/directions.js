@@ -25,11 +25,9 @@ router.get('/', async (req, res, next) => {
         const fetchMode = async (mode) => {
             const url = `${process.env.BASE_URL}/directions/json?origin=${encodeURIComponent(
                 origin
-            )}&destination=${encodeURIComponent(destination)}&mode=${mode}&departure_time=now&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+            )}&destination=${encodeURIComponent(destination)}&mode=${mode}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
             const { data } = await axiosInstance.get(url);
-
-            // console.log("DATA FETCHED: ", data);
 
 
             if (data.status !== 'OK' || !data.routes.length) return null;
@@ -56,20 +54,30 @@ router.get('/', async (req, res, next) => {
                 emission_grams
             };
         }
-        const routes = (await Promise.all(modeList.map(fetchMode))).filter(Boolean);
+
+        const routes = (await Promise.all(
+            modeList.map(async (mode) => {
+                const result = await fetchMode(mode);
+                return result; 
+            })
+        )).filter(Boolean);
 
         // Sort by duration (fastest first)
-        routes.sort((a, b) => (a.duration_seconds ?? 1e12) - (b.duration_seconds ?? 1e12));
+        routes.sort((a, b) => (a.duration_seconds || Infinity) - (b.duration_seconds || Infinity));
 
         res.json({ routes });
     } catch (error) {
-        console.error("Directions error:", error);
-        if (error.response?.status === 429) {
-            res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
-        } else {
-            error.context = 'DIRECTIONS_API_ERROR';
-            next(error);
+        error.context = 'DIRECTIONS_API_ERROR';
+
+        if (error.status === 429) {
+            return res.status(429).json({ error: error.message });
         }
+
+        if (error.status === 408) {
+            return res.status(408).json({ error: error.message });
+        }
+
+        next(error);
     }
 })
 

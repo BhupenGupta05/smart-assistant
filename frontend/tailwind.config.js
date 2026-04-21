@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        '2xs': '0.625rem'
+      },
       keyframes: {
         recenterPulse: {
            '0%, 100%': { transform: 'scale(1)' },

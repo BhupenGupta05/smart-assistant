@@ -9,8 +9,6 @@ export const useMap = () => {
     const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
     const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
 
-    // const activePOIId = useMemo(() => selectedPlace?.place_id || hoverPOIId, [selectedPlace, hoverPOIId]); // Use selected place ID or hover ID for active POI //new
-
     return {
         //state
         mode,

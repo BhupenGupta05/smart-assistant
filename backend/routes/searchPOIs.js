@@ -3,9 +3,7 @@ const router = express.Router();
 const axiosInstance = require('../utils/axiosInstance');
 
 router.post('/', async (req, res, next) => {
-  const { query, type, open_now = false, radius = 2000, location } = req.body;
-  console.log("REQUEST BODY:", req.body);
-
+  const { query, type, open_now = false, radius = 1500, location } = req.body;
 
   if (!location || !location.lat || !location.lng) {
     return res.status(400).json({ error: "location is required {lat, lng}" });
@@ -15,8 +13,6 @@ router.post('/', async (req, res, next) => {
     const url = `${process.env.BASE_URL}/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=${radius}&keyword=${encodeURIComponent(query)}${open_now ? "&opennow=true" : ""}${type ? `&type=${type}` : ""}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
     const { data } = await axiosInstance.get(url);
-
-    console.log("DATA:", data);
 
 
     if (data.status === "ZERO_RESULTS") {
@@ -41,11 +37,16 @@ router.post('/', async (req, res, next) => {
 
 
   } catch (error) {
-    console.error("POI search error:", error.message);
-    if (error.response?.status === 429) {
-      res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
-    }
     error.context = 'POI_SEARCH_FAILED';
+
+    if (error.status === 429) {
+      return res.status(429).json({ error: error.message });
+    }
+
+    if (error.status === 408) {
+      return res.status(408).json({ error: error.message });
+    }
+
     next(error);
   }
 });

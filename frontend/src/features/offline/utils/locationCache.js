@@ -22,3 +22,16 @@ export function loadLocation(maxAge = 24 * 60 * 60 * 1000) { // 24 hours default
     return null;
   }
 }
+
+// FOR ACCESSING TIMESTAMP ONLY
+export function loadCacheMeta() {
+    try {
+        const raw = localStorage.getItem(LOCATION_KEY);
+        if (!raw) return null;
+
+        const { timestamp } = JSON.parse(raw);
+        return timestamp;
+    } catch {
+        return null;
+    }
+}

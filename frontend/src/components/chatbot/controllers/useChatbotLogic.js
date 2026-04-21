@@ -130,7 +130,11 @@ export const useChatbotLogic = () => {
 
       case "set_poi_type":
       case "search_poi":
-        return onPOIIntent(args.type || args.query);
+        return onPOIIntent({
+          type: args.type,
+          query: args.query,
+          radius: args.radius ?? 1500
+        });
 
       case "set_directions":
         return setDirections({

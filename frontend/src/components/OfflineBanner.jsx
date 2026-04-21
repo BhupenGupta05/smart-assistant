@@ -1,4 +1,4 @@
-export default function OfflineBanner() {
+export default function OfflineBanner({ message }) {
   return (
     <div className="
       fixed top-0 left-0 right-0 z-[9999]
@@ -6,7 +6,7 @@ export default function OfflineBanner() {
       text-xs md:text-sm px-2 py-1
       flex items-center justify-center
     ">
-      ⚠️ You’re offline — showing saved data
+      {message}
     </div>
   );
 }

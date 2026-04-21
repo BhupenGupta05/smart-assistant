@@ -1,11 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { searchPlaces } from "../search.api";
+import useNetwork from "../../network/hooks/useNetwork";
 
 export default function useSearchController({ externalQuery, onExternalQueryChange, onSelectPlace, onSetPosition }) {
     const [internalQuery, setInternalQuery] = useState("");
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
     const cacheRef = useRef(new Map());
+
+    const isOnline = useNetwork();
 
     // Single source of truth decided here
     const effectiveQuery =
@@ -23,7 +26,7 @@ export default function useSearchController({ externalQuery, onExternalQueryChan
             return cached;
         }
 
-        const data = await searchPlaces(query);
+        const data = await searchPlaces(query, isOnline);
         cacheRef.current.set(key, data);
         setResults(data);
         return data;

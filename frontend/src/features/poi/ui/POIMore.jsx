@@ -39,7 +39,6 @@ const sections = [
 ];
 
 const POIMore = ({ onClose, onSelect }) => {
-    console.log("Rendering POIMore");
 
     return (
         <div className="fixed inset-0 bg-white z-[1000] animate-slide-up overflow-y-auto">

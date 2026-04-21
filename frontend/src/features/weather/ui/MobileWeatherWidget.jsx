@@ -1,20 +1,15 @@
 import { useState } from "react";
+import { getAqiColor } from "../utility/aqi";
 
 export function MobileWeatherWidget({ weather, aqi }) {
     const [open, setOpen] = useState(false);
 
     if (!weather || !aqi) return null;
 
-    const getAqiColor = (aqi) => {
-        if (aqi <= 50) return "text-emerald-500";
-        if (aqi <= 100) return "text-lime-500";
-        if (aqi <= 200) return "text-yellow-500";
-        if (aqi <= 300) return "text-orange-500";
-        if (aqi <= 400) return "text-red-500";
-        return "text-purple-600";
-    };
+    const showLastUpdated =
+        aqi.source === "cache" && aqi.lastUpdatedText;
 
-    const iconUrl = weather.icon
+    const iconUrl = weather?.icon
         ? `https://openweathermap.org/img/wn/${weather.icon}@2x.png`
         : "/weather-fallback.png";
 
@@ -40,8 +35,9 @@ export function MobileWeatherWidget({ weather, aqi }) {
 
                     <img
                         src={iconUrl}
-                        alt={weather.condition}
-                        className="w-8 h-8"
+                        style={{ backgroundImage: `url(${iconUrl})` }}
+                        aria-label={weather.condition}
+                        className="w-8 h-8 bg-no-repeat bg-contain"
                     />
 
                 </div>
@@ -71,10 +67,12 @@ export function MobileWeatherWidget({ weather, aqi }) {
                 >
                     <span>{Math.round(weather.temperature)}°</span>
                     <span className="text-gray-400">·</span>
-                    <span className={getAqiColor(aqi)}>
-                        AQI {aqi}
+                    <span className={getAqiColor(aqi.data)}>
+                        AQI {aqi.data}
                     </span>
+                    {showLastUpdated && (<span className="text-2xs text-gray-400"> (Updated {aqi.lastUpdatedText})</span>)}
                 </div>
+
             </div>
         </div>
     );

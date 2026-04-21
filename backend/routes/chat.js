@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const OpenAI = require('openai');
 const { aiRequestLimiter } = require('../middlewares/rateLimiter')
+const { systemPrompt } = require('../chat/systemPrompt')
+
+const MAX_MESSAGE_LENGTH = 1000;
+const MAX_MESSAGES = 50;
+const MAX_CONTEXT_MESSAGES = 20;
+const MAX_TOTAL_LENGTH = 8000;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
@@ -12,74 +18,6 @@ const openai = new OpenAI({
   },
 });
 
-const systemPrompt = {
-  role: "system",
-  content: `You are a helpful in-app smart assistant for a geolocation-based web application...
-  (rest of your long instructions here)
-  `
-};
-
-// MAKING THE CHATBOT AWARE OF THE APP CONTEXT
-// const systemPrompt = {
-//   role: "system",
-//   content: 
-// You are a helpful in-app smart assistant for a geolocation-based web application.
-
-// The app allows users to:
-// - Search for places or locations
-// - See current air quality index (AQI) based on their coordinates
-// - View different categories of POIs (Points of Interest) like restaurants, hospitals, ATMs, transit stations, etc.
-// - Toggle a transit layer (only when 'transit_station' is selected)
-// - Recenter the map to their current location or a selected place
-// - See detailed POIs with markers, popups, and a sidebar
-// - Use a search bar to set position or focus on a place
-
-// Your responsibilities:
-// - Understand user queries about locations, POIs, air quality, and map navigation
-// - Use the provided functions to execute user requests
-// - Always respond conversationally to acknowledge the user's request
-// - IMPORTANT: Use ONLY function calls for actions, never include bracket commands like [MOVE_TO:] in your text responses
-
-// Function usage guidelines:
-// - For location/place requests (e.g., "take me to Paris", "go to Tokyo", "navigate to the airport"): Use move_to_location function
-// - For POI category requests (e.g., "find restaurants", "show hospitals", "locate gas stations"): Use set_poi_type function  
-// - For transit layer requests (e.g., "show metro stations", "display transit"): Use toggle_transit_layer function
-// - For current location requests (e.g., "go back", "my location", "recenter"): Use move_to_location with "current"
-// - For air quality queries: Simply inform the user that AQI data will be displayed based on their location
-
-// POI categories available:
-// - restaurant, cafe, bar, fast_food
-// - hospital, pharmacy, clinic
-// - gas_station, charging_station
-// - bank, atm
-// - hotel, lodging
-// - transit_station, bus_station
-// - shopping_mall, supermarket
-// - school, university
-// - park, museum, tourist_attraction
-
-// Examples of correct responses:
-// User: "Find nearby restaurants"
-// Assistant: "I'll show you nearby restaurants in your area!" [Uses set_poi_type function with poi: "restaurant"]
-
-// User: "Take me to New York"
-// Assistant: "I'll navigate you to New York right away!" [Uses move_to_location function with location: "New York"]
-
-// User: "Show me gas stations"
-// Assistant: "I'll display nearby gas stations for you." [Uses set_poi_type function with poi: "gas_station"]
-
-// User: "Go back to my location"
-// Assistant: "I'll recenter the map to your current location." [Uses move_to_location function with location: "current"]
-
-// User: "What's the air quality here?"
-// Assistant: "I'll check the air quality at your current location. The AQI data will be displayed on your map."
-
-// User: "Show me walking directions from Connaught Place to Red Fort"
-// Assistant: "I'll get you walking directions from Connaught Place to Red Fort." (show_route with origin="Connaught Place", destination="Red Fort", mode="walking")
-
-// Always be conversational, friendly, and confirm what action you're taking while using the appropriate functions.
-
-// };
 
 const tools = [
   {
@@ -153,7 +91,9 @@ const tools = [
           },
           radius: {
             type: "number",
-            description: "Search radius in meters (default 2000)"
+            description: "Search radius in meters. Accepts values between 500-5000. Default is 1500 if not specified.",
+            minimum: 500,
+            maximum: 5000
           }
         },
         required: ["query"]
@@ -198,22 +138,89 @@ router.post('/', aiRequestLimiter, async (req, res, next) => {
     return res.status(400).json({ error: 'Messages array is required' });
   }
 
+  const filtered = messages.filter(
+    (m) => m && ['user', 'assistant'].includes(m.role)
+  );
+
+  if (filtered.length === 0) {
+    return res.status(400).json({ error: 'No valid messages provided' });
+  }
+
+  if (filtered.length > MAX_MESSAGES) {
+    return res.status(400).json({
+      error: `Too many messages. Max allowed is ${MAX_MESSAGES}`,
+    });
+  }
+
+  for (const m of filtered) {
+    const content = String(m.content || '');
+
+    if (content.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).json({
+        error: `Each message must be under ${MAX_MESSAGE_LENGTH} characters`,
+      });
+    }
+  }
+
+
+  const trimmed = filtered.slice(-MAX_CONTEXT_MESSAGES);
+
+
+  const sanitized = trimmed.map((m) => ({
+    role: m.role,
+    content: String(m.content || ''),
+  }));
+
+
+  const totalLength = sanitized.reduce(
+    (sum, m) => sum + m.content.length,
+    0
+  );
+
+  if (totalLength > MAX_TOTAL_LENGTH) {
+    return res.status(400).json({
+      error: 'Conversation too large. Please start a new chat.',
+    });
+  }
+
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages: [systemPrompt, ...messages],
+      messages: [systemPrompt, ...sanitized],
       tools,
       tool_choice: 'auto',
       temperature: 0.7,
+      signal: controller.signal,
     });
 
-    console.log("BACKEND raw response:", JSON.stringify(response, null, 2));
+    clearTimeout(timeout);
 
     const choice = response.choices[0];
     const hasToolCalls = Array.isArray(choice.message.tool_calls) && choice.message.tool_calls.length > 0;
 
-    console.log("BACKEND parsed choice:", JSON.stringify(choice, null, 2));
+    // Validate radius values in tool calls
+    if (hasToolCalls) {
+      choice.message.tool_calls = choice.message.tool_calls.map(toolCall => {
+        if (toolCall.function.name === 'search_poi') {
+          try {
+            const args = JSON.parse(toolCall.function.arguments);
 
+            if (args.radius) {
+              // Ensure radius is within bounds (500-5000)
+              args.radius = Math.min(Math.max(args.radius, 500), 5000);
+              toolCall.function.arguments = JSON.stringify(args);
+            }
+          } catch (e) {
+            console.error('Error parsing search_poi arguments:', e);
+          }
+        }
+        return toolCall;
+      });
+    }
 
     res.json({
       reply: choice.message.content || (hasToolCalls ? "Executing your request..." : "I didn't understand that request."),
@@ -222,10 +229,16 @@ router.post('/', aiRequestLimiter, async (req, res, next) => {
 
   } catch (error) {
     console.error(error);
+    if (error.name === 'AbortError') {
+      return res.status(408).json({
+        error: 'Request timed out. Please try again.',
+      });
+    }
     if (error.response?.status === 429) {
-      res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
-    } else if (error.response?.status >= 500) {
-      res.status(500).json({ error: 'OpenRouter service unavailable. Please try again later.' });
+      return res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
+    }
+    if (error.response?.status >= 500) {
+      return res.status(500).json({ error: 'OpenRouter service unavailable. Please try again later.' });
     }
     error.context = 'AI_CHAT_FAILURE';
     next(error);

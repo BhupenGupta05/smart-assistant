@@ -4,6 +4,8 @@ import { useState, useRef, useMemo, useCallback } from 'react'
 import MapView from './map/MapView'
 import useNetwork from './features/network/hooks/useNetwork'
 import OfflineBanner from './components/OfflineBanner'
+import { loadCacheMeta } from './features/offline/utils/locationCache'
+import { lastUpdated } from './features/offline/utils/lastUpdated'
 
 const App = () => {
 
@@ -17,11 +19,18 @@ const App = () => {
   const searchRef = useRef(); // Reference to Search input instance
   const directionsRef = useRef(); // Reference to Origin/Destination input instance
 
-  const onPOIIntent = useCallback((type) => {
-    if (!type) return;
+  const onPOIIntent = useCallback((intent) => {
+    if (!intent) return;
 
-    setPoiIntent(type.toLowerCase());
-    return `Showing nearby ${type}`;
+    const { type, query, radius } = intent;
+
+    const poiType = (type || query)?.toLowerCase();
+
+    setPoiIntent({
+      type: poiType,
+      radius: radius || 1500
+    });
+    return `Showing nearby ${poiType}`;
   }, []);
 
 
@@ -54,9 +63,22 @@ const App = () => {
   }, []);
   const handleSetTransitLayer = useCallback((val) => setShowTransitLayer(val), []);
 
+
+  const locationLastUpdatedTs = !isOnline
+    ? loadCacheMeta()
+    : null;
+
+  const locationLastUpdatedText = locationLastUpdatedTs
+    ? lastUpdated(locationLastUpdatedTs)
+    : null;
+
+  const offlineMessage = locationLastUpdatedText
+    ? `⚠️ You’re offline — using last known location · updated ${locationLastUpdatedText}`
+    : `⚠️ You’re offline — using last known location`;
+
   return (
     <AssistantContext.Provider value={assistantContextValue}>
-      {!isOnline && <OfflineBanner />}
+      {!isOnline && <OfflineBanner message={offlineMessage} />}
       <div className='text-center text-2xl font-bold'>
         <MapView
           directionsRef={directionsRef}
@@ -66,7 +88,6 @@ const App = () => {
           showTransitLayer={showTransitLayer}
           setShowTransitLayer={handleSetTransitLayer}
           poiIntent={poiIntent}
-          isOnline={isOnline}
         />
 
       </div>

@@ -1,8 +1,7 @@
 import axios from "axios";
-import { getIsOnline } from '../network/hooks/getIsOnline'
 
-export async function searchPlaces(query) {
-    if (!getIsOnline()) {
+export async function searchPlaces(query, isOnline) {
+    if (!isOnline) {
         console.log("Offline → skipping searchPlaces");
         return [];
     }

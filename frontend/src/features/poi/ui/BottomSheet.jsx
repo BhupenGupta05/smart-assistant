@@ -1,10 +1,13 @@
 import { ChevronUp, Loader2 } from "lucide-react";
 import usePOISidebar from "../controllers/usePOISidebar";
 import POICard from "./POICard";
-import POIDetails from "./POIDetails";
 import { useState } from "react";
+import useNetwork from "../../network/hooks/useNetwork";
+import { loadCacheMeta } from "../../offline/utils/poiCache";
+import { lastUpdated } from "../../offline/utils/lastUpdated";
 
 export default function BottomSheet({
+    position,
     poiType,
     poiResults,
     poiLoading,
@@ -16,17 +19,24 @@ export default function BottomSheet({
 }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const { itemRefs, containerRef, showDivider, userClickedRef } = usePOISidebar(poiResults, selectedPlace);
+    const { itemRefs, containerRef, userClickedRef } = usePOISidebar(poiResults, selectedPlace);
 
-    // if (selectedPlace) {
-    //     return (
-    //         <POIDetails
-    //             place={selectedPlace}
-    //             onBack={() => setSelectedPlace(null)}
-    //             onDirections={() => onDirections(selectedPlace)}
-    //         />
-    //     );
-    // }
+    const isOnline = useNetwork();
+
+    const poiCacheKey =
+        position && poiType
+            ? `pois:${position.lat.toFixed(2)},${position.lng.toFixed(2)}-${poiType}`
+            : null;
+
+
+    const poiLastUpdatedTs = !isOnline && poiCacheKey
+        ? loadCacheMeta(poiCacheKey)
+        : null;
+
+    const poiLastUpdatedText = poiLastUpdatedTs
+        ? lastUpdated(poiLastUpdatedTs)
+        : null;
+
 
     if (!poiType) return null;
 
@@ -37,7 +47,7 @@ export default function BottomSheet({
 
             {/* Mobile/Desktop Responsive Container */}
             <div
-                className="w-full"
+                className="w-full pointer-events-auto"
             >
                 {/* Handle Bar for Mobile Drag hint (Visual only for now) */}
                 <div className="w-full flex justify-center mb-2 md:hidden">
@@ -60,6 +70,10 @@ export default function BottomSheet({
                     <div className="px-4 md:px-6 py-3 md:py-4 border-b border-black/5 flex items-center justify-between bg-white/50">
                         <h2 className="font-display font-bold text-base md:text-lg text-foreground">
                             Nearby Places {poiResults.length > 0 && <span className="text-muted-foreground text-xs md:text-sm font-normal ml-2">({poiResults.length} results)</span>}
+
+                            {!isOnline && poiLastUpdatedText && (
+                                <span className="text-muted-foreground text-2xs md:text-sm font-normal ml-2">Last updated {poiLastUpdatedText}</span>
+                            )}
                         </h2>
 
                         <button
@@ -81,7 +95,22 @@ export default function BottomSheet({
                                 <Loader2 className="w-4 md:w-8 h-4 md:h-8 animate-spin mb-2" />
                                 <p className="text-sm md:text-base">Finding best places...</p>
                             </div>
-                        ) : poiResults.length === 0 ? (
+                        ) : (!isOnline && poiResults.length === 0) ? ( //OFFLINE AND NO POIs CACHED
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p className="font-medium">You're offline</p>
+                                <p className="text-sm mt-1">
+                                    No cached places available for this area.
+                                </p>
+                            </div>
+                        ) : poiError ? (
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p className="font-medium">Something went wrong</p>
+                                <p className="text-sm mt-1">
+                                    Unable to fetch places right now. Try again later.
+                                </p>
+                            </div>
+
+                        ) : poiResults.length === 0 ? ( //ONLINE AND NO RESULTS
                             <div className="text-center py-12 text-muted-foreground">
                                 <p>No places found in this area.</p>
                                 <p className="text-sm mt-1">Try adjusting your search or filters.</p>

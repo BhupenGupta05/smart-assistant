@@ -14,11 +14,11 @@ export default function DirectionsLayer({ routes, selectedMode, setSelectedMode 
 
         return (
           <Polyline
-            key={idx}
+            key={route.mode}
             positions={latlngs}
             pathOptions={{
               color: isActive ? "blue" : "gray",
-              weight: isActive ? 3 : 3,   
+              weight: isActive ? 3 : 1.5,   
               opacity: isActive ? 1 : 0.9
             }}
             // dashArray={idx === activeRouteIndex ? null : "6,6"}

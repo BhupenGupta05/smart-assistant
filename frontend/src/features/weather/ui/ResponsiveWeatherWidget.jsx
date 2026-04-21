@@ -2,7 +2,8 @@ import { WeatherWidget } from "./WeatherWidget";
 import { MobileWeatherWidget } from "./MobileWeatherWidget";
 
 export function ResponsiveWeatherWidget({ weather, aqi, loading, error }) {
-  if (loading || error) return null;
+  // if (!weather || !aqi) return null;
+    if (!aqi) return null;
 
   return (
     <>

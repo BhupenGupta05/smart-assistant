@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import useNetwork from "../features/network/hooks/useNetwork";
 import axios from "axios";
 
-export async function fetchPlaces(query) {
+export async function fetchPlaces(query, signal) {
     if (!query || query.length < 3) return [];
 
     try {
         const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
-        const { data } = await axios.get(url);
+        const { data } = await axios.get(url, { signal });
         return data || [];
     } catch (err) {
+        if (axios.isCancel?.(err) || err.name === "CanceledError") {
+            return [];
+        }
         console.error("fetchPlaces error:", err);
         return [];
     }
@@ -23,7 +26,7 @@ export const useFetchPlaces = (inputVal, justSelectedRef) => {
     const isOnline = useNetwork();
 
     useEffect(() => {
-        if(!isOnline) {
+        if (!isOnline) {
             setResults([]);
             return;
         }
@@ -36,13 +39,23 @@ export const useFetchPlaces = (inputVal, justSelectedRef) => {
             setResults([]);
             return;
         }
+
+        const controller = new AbortController();
+
         const handler = setTimeout(async () => {
-            const places = await fetchPlaces(inputVal);
-            setResults(places);
+            try {
+                const places = await fetchPlaces(inputVal, controller.signal);
+                setResults(places);
+            } catch (err) {
+                // already handled in fetchPlaces
+            }
         }, DEBOUNCE_DELAY);
 
-        return () => clearTimeout(handler);
-    }, [inputVal, justSelectedRef]);
+        return () => {
+            clearTimeout(handler);
+            controller.abort();
+        };
+    }, [inputVal, justSelectedRef, isOnline]);
 
     return results;
 }

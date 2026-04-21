@@ -1,14 +1,17 @@
 import { useEffect, useRef } from "react";
 import { useAQIFetch } from "../hooks/useAQIFetch";
+import useNetwork from "../../../network/hooks/useNetwork";
 
 export const useAQI = ({ position }) => {
     const { aqi, loading, error, fetchAQI } = useAQIFetch();
+    const isOnline = useNetwork();
 
     const abortRef = useRef(null);
     const retryTimerRef = useRef(null);
 
     // 🔁 Fetch on position change
     useEffect(() => {
+        console.log("AQI EFFECT FIRED", { position, isOnline });
         if (!position?.lat || !position?.lng) return;
 
         abortRef.current?.abort();
@@ -19,7 +22,7 @@ export const useAQI = ({ position }) => {
         fetchAQI(position.lat, position.lng, controller.signal);
 
         return () => controller.abort();
-    }, [position, fetchAQI]);
+    }, [position, fetchAQI, isOnline]);
 
     // 🔁 Retry on error
     useEffect(() => {

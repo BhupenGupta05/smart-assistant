@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback } from "react";
 import axios from "axios";
 import useNetwork from "../../network/hooks/useNetwork";
+import { loadWeather, saveWeather } from "../../offline/utils/weatherCache";
 
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 export const useWeatherFetch = () => {
   const [weather, setWeather] = useState(null);
@@ -17,7 +18,14 @@ export const useWeatherFetch = () => {
     async (lat, lon, signal) => {
       if (!lat || !lon) return;
 
-       if(!isOnline) {
+      if (!isOnline) {
+        const cached = loadWeather(lat, lon, CACHE_TTL);
+
+        if (cached) {
+          setWeather(cached.data);
+        } else {
+          setWeather(null);
+        }
         setLoading(false);
         return;
       }
@@ -46,10 +54,13 @@ export const useWeatherFetch = () => {
 
         if (data?.weather !== undefined) {
           setWeather(data.weather);
+
           cacheRef.current.set(key, {
             data: data.weather,
             timestamp: now
           });
+
+          saveWeather(lat, lon, data.weather);
         } else {
           throw new Error("Invalid weather data");
         }
@@ -60,7 +71,7 @@ export const useWeatherFetch = () => {
       } finally {
         setLoading(false);
       }
-    },[isOnline]);
+    }, [isOnline]);
 
   return {
     weather,

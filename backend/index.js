@@ -14,15 +14,20 @@ const { calculateAQI } = require('./utils/calculateAQI');
 const poiCache = new LRUCache({ max: 500, ttl: 1000 * 60 * 5 });
 const aqiCache = new LRUCache({ max: 300, ttl: 1000 * 60 * 5 });
 const searchCache = new LRUCache({ max: 300, ttl: 1000 * 60 * 5 });
-const photoCache = new LRUCache({ max: 200, ttl: 1000 * 60 * 60 });
+const photoCache = new LRUCache({
+    max: 200,
+    maxSize: 50 * 1024 * 1024, // 50MB
+    sizeCalculation: (value) => value.length,
+    ttl: 1000 * 60 * 60,
+});
+
 const weatherCache = new LRUCache({ max: 300, ttl: 1000 * 60 * 5 }); //new
 
 const app = express();
-// const server = require('http').createServer(app);
 
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 app.use(requestLimiter);
 
@@ -47,12 +52,14 @@ app.get('/api/tiles/:z/:x/:y', tileRateLimiter, async (req, res, next) => {
         res.setHeader('Content-Type', 'image/png');
         response.data.pipe(res);
     } catch (error) {
-        console.error(error);
-        if (error.response?.status === 429) {
-            res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
-        } else if (error.response?.status >= 500) {
-            res.status(500).json({ error: 'Thunderforest service unavailable. Please try again later.' });
+        if (error.status === 429) {
+            return res.status(429).json({ error: error.message });
         }
+
+        if (error.status >= 500) {
+            return res.status(502).json({ error: 'Thunderforest service unavailable' });
+        }
+
         next(error);
     }
 })
@@ -109,6 +116,7 @@ app.get('/api/weather', async (req, res, next) => {
 
         res.json(response);
     } catch (error) {
+
         error.context = 'WEATHER_FETCH_FAILED';
         next(error);
     }
@@ -164,6 +172,7 @@ app.get('/api/aqi', async (req, res, next) => {
         aqiCache.set(key, result);
         res.json(result);
     } catch (error) {
+
         error.context = 'AQI_FETCH_FAILED';
         next(error);
     }
@@ -173,11 +182,14 @@ app.get('/api/aqi', async (req, res, next) => {
 app.get('/api/place-photo', async (req, res, next) => {
     const { photoRef } = req.query;
 
-    // console.log("QUERY: ", photoRef);
-
     if (!photoRef) {
         return res.status(400).json({ error: 'Missing photoRef parameter' });
     }
+
+    if (!/^[A-Za-z0-9_-]{20,}$/.test(photoRef)) {
+        return res.status(400).json({ error: 'Invalid photo reference' });
+    }
+
 
     // CACHE HIT
     const cached = photoCache.get(photoRef);
@@ -200,14 +212,12 @@ app.get('/api/place-photo', async (req, res, next) => {
     } catch (err) {
         err.context = 'PLACE_PHOTO_FETCH_FAILED';
         next(err);
-        // console.error('Photo fetch error:', err.message);
-        // res.status(500).json({ error: 'Failed to fetch photo' });
     }
 });
 
 
 app.get('/api/nearby', async (req, res, next) => {
-    const { lat, lng, type } = req.query;
+    const { lat, lng, type, radius } = req.query;
 
     if (!lat || !lng || !type) {
         return res.status(400).json({ error: 'Missing required parameters' });
@@ -218,26 +228,34 @@ app.get('/api/nearby', async (req, res, next) => {
         return res.status(400).json({ error: validation.error });
     }
 
+    let searchRadius = 1500; // default
+    if (radius) {
+        const parsedRadius = parseInt(radius);
+        if (!isNaN(parsedRadius) && parsedRadius > 0) {
+            // Optional: Add min/max bounds
+            searchRadius = Math.min(Math.max(parsedRadius, 500), 5000); // Between 500m and 5km
+        }
+    }
 
-    const key = `${validation.latitude},${validation.longitude},${type}`;
+    const latKey = validation.latitude.toFixed(2);
+    const lngKey = validation.longitude.toFixed(2);
+    const key = `${latKey},${lngKey},${type},${searchRadius}`;
 
     if (poiCache.has(key)) {
-        console.log("Returning cached POIs");
+        console.log(`Returning cached POIs for radius ${searchRadius}m`);
         return res.json(poiCache.get(key));
     }
 
-    const url = `${process.env.BASE_URL}/place/nearbysearch/json?location=${validation.latitude},${validation.longitude}&radius=1500&type=${type}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    const url = `${process.env.BASE_URL}/place/nearbysearch/json?location=${validation.latitude},${validation.longitude}&radius=${searchRadius}&type=${type}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
 
     try {
         const { data } = await axiosInstance.get(url);
-        // console.log(data.results);
-
 
         if (data.status !== 'OK') {
-            return res.status(400).json({
-                error: "Google API Error",
-                status: data.status,
-                message: data.error_message || null
+            return next({
+                status: 400,
+                message: data.error_message || data.status,
+                context: 'GOOGLE_API_ERROR'
             });
         }
 
@@ -257,10 +275,9 @@ app.get('/api/nearby', async (req, res, next) => {
         poiCache.set(key, simplifiedResults);
         res.json(simplifiedResults);
     } catch (error) {
+
         error.context = 'NEARBY_POI_FETCH';
         next(error);
-        // console.error("Error fetching from Google Maps:", error.message);
-        // res.status(500).json({ error: 'Internal server error' });
     }
 })
 
@@ -290,6 +307,7 @@ app.get('/api/search', async (req, res, next) => {
         // Step 1: Text Search (more flexible than geocode)
         const searchUrl = `${process.env.BASE_URL}/place/textsearch/json?query=${encodeURIComponent(safeQuery)}&key=${apiKey}`;
         const searchResponse = await axiosInstance.get(searchUrl);
+        
 
         if (searchResponse.data.status !== 'OK') {
             return res.status(400).json({
@@ -335,8 +353,6 @@ app.get('/api/search', async (req, res, next) => {
     } catch (error) {
         error.context = 'TEXT_SEARCH_FAILED';
         next(error);
-        // console.error("Error fetching from Google Maps:", error.message);
-        // res.status(500).json({ error: 'Unable to complete search request' });
     }
 });
 
@@ -346,10 +362,12 @@ app.use((err, req, res, next) => {
         method: req.method,
         url: req.originalUrl,
         message: err.message,
-        stack: err.stack,
         context: err.context
     });
-    res.status(500).json({ error: 'Internal server error' });
+
+    res.status(err.status || 500).json({
+        error: err.message || 'Internal server error'
+    });
 });
 
 const PORT = process.env.PORT || 5000;

@@ -3,13 +3,22 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePOIFetcher } from "./usePOIFetcher";
 
-export const usePOIController = ({ position }) => {
+const DEFAULT_RADIUS = 1500; // Default search radius in meters
+
+export const usePOIController = ({ position, poiIntent }) => {
   const { fetchPOIs, cancel } = usePOIFetcher();
 
   const [poiType, setPoiType] = useState(null);
   const [poiResults, setPoiResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const radius = poiIntent?.radius || DEFAULT_RADIUS;
+
+  useEffect(() => {
+    if (!poiIntent?.type) return;
+    setPoiType(poiIntent.type);
+  }, [poiIntent]);
 
   const loadPOIs = useCallback(async () => {
     if (!poiType || !position) return;
@@ -20,8 +29,8 @@ export const usePOIController = ({ position }) => {
     setError(null);
 
     try {
-      const data = await fetchPOIs({ lat, lng, type: poiType });
-      
+      const data = await fetchPOIs({ lat, lng, type: poiType, radius });
+
       setPoiResults(data);
     } catch (err) {
       if (err.name === "CanceledError") return;
@@ -31,7 +40,7 @@ export const usePOIController = ({ position }) => {
     } finally {
       setLoading(false);
     }
-  }, [poiType, position, fetchPOIs]);
+  }, [poiType, position, radius, fetchPOIs]);
 
   // Fetch when type or location changes
   useEffect(() => {

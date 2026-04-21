@@ -1,3 +1,5 @@
+// NOT IN USE
+
 import POIDetails from './POIDetails';
 import usePOISidebar from '../controllers/usePOISidebar';
 
@@ -61,8 +63,8 @@ const POISidebar = ({
                 key={poiId}
                 ref={(el) => (itemRefs.current[poiId] = el)}
                 className={`flex flex-col sm:flex-row gap-3 border rounded-xl p-3 shadow-sm cursor-pointer transition-all duration-300 ${isActive
-                    ? "bg-blue-50 border-blue-400 shadow-md"
-                    : "hover:bg-gray-50"
+                  ? "bg-blue-50 border-blue-400 shadow-md"
+                  : "hover:bg-gray-50"
                   }`}
                 onMouseEnter={() => setActivePOIId(poiId)}
                 onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
@@ -103,10 +105,18 @@ const POISidebar = ({
                         <span>({place.user_ratings_total})</span>
                       )}
                       <span
-                        className={`font-semibold ${place.opening_hours ? "text-green-600" : "text-red-500"
+                        className={`font-semibold ${place.opening_hours === true
+                            ? "text-green-600"
+                            : place.opening_hours === false
+                              ? "text-red-500"
+                              : "text-gray-500"
                           }`}
                       >
-                        {place.opening_hours ? "Open" : "Closed"}
+                        {place.opening_hours === true
+                          ? "Open"
+                          : place.opening_hours === false
+                            ? "Closed"
+                            : "Unknown"}
                       </span>
                     </div>
                   </div>
