@@ -129,9 +129,14 @@ export const useChatbotLogic = () => {
         return toggleTransit();
 
       case "set_poi_type":
+        return onPOIIntent({
+          type: args.poi,  
+          radius: 1500
+        });
+
       case "search_poi":
         return onPOIIntent({
-          type: args.type,
+          type: args.type || args.query,
           query: args.query,
           radius: args.radius ?? 1500
         });

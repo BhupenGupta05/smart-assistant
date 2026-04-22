@@ -30,6 +30,8 @@ const App = () => {
       type: poiType,
       radius: radius || 1500
     });
+    console.log("POITYPE: ",poiType);
+    
     return `Showing nearby ${poiType}`;
   }, []);
 

@@ -1,5 +1,5 @@
 //React
-import { useRef, useMemo, lazy, Suspense, useCallback } from 'react'
+import { useRef, lazy, Suspense, useCallback } from 'react'
 import "leaflet/dist/leaflet.css";
 
 //POI
@@ -117,6 +117,8 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     const handleCategorySelect = useCallback((type) => {
         const intent = poiCategory.onCategorySelect(type);
         if (!intent) return;
+        console.log("INTENT: ",intent);
+        
         setPoiType(intent);
     }, [poiCategory, setPoiType]);
 
