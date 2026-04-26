@@ -50,7 +50,7 @@ const MapControls = ({
 
     return (
         <>
-            {mode === "search" && (
+            {(mode === "search" || mode === "report") && (
 
                 <>
                     <SearchControls
@@ -62,17 +62,20 @@ const MapControls = ({
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef}
                         isOnline={isOnline}
+                        mode={mode}
+                        setMode={setMode}
                     />
 
 
-                    {/* 🏷️ POI CATEGORIES */}
+                    {/* POI CATEGORIES */}
                     <POICategory poiType={poiType} showMore={showMore} onCategorySelect={onCategorySelect} closeMore={closeMore} />
                 </>
 
             )}
 
-            {/* ALWAYS MOUNT IT */}
-            <div style={{ display: mode === "search" ? "none" : "block" }}>
+            {/* ALWAYS MOUNT IT  */}
+            {/* New changes */}
+            <div style={{ display: mode === "directions" ? "block" : "none" }}>
                 <DirectionControls
                     query={query}
                     setQuery={setQuery}

@@ -1,6 +1,7 @@
 import SearchBar from "../../../../features/search/ui/SearchBar"
 import "leaflet/dist/leaflet.css"
 import LayersTile from "../../../../features/layers/ui/Layers"
+import Report from "../../../../features/report/ui/Report"
 
 
 const SearchControls = ({
@@ -11,7 +12,9 @@ const SearchControls = ({
   showTransitLayer,
   setShowTransitLayer,
   searchRef,
-  isOnline
+  isOnline,
+  mode,
+  setMode
 }) => {
 
   return (
@@ -39,6 +42,10 @@ const SearchControls = ({
 
         <div className="shrink-0 h-10 w-10">
           <LayersTile showTransitLayer={showTransitLayer} setShowTransitLayer={setShowTransitLayer} />
+        </div>
+
+        <div className="shrink-0 h-10 w-10">
+          <Report mode={mode} setMode={setMode} />
         </div>
 
       </div>
