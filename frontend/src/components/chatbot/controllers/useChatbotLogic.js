@@ -6,7 +6,7 @@ import useNetwork from "../../../features/network/hooks/useNetwork";
 
 export const useChatbotLogic = () => {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi! Ask me anything 🚀" }
+    { role: "assistant", content: "Hi there! Ask me anything - I can move the map, find places, set directions, and more." }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -160,7 +160,7 @@ export const useChatbotLogic = () => {
     if (!isOnline) {
       setMessages(prev => [
         ...prev,
-        { role: "assistant", content: "📴 You’re offline. I can’t fetch new answers right now." }
+        { role: "assistant", content: "You’re offline. I can’t fetch new answers right now." }
       ]);
       setInput("");
       return;
@@ -187,9 +187,9 @@ export const useChatbotLogic = () => {
         for (const toolCall of data.tool_calls) {
           try {
             const result = await runTool(toolCall, userMessage.content);
-            setMessages(prev => [...prev, { role: "assistant", content: `✅ ${result}` }]);
+            setMessages(prev => [...prev, { role: "assistant", content: `${result}` }]);
           } catch (err) {
-            setMessages(prev => [...prev, { role: "assistant", content: `❌ ${err.message}` }]);
+            setMessages(prev => [...prev, { role: "assistant", content: `${err.message}` }]);
           }
         }
       }

@@ -21,8 +21,6 @@ export const usePOIController = ({ position, poiIntent }) => {
   }, [poiIntent]);
 
   const loadPOIs = useCallback(async () => {
-     console.log("FETCH CHECK:", { poiType, position });
-
     if (!poiType || !position) return;
 
     const { lat, lng } = position;

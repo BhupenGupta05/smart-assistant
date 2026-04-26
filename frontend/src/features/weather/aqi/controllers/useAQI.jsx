@@ -11,7 +11,6 @@ export const useAQI = ({ position }) => {
 
     // 🔁 Fetch on position change
     useEffect(() => {
-        console.log("AQI EFFECT FIRED", { position, isOnline });
         if (!position?.lat || !position?.lng) return;
 
         abortRef.current?.abort();

@@ -69,7 +69,6 @@ export const usePOIFetcher = () => {
     abortRef.current = controller;
 
     try {
-      console.log(`🌐 ONLINE: Fetching fresh POI data with radius ${radius}`);
       const url = `${import.meta.env.VITE_BASE_URL}/api/nearby?lat=${lat}&lng=${lng}&radius=${radius}&type=${type}`;
       const { data } = await axios.get(url, {
         signal: controller.signal,
@@ -83,7 +82,7 @@ export const usePOIFetcher = () => {
       });
 
       saveCache(cacheKey, data);
-      console.log("💾 Data cached for offline use");
+      console.log("Data cached for offline use");
 
       return data;
     } catch (err) {
