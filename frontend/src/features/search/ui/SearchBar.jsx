@@ -1,15 +1,18 @@
 import { useImperativeHandle, forwardRef } from 'react';
 import { Search } from 'lucide-react';
 import useSearch from '../controllers/useSearch'
+import { useSearchProvider } from '../../../providers/SearchProvider';
 
-const SearchBar = forwardRef(({ query, setQuery, setPosition, setSelectedPlace, isOnline }, ref) => {
+const SearchBar = forwardRef(({ setPosition, setSelectedPlace, isOnline }, ref) => {
 
+    const { query, setQuery } = useSearchProvider();
     const controller = useSearch({
         externalQuery: query,
         onExternalQueryChange: setQuery,
         onSetPosition: setPosition,
         onSelectPlace: setSelectedPlace
     })
+
 
     useImperativeHandle(ref, () => ({
         searchLocationAndSelectFirst: controller.searchAndSelectFirst

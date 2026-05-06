@@ -9,16 +9,10 @@ import { useSearchSelection } from "../../../../features/search/hooks/useSearchS
 import { useMapUI } from "../../../../providers/MapUIProvider";
 
 const MapControls = ({
-    query,
-    setQuery,
     setPosition,
     selectedPlace,
     setSelectedPlace,
     poiType,
-    showTransitLayer,
-    setShowTransitLayer,
-    searchRef,
-    directionsRef,
     routes,
     getDirections,
     loading,
@@ -30,16 +24,7 @@ const MapControls = ({
     isOnline
 }) => {
 
-    const {
-        mode,
-        setMode,
-        origin,
-        setOrigin,
-        destination,
-        setDestination,
-        activeField,
-        setActiveField
-    } = useMapUI();
+    const { mode } = useMapUI();
 
     useSearchSelection({
         selectedPlace,
@@ -53,19 +38,18 @@ const MapControls = ({
 
                 <>
                     <SearchControls
-                        query={query}
-                        setQuery={setQuery}
                         setPosition={setPosition}
                         setSelectedPlace={setSelectedPlace}
-                        showTransitLayer={showTransitLayer}
-                        setShowTransitLayer={setShowTransitLayer}
-                        searchRef={searchRef}
                         isOnline={isOnline}
                     />
 
 
                     {/* POI CATEGORIES */}
-                    <POICategory poiType={poiType} showMore={showMore} onCategorySelect={onCategorySelect} closeMore={closeMore} />
+                    <POICategory
+                        poiType={poiType}
+                        showMore={showMore}
+                        onCategorySelect={onCategorySelect}
+                        closeMore={closeMore} />
                 </>
 
             )}
@@ -74,8 +58,6 @@ const MapControls = ({
             {/* New changes */}
             <div style={{ display: mode === "directions" ? "block" : "none" }}>
                 <DirectionControls
-                    query={query}
-                    setQuery={setQuery}
                     setPosition={setPosition}
                     selectedPlace={selectedPlace}
                     setSelectedPlace={setSelectedPlace}
@@ -84,7 +66,6 @@ const MapControls = ({
                     loading={loading}
                     error={error}
                     clearRoutes={clearRoutes}
-                    ref={directionsRef}
                 />
             </div>
 

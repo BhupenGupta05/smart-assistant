@@ -3,6 +3,7 @@ import axios from "axios";
 import { useAssistant } from "../../../hooks/useAssistant";
 import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
 import useNetwork from "../../../features/network/hooks/useNetwork";
+import { useSearchProvider } from "../../../providers/SearchProvider";
 
 export const useChatbotLogic = () => {
   const [messages, setMessages] = useState([
@@ -17,13 +18,11 @@ export const useChatbotLogic = () => {
 
   const { getCurrentLocation } = useCurrentLocation();
 
+  const { searchRef, directionsRef, setShowTransitLayer } = useSearchProvider();
+
   const {
-    searchRef,
-    directionsRef,
     setPosition,
     setSelectedPlace,
-    setQuery,
-    setShowTransitLayer,
     poiIntent,
     onPOIIntent
   } = useAssistant();

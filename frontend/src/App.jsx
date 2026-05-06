@@ -9,15 +9,9 @@ import { lastUpdated } from './features/offline/utils/lastUpdated'
 
 const App = () => {
 
-  const [query, setQuery] = useState(''); // Search query state
   const [poiIntent, setPoiIntent] = useState(null);
   const { position, setPosition, selectedPlace, setSelectedPlace } = useGeolocation();
-  const [showTransitLayer, setShowTransitLayer] = useState(false); // Show Transit Layer only for transit_station poiType
-
   const isOnline = useNetwork()
-
-  const searchRef = useRef(); // Reference to Search input instance
-  const directionsRef = useRef(); // Reference to Origin/Destination input instance
 
   const onPOIIntent = useCallback((intent) => {
     if (!intent) return;
@@ -41,29 +35,24 @@ const App = () => {
     setPosition,
     selectedPlace,
     setSelectedPlace,
-    query,
-    setQuery,
-    showTransitLayer,
-    setShowTransitLayer,
-    searchRef,
-    directionsRef,
     poiIntent,
     onPOIIntent,
     isOnline
   }), [
     position,
+    setPosition,
     selectedPlace,
-    query,
-    showTransitLayer,
+    setSelectedPlace,
     poiIntent,
+    onPOIIntent,
     isOnline
   ])
 
-  const handleSetQuery = useCallback((val) => {
-    setQuery(val);
-    setPoiIntent(null);
-  }, []);
-  const handleSetTransitLayer = useCallback((val) => setShowTransitLayer(val), []);
+  // const handleSetQuery = useCallback((val) => {
+  //   setQuery(val);
+  //   setPoiIntUsedirectioncontrolslogicent(null);
+  // }, []);
+  // const handleSetTransitLayer = useCallback((val) => setShowTransitLayer(val), []);
 
 
   const locationLastUpdatedTs = !isOnline
@@ -83,12 +72,7 @@ const App = () => {
       {!isOnline && <OfflineBanner message={offlineMessage} />}
       <div className='text-center text-2xl font-bold'>
         <MapView
-          directionsRef={directionsRef}
-          searchRef={searchRef}
-          query={query}
-          setQuery={handleSetQuery}
-          showTransitLayer={showTransitLayer}
-          setShowTransitLayer={handleSetTransitLayer}
+          // setQuery={handleSetQuery}
           poiIntent={poiIntent}
         />
 

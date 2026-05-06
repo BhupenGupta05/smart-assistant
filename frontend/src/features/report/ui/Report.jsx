@@ -1,6 +1,8 @@
 import { Flag } from 'lucide-react';
+import { useMapUI } from '../../../providers/MapUIProvider';
 
-const Report = ({ mode, setMode }) => {
+const Report = () => {
+    const { mode, setMode }= useMapUI();
     return (
         <button
             onClick={() =>

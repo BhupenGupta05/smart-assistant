@@ -1,6 +1,10 @@
 import { Layers } from "lucide-react"
+import { useSearchProvider } from "../../../providers/SearchProvider"
 
-const LayersTile = ({ showTransitLayer, setShowTransitLayer }) => {
+const LayersTile = () => {
+  const { showTransitLayer, setShowTransitLayer } = useSearchProvider();
+
+  //need to check the function setshowtransit
   return (
     <button
     onClick={() => setShowTransitLayer(!showTransitLayer)}

@@ -2,21 +2,16 @@ import SearchBar from "../../../../features/search/ui/SearchBar"
 import "leaflet/dist/leaflet.css"
 import LayersTile from "../../../../features/layers/ui/Layers"
 import Report from "../../../../features/report/ui/Report"
-import { useMapUI } from "../../../../providers/MapUIProvider"
+import { useSearchProvider } from "../../../../providers/SearchProvider"
 
 
 const SearchControls = ({
-  query,
-  setQuery,
   setPosition,
   setSelectedPlace,
-  showTransitLayer,
-  setShowTransitLayer,
-  searchRef,
   isOnline,
 }) => {
 
-  const { mode, setMode } = useMapUI();
+  const { searchRef } = useSearchProvider();
 
   return (
     <>
@@ -33,8 +28,6 @@ const SearchControls = ({
         <div className="flex-1 min-w-0">
           <SearchBar
             ref={searchRef}
-            query={query}
-            setQuery={setQuery}
             setPosition={setPosition}
             setSelectedPlace={setSelectedPlace}
             isOnline={isOnline}
@@ -42,11 +35,11 @@ const SearchControls = ({
         </div>
 
         <div className="shrink-0 h-10 w-10">
-          <LayersTile showTransitLayer={showTransitLayer} setShowTransitLayer={setShowTransitLayer} />
+          <LayersTile />
         </div>
 
         <div className="shrink-0 h-10 w-10">
-          <Report mode={mode} setMode={setMode} />
+          <Report />
         </div>
 
       </div>

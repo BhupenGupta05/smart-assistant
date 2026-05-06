@@ -1,13 +1,16 @@
 import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
 import { getCurrentPosition } from "../../../../features/search/utils/getCurrentPosition";
+import { useMapUI } from "../../../../providers/MapUIProvider";
 
-export const useSearchControlsLogic = ({
-  setOrigin,
-  setDestination,
-  setMode,
-  setActiveField
-}) => {
-  
+export const useSearchControlsLogic = () => {
+
+  const {
+    setOrigin,
+    setDestination,
+    setMode,
+    setActiveField
+  } = useMapUI();
+
   const onStartDirections = async (place) => {
     const destination = normalizePlace(place);
     if (!destination) return;

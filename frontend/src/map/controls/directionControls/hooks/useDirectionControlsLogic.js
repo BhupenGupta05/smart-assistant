@@ -8,15 +8,12 @@ import {
 import { useMapUI } from "../../../../providers/MapUIProvider";
 import { fetchPlaces, useFetchPlaces } from "../../../../hooks/useFetchPlaces";
 import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
+import { useSearchProvider } from "../../../../providers/SearchProvider";
 
 export const useDirectionControlsLogic = (props, ref) => {
   const {
-    query,
-    setQuery,
     setPosition,
-    selectedPlace,
     setSelectedPlace,
-    routes,
     getDirections,
     loading,
     error,
@@ -31,6 +28,8 @@ export const useDirectionControlsLogic = (props, ref) => {
     setDestination,
     setActiveField
   } = useMapUI();
+
+  const { setQuery } = useSearchProvider();
 
   // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
   // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED

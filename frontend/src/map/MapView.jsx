@@ -48,7 +48,7 @@ const DirectionsPanelFallback = () => (
 );
 
 
-const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searchRef, directionsRef, poiIntent }) => {
+const MapView = ({ setQuery, poiIntent }) => {
     const mapRef = useRef(null); // Using same map instance
 
     const { isOnline } = useAssistant();
@@ -101,16 +101,10 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
             {/* MAP CONTROLS */}
             <MapControls
-                query={query}
-                setQuery={setQuery}
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
                 poiType={poiType}
-                showTransitLayer={showTransitLayer}
-                setShowTransitLayer={setShowTransitLayer}
-                searchRef={searchRef}
-                directionsRef={directionsRef}
                 routes={directions.routes}
                 getDirections={directions.getDirections}
                 loading={directions.loading}
@@ -133,7 +127,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                         poiResults={poiResults}
                         setSelectedPlace={setSelectedPlace}
                         poiType={poiType}
-                        showTransitLayer={showTransitLayer}
                         tileUrl={tileUrl}
                         routes={directions.routes}
                         />
@@ -193,12 +186,10 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 )}
 
 
-{/* NO NEED FOR DIRECTIONS REF */}
                 {mode === "directions" && (
                     <Suspense fallback={<DirectionsPanelFallback />}>
                         <DirectionsPanel
                             routes={directions.routes}
-                            directionsRef={directionsRef} 
                             />
                     </Suspense>
 

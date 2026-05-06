@@ -1,9 +1,11 @@
-import { forwardRef } from "react";
 import DirectionControls from "./DirectionControls";
 import { useDirectionControlsLogic } from "../hooks/useDirectionControlsLogic";
+import { useSearchProvider } from "../../../../providers/SearchProvider";
 
-const Container = forwardRef((props, ref) => {
-  const logic = useDirectionControlsLogic(props, ref);
+const Container = ((props, _externalRef) => {
+  const { directionsRef } = useSearchProvider();
+  const logic = useDirectionControlsLogic(props, directionsRef);
+  
   return <DirectionControls {...props} {...logic} />;
 });
 
