@@ -1,13 +1,13 @@
+import { useMapUI } from "../../../providers/MapUIProvider";
 import { normalizePlace } from "../utils/normalizePlace";
 
 export default function usePOIInteraction({
-    setOrigin,
-    setDestination,
-    setMode,
     setSelectedPlace,
     clearRoutes,
     position
 }) {
+    const { setOrigin, setDestination, setMode } = useMapUI();
+    
     const startDirectionsWith = (place) => {
         if (clearRoutes) clearRoutes();
 

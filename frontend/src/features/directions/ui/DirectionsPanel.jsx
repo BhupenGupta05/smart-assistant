@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CarFront, Bus, Footprints, Plane } from "lucide-react";
+import { useMapUI } from "../../../providers/MapUIProvider";
 
 const travelModes = [
   { key: "driving", icon: CarFront, label: "Driving" },
@@ -8,10 +9,9 @@ const travelModes = [
 ];
 
 export default function DirectionsPanel({
-  routes,
-  selectedMode,
-  setSelectedMode,
+  routes
 }) {
+  const { selectedMode, setSelectedMode} = useMapUI();
   const [expanded, setExpanded] = useState(false);
 
   if (!routes?.length) return null;

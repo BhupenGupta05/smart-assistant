@@ -1,11 +1,15 @@
 import { DirectionsProvider } from '../features/directions/context/DirectionsProvider'
 import { GeolocationProvider } from '../hooks/useGeolocationContext'
+import { MapUIProvider } from './MapUIProvider'
 
 const AppProvider = ({ children }) => {
   return (
     <GeolocationProvider>
       <DirectionsProvider>
-        {children}
+        <MapUIProvider>
+          {children}
+        </MapUIProvider>
+
       </DirectionsProvider>
     </GeolocationProvider>
   )

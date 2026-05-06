@@ -5,6 +5,7 @@ import { useState } from "react";
 import useNetwork from "../../network/hooks/useNetwork";
 import { loadCacheMeta } from "../../offline/utils/poiCache";
 import { lastUpdated } from "../../offline/utils/lastUpdated";
+import { useMapUI } from "../../../providers/MapUIProvider";
 
 export default function BottomSheet({
     position,
@@ -14,9 +15,10 @@ export default function BottomSheet({
     poiError,
     selectedPlace,
     setSelectedPlace,
-    setHoverPOIId,
     onDirections
 }) {
+
+    const { setHoverPOIId } = useMapUI();
     const [isExpanded, setIsExpanded] = useState(false);
 
     const { itemRefs, containerRef, userClickedRef } = usePOISidebar(poiResults, selectedPlace);

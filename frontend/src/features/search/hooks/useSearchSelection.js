@@ -1,16 +1,20 @@
 import { useEffect } from "react";
+import { useMapUI } from "../../../providers/MapUIProvider";
 import { normalizePlace } from "../../poi/utils/normalizePlace";
 
 export function useSearchSelection({
   selectedPlace,
-  mode,
-  activeField,
   setPosition,
-  setOrigin,
-  setDestination,
-  setActiveField,
   clearSelection
 }) {
+  const {
+    mode,
+    setOrigin,
+    setDestination,
+    activeField,
+    setActiveField
+  } = useMapUI();
+
   useEffect(() => {
     if (!selectedPlace) return;
 
@@ -28,6 +32,6 @@ export function useSearchSelection({
       setActiveField(null);
       clearSelection();
     }
-    
+
   }, [selectedPlace, mode, activeField]);
 }

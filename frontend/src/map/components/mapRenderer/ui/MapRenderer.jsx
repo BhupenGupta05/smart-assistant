@@ -7,25 +7,29 @@ import DirectionsLayer from '../../../../features/directions/ui/DirectionsLayer'
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
 import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
+import { useMapUI } from '../../../../providers/MapUIProvider';
 
 const MapRenderer = ({
     mapRef,
     position,
-    origin,
-    destination,
     selectedPlace,
     poiResults,
-    hoverPOIId,
-    setHoverPOIId,
     setSelectedPlace,
     poiType,
     showTransitLayer,
     tileUrl,
-    routes,
-    mode,
-    selectedMode,
-    setSelectedMode
+    routes
 }) => {
+
+    const {
+        mode,
+        selectedMode,
+        origin,
+        destination,
+        setSelectedMode,
+        setHoverPOIId 
+    } = useMapUI();
+
     const {
         memoizedPOIMarkers,
         centerPosition,
@@ -33,11 +37,8 @@ const MapRenderer = ({
         selectedLng
     } = useMapRendererLogic({
         poiResults,
-        hoverPOIId,
         poiType,
         selectedPlace,
-        destination,
-        origin,
         position
     });
 

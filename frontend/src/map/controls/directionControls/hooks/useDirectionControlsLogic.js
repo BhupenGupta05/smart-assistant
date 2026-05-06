@@ -5,6 +5,7 @@ import {
   useRef,
   useImperativeHandle
 } from "react";
+import { useMapUI } from "../../../../providers/MapUIProvider";
 import { fetchPlaces, useFetchPlaces } from "../../../../hooks/useFetchPlaces";
 import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
 
@@ -12,12 +13,6 @@ export const useDirectionControlsLogic = (props, ref) => {
   const {
     query,
     setQuery,
-    origin,
-    setOrigin,
-    destination,
-    setDestination,
-    activeField,
-    setActiveField,
     setPosition,
     selectedPlace,
     setSelectedPlace,
@@ -25,9 +20,17 @@ export const useDirectionControlsLogic = (props, ref) => {
     getDirections,
     loading,
     error,
-    setMode,
     clearRoutes
   } = props;
+
+  const {
+    setMode,
+    origin,
+    setOrigin,
+    destination,
+    setDestination,
+    setActiveField
+  } = useMapUI();
 
   // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
   // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED

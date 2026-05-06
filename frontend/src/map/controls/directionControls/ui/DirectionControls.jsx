@@ -1,4 +1,5 @@
 import { Locate, MapPin, ArrowDownUp, X } from "lucide-react";
+import { useMapUI } from "../../../../providers/MapUIProvider";
 
 const DirectionControls = ({
   originInput,
@@ -7,8 +8,6 @@ const DirectionControls = ({
   setDestinationInput,
   originResults,
   destinationResults,
-  activeField,
-  setActiveField,
   selectOrigin,
   selectDestination,
   swapEnds,
@@ -18,6 +17,10 @@ const DirectionControls = ({
   routes,
   canRequestRoute
 }) => {
+  const {
+    activeField,
+    setActiveField
+  } = useMapUI();
   return (
     <>
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3 max-w-md">

@@ -11,7 +11,7 @@ import MapControls from '../map/components/mapControls/ui/MapControls'
 import MapRenderer from '../map/components/mapRenderer/ui/MapRenderer'
 
 // Controllers
-import { useMap } from './controllers/useMap';
+import { useMapUI } from '../providers/MapUIProvider';
 import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
 import { useMapDataController } from './controllers/useMapDataController';
 import { useAssistant } from '../hooks/useAssistant';
@@ -53,17 +53,15 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
 
     const { isOnline } = useAssistant();
 
+    const { mode} = useMapUI();
+
     const {
         position,
         setPosition,
         selectedPlace,
         setSelectedPlace,
 
-        canRenderEnv,
-
         aqi,
-        aqiLoading,
-        aqiError,
 
         weather,
 
@@ -75,37 +73,14 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
         poiError,
         poiType,
         setPoiType,
-        refetchPOIs,
-        clearPOIs
     } = useMapDataController({ poiIntent });
-
-    const {
-        //states 
-        mode,
-        selectedMode,
-        origin,
-        destination,
-        activeField,
-        hoverPOIId,
-
-        //setters
-        setMode,
-        setSelectedMode,
-        setOrigin,
-        setDestination,
-        setActiveField,
-        setHoverPOIId,
-    } = useMap();
 
 
     const poiCategory = usePOICategory();
 
-    const directions = useDirectionsController({ selectedMode, setSelectedMode });
+    const directions = useDirectionsController();
 
     const poiInteraction = usePOIInteraction({
-        setOrigin,
-        setDestination,
-        setMode,
         setSelectedPlace,
         clearRoutes: directions.clearRoutes,
         position
@@ -117,7 +92,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
     const handleCategorySelect = useCallback((type) => {
         const intent = poiCategory.onCategorySelect(type);
         if (!intent) return;
-        console.log("INTENT: ",intent);
         
         setPoiType(intent);
     }, [poiCategory, setPoiType]);
@@ -129,12 +103,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
             <MapControls
                 query={query}
                 setQuery={setQuery}
-                origin={origin}
-                setOrigin={setOrigin}
-                destination={destination}
-                setDestination={setDestination}
-                activeField={activeField}
-                setActiveField={setActiveField}
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
@@ -147,8 +115,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 getDirections={directions.getDirections}
                 loading={directions.loading}
                 error={directions.error}
-                mode={mode}
-                setMode={setMode}
                 clearRoutes={directions.clearRoutes}
                 showMore={poiCategory.showMore}
                 onCategorySelect={handleCategorySelect}
@@ -163,20 +129,14 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                     <MapRenderer
                         mapRef={mapRef}
                         position={position}
-                        origin={origin}
-                        destination={destination}
                         selectedPlace={selectedPlace}
                         poiResults={poiResults}
-                        hoverPOIId={hoverPOIId} //new
-                        setHoverPOIId={setHoverPOIId}
                         setSelectedPlace={setSelectedPlace}
                         poiType={poiType}
                         showTransitLayer={showTransitLayer}
                         tileUrl={tileUrl}
                         routes={directions.routes}
-                        mode={mode}
-                        selectedMode={selectedMode}
-                        setSelectedMode={setSelectedMode} />
+                        />
                 </div>
 
                 {/* DESKTOP POI SIDEBAR */}
@@ -197,9 +157,7 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                     <Suspense fallback={null}>
                         <Recenter
                             mapRef={mapRef}
-                            mode={mode}
                             routes={directions.routes}
-                            selectedMode={selectedMode}
                             setPosition={setPosition}
                             setSelectedPlace={setSelectedPlace}
                         />
@@ -228,7 +186,6 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                             poiError={poiError}
                             selectedPlace={selectedPlace}
                             setSelectedPlace={setSelectedPlace}
-                            setHoverPOIId={setHoverPOIId}
                             onDirections={poiInteraction.startDirectionsWith}
                         />
                     </Suspense>
@@ -236,13 +193,13 @@ const MapView = ({ query, setQuery, showTransitLayer, setShowTransitLayer, searc
                 )}
 
 
+{/* NO NEED FOR DIRECTIONS REF */}
                 {mode === "directions" && (
                     <Suspense fallback={<DirectionsPanelFallback />}>
                         <DirectionsPanel
                             routes={directions.routes}
-                            selectedMode={selectedMode}
-                            setSelectedMode={setSelectedMode}
-                            directionsRef={directionsRef} />
+                            directionsRef={directionsRef} 
+                            />
                     </Suspense>
 
                 )}

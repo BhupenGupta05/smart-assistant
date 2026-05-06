@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import { Locate } from "lucide-react";
 import { useRef } from "react";
+import { useMapUI } from '../providers/MapUIProvider';
 
 
 const isAlreadyCentered = (map, target, zoom, tolerance = 10) => {
@@ -12,8 +13,13 @@ const isAlreadyCentered = (map, target, zoom, tolerance = 10) => {
     return distance < tolerance && currentZoom === zoom;
 }
 
-const Recenter = ({ mapRef, mode, routes, selectedMode, setPosition, setSelectedPlace }) => {
+const Recenter = ({ mapRef, routes, setPosition, setSelectedPlace }) => {
     const buttonRef = useRef(null);
+
+    const {
+        mode,
+        selectedMode
+    } = useMapUI();
 
     const triggerPulse = () => {
         if (!buttonRef.current) return;

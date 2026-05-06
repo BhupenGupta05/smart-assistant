@@ -2,6 +2,7 @@ import SearchBar from "../../../../features/search/ui/SearchBar"
 import "leaflet/dist/leaflet.css"
 import LayersTile from "../../../../features/layers/ui/Layers"
 import Report from "../../../../features/report/ui/Report"
+import { useMapUI } from "../../../../providers/MapUIProvider"
 
 
 const SearchControls = ({
@@ -13,9 +14,9 @@ const SearchControls = ({
   setShowTransitLayer,
   searchRef,
   isOnline,
-  mode,
-  setMode
 }) => {
+
+  const { mode, setMode } = useMapUI();
 
   return (
     <>

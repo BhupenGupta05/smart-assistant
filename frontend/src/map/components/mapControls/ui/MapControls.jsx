@@ -6,16 +6,11 @@ import DirectionControls from '../../../controls/directionControls/ui/Container'
 import POICategory from "../../../../features/poi/ui/POICategory";
 import Chatbot from "../../../../components/chatbot/ui/Chatbot";
 import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
+import { useMapUI } from "../../../../providers/MapUIProvider";
 
 const MapControls = ({
     query,
     setQuery,
-    origin,
-    setOrigin,
-    destination,
-    setDestination,
-    activeField,
-    setActiveField,
     setPosition,
     selectedPlace,
     setSelectedPlace,
@@ -28,8 +23,6 @@ const MapControls = ({
     getDirections,
     loading,
     error,
-    mode,
-    setMode,
     clearRoutes,
     showMore,
     onCategorySelect,
@@ -37,14 +30,20 @@ const MapControls = ({
     isOnline
 }) => {
 
+    const {
+        mode,
+        setMode,
+        origin,
+        setOrigin,
+        destination,
+        setDestination,
+        activeField,
+        setActiveField
+    } = useMapUI();
+
     useSearchSelection({
         selectedPlace,
-        mode,
-        activeField,
         setPosition,
-        setOrigin,
-        setDestination,
-        setActiveField,
         clearSelection: () => setSelectedPlace(null)
     })
 
@@ -62,8 +61,6 @@ const MapControls = ({
                         setShowTransitLayer={setShowTransitLayer}
                         searchRef={searchRef}
                         isOnline={isOnline}
-                        mode={mode}
-                        setMode={setMode}
                     />
 
 
@@ -79,12 +76,6 @@ const MapControls = ({
                 <DirectionControls
                     query={query}
                     setQuery={setQuery}
-                    origin={origin}
-                    setOrigin={setOrigin}
-                    destination={destination}
-                    setDestination={setDestination}
-                    activeField={activeField}
-                    setActiveField={setActiveField}
                     setPosition={setPosition}
                     selectedPlace={selectedPlace}
                     setSelectedPlace={setSelectedPlace}
@@ -92,7 +83,6 @@ const MapControls = ({
                     getDirections={getDirections}
                     loading={loading}
                     error={error}
-                    setMode={setMode}
                     clearRoutes={clearRoutes}
                     ref={directionsRef}
                 />
