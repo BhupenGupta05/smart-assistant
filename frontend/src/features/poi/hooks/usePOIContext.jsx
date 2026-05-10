@@ -9,18 +9,98 @@
 
 //state + context only
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { usePOIController } from './usePOIController';
+import { useGeolocation } from '../../../hooks/useGeolocationContext';
+import { useDebouncedPosition } from '../../../map/controllers/useDebouncedPosition';
+import usePOICategory from '../controllers/usePOICategory';
 
 const POIContext = createContext();
 
 
 export const POIProvider = ({ children }) => {
 
-    const poi = usePOIController();
+    const [poiIntent, setPoiIntent] = useState(null);
+
+    const { getCoords } = useGeolocation();
+
+    const position = useMemo(() => {
+        const raw = getCoords();
+        if (
+            raw &&
+            Array.isArray(raw) &&
+            raw.length === 2 &&
+            typeof raw[0] === "number" &&
+            typeof raw[1] === "number" &&
+            raw[0] != null &&
+            raw[1] != null
+        ) {
+            return { lat: raw[0], lng: raw[1] };
+        }
+        return null;
+    }, [getCoords]);
+
+    const debouncedPosition = useDebouncedPosition(position, 600);
+
+    const onPOIIntent = useCallback((intent) => {
+        if (!intent) return;
+
+        const { type, query, radius } = intent;
+
+        const poiType = (type || query)?.toLowerCase();
+
+        setPoiIntent({
+            type: poiType,
+            radius: radius || 1500
+        });
+
+        return `Showing nearby ${poiType}`;
+    }, []);
+
+    const poi = usePOIController({
+        position: debouncedPosition,
+        poiIntent
+    });
+
+    const category = usePOICategory();
+
+    const value = useMemo(() => ({
+        // Intent
+        poiIntent,
+        onPOIIntent,
+
+        // POI data
+        poiResults: poi.poiResults,
+        poiLoading: poi.loading,
+        poiError: poi.error,
+        poiType: poi.poiType,
+        setPoiType: poi.setPoiType,
+        refetchPOIs: poi.refetchPOIs,
+        clearPOIs: poi.clearPOIs,
+
+        // Category UI state
+        showMore: category.showMore,
+        onCategorySelect: category.onCategorySelect,
+        closeMore: category.closeMore,
+
+    }), [
+        poiIntent,
+        onPOIIntent,
+        poi.poiResults,
+        poi.loading,
+        poi.error,
+        poi.poiType,
+        poi.setPoiType,
+        poi.refetchPOIs,
+        poi.clearPOIs,
+        category.showMore,
+        category.onCategorySelect,
+        category.closeMore,
+
+    ])
 
     return (
-        <POIContext.Provider value={poi}>
+        <POIContext.Provider value={value}>
             {children}
         </POIContext.Provider>
     );

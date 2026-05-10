@@ -6,23 +6,20 @@ import useNetwork from "../../network/hooks/useNetwork";
 import { loadCacheMeta } from "../../offline/utils/poiCache";
 import { lastUpdated } from "../../offline/utils/lastUpdated";
 import { useMapUI } from "../../../providers/MapUIProvider";
+import { usePOI } from "../hooks/usePOIContext";
+import { useGeolocation } from "../../../hooks/useGeolocationContext";
 
 export default function BottomSheet({
     position,
-    poiType,
-    poiResults,
-    poiLoading,
-    poiError,
-    selectedPlace,
-    setSelectedPlace,
     onDirections
 }) {
 
     const { setHoverPOIId } = useMapUI();
+    const { poiType, poiResults, poiLoading, poiError } = usePOI();
+    const { selectedPlace, setSelectedPlace } = useGeolocation();
+
     const [isExpanded, setIsExpanded] = useState(false);
-
-    const { itemRefs, containerRef, userClickedRef } = usePOISidebar(poiResults, selectedPlace);
-
+    const { itemRefs, containerRef } = usePOISidebar(poiResults, selectedPlace);
     const isOnline = useNetwork();
 
     const poiCacheKey =

@@ -12,9 +12,7 @@ export default function usePOICategory() {
         return null;
       }
       return type;
-    },
-    []
-  );
+    },[]);
 
   const closeMore = useCallback(() => {
     setShowMore(false);

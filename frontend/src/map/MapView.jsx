@@ -4,7 +4,6 @@ import "leaflet/dist/leaflet.css";
 
 //POI
 import usePOIInteraction from '../features/poi/controllers/usePOIInteraction';
-import usePOICategory from '../features/poi/controllers/usePOICategory';
 
 // Map
 import MapControls from '../map/components/mapControls/ui/MapControls'
@@ -19,6 +18,8 @@ import { useAssistant } from '../hooks/useAssistant';
 // UI
 import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
 import Sidebar from '../features/poi/ui/Sidebar';
+import { useSearchProvider } from '../providers/SearchProvider';
+import { usePOI } from '../features/poi/hooks/usePOIContext';
 
 // Lazy 
 const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
@@ -48,35 +49,31 @@ const DirectionsPanelFallback = () => (
 );
 
 
-const MapView = ({ setQuery, poiIntent }) => {
+const MapView = () => {
     const mapRef = useRef(null); // Using same map instance
 
     const { isOnline } = useAssistant();
-
     const { mode} = useMapUI();
+    const { showTransitLayer } = useSearchProvider();
+
+    const {
+        poiResults,
+        poiType,
+        setPoiType,
+        onCategorySelect: rawOnCategorySelect,
+        closeMore
+    } = usePOI();
 
     const {
         position,
         setPosition,
         selectedPlace,
         setSelectedPlace,
-
         aqi,
-
         weather,
-
         envLoading,
-        envError,
-
-        poiResults,
-        poiLoading,
-        poiError,
-        poiType,
-        setPoiType,
-    } = useMapDataController({ poiIntent });
-
-
-    const poiCategory = usePOICategory();
+        envError
+    } = useMapDataController();
 
     const directions = useDirectionsController();
 
@@ -90,11 +87,11 @@ const MapView = ({ setQuery, poiIntent }) => {
     const tileUrl = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
 
     const handleCategorySelect = useCallback((type) => {
-        const intent = poiCategory.onCategorySelect(type);
+        const intent = rawOnCategorySelect(type);
         if (!intent) return;
         
         setPoiType(intent);
-    }, [poiCategory, setPoiType]);
+    }, [rawOnCategorySelect, setPoiType]);
 
     return (
         <div className='relative h-screen w-screen'>
@@ -104,15 +101,11 @@ const MapView = ({ setQuery, poiIntent }) => {
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
-                poiType={poiType}
                 routes={directions.routes}
                 getDirections={directions.getDirections}
                 loading={directions.loading}
                 error={directions.error}
                 clearRoutes={directions.clearRoutes}
-                showMore={poiCategory.showMore}
-                onCategorySelect={handleCategorySelect}
-                closeMore={poiCategory.closeMore}
                 isOnline={isOnline}
             />
 
@@ -127,6 +120,7 @@ const MapView = ({ setQuery, poiIntent }) => {
                         poiResults={poiResults}
                         setSelectedPlace={setSelectedPlace}
                         poiType={poiType}
+                        showTransitLayer={showTransitLayer} //
                         tileUrl={tileUrl}
                         routes={directions.routes}
                         />
@@ -173,12 +167,6 @@ const MapView = ({ setQuery, poiIntent }) => {
                     <Suspense fallback={<LoadingFallback />}>
                         <BottomSheet
                             position={position}
-                            poiType={poiType}
-                            poiResults={poiResults}
-                            poiLoading={poiLoading}
-                            poiError={poiError}
-                            selectedPlace={selectedPlace}
-                            setSelectedPlace={setSelectedPlace}
                             onDirections={poiInteraction.startDirectionsWith}
                         />
                     </Suspense>

@@ -1,12 +1,11 @@
 import { useGeolocation } from "../../hooks/useGeolocationContext";
 import { useAQI } from "../../features/weather/aqi/controllers/useAQI";
 import { useWeather } from "../../features/weather/controllers/useWeather";
-import { usePOIController } from "../../features/poi/hooks/usePOIController";
 import { useMemo } from "react";
 import { useDebouncedPosition } from "./useDebouncedPosition";
 
 
-export const useMapDataController = ({ poiIntent }) => {
+export const useMapDataController = () => {
     const geolocation = useGeolocation();
     const { getCoords } = geolocation;
 
@@ -52,15 +51,6 @@ export const useMapDataController = ({ poiIntent }) => {
         position: debouncedPosition
     })
 
-    const poi = usePOIController({
-        position: debouncedPosition,
-        poiIntent
-    });
-
-    const envLoading = aqi.loading || weather.loading;
-    const envError = aqi.error || weather.error;
-
-
     return {
         /* ---------------- Location ---------------- */
         position,
@@ -81,16 +71,8 @@ export const useMapDataController = ({ poiIntent }) => {
         weather: weather.weather,
 
         /* ---------------- ENV STATES ---------------- */
-        envLoading,
-        envError,
+        envLoading: aqi.loading || weather.loading,
+        envError: aqi.error || weather.error,
 
-        /* ---------------- POI ---------------- */
-        poiResults: poi.poiResults,
-        poiLoading: poi.loading,
-        poiError: poi.error,
-        poiType: poi.poiType,
-        setPoiType: poi.setPoiType,
-        refetchPOIs: poi.refetchPOIs,
-        clearPOIs: poi.clearPOIs
     };
 };

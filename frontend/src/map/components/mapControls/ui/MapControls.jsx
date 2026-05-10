@@ -7,24 +7,22 @@ import POICategory from "../../../../features/poi/ui/POICategory";
 import Chatbot from "../../../../components/chatbot/ui/Chatbot";
 import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
 import { useMapUI } from "../../../../providers/MapUIProvider";
+import { usePOI } from "../../../../features/poi/hooks/usePOIContext";
 
 const MapControls = ({
     setPosition,
     selectedPlace,
     setSelectedPlace,
-    poiType,
     routes,
     getDirections,
     loading,
     error,
     clearRoutes,
-    showMore,
-    onCategorySelect,
-    closeMore,
     isOnline
 }) => {
 
     const { mode } = useMapUI();
+    const { poiType, showMore, onCategorySelect, closeMore } = usePOI();
 
     useSearchSelection({
         selectedPlace,
