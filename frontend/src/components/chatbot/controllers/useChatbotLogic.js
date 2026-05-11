@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import axios from "axios";
 import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
 import useNetwork from "../../../features/network/hooks/useNetwork";
-import { useSearchProvider } from "../../../providers/SearchProvider";
+import { useSearchRefs, useTransitLayer } from "../../../providers/SearchProvider";
 import { useGeolocation } from "../../../hooks/useGeolocationContext";
 import { usePOI } from "../../../features/poi/hooks/usePOIContext";
 
@@ -19,7 +19,8 @@ export const useChatbotLogic = () => {
 
   const { getCurrentLocation } = useCurrentLocation();
 
-  const { searchRef, directionsRef, setShowTransitLayer } = useSearchProvider();
+  const { searchRef, directionsRef } = useSearchRefs();
+  const { setShowTransitLayer} = useTransitLayer();
 
   const { setPosition, setSelectedPlace } = useGeolocation();
   const { onPOIIntent } = usePOI();

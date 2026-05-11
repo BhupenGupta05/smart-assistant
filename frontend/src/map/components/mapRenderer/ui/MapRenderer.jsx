@@ -8,7 +8,7 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
 import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
 import { useMapHover, useMapUI } from '../../../../providers/MapUIProvider';
-import { useSearchProvider } from '../../../../providers/SearchProvider';
+import { useTransitLayer } from '../../../../providers/SearchProvider';
 
 const MapRenderer = ({
     mapRef,
@@ -31,7 +31,7 @@ const MapRenderer = ({
 
     const { setHoverPOIId } = useMapHover();
 
-    const { showTransitLayer } = useSearchProvider();
+    const { showTransitLayer } = useTransitLayer();
 
     const {
         memoizedPOIMarkers,

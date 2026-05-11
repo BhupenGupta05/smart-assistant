@@ -2,7 +2,7 @@ import SearchBar from "../../../../features/search/ui/SearchBar"
 import "leaflet/dist/leaflet.css"
 import LayersTile from "../../../../features/layers/ui/Layers"
 import Report from "../../../../features/report/ui/Report"
-import { useSearchProvider } from "../../../../providers/SearchProvider"
+import { useSearchRefs } from "../../../../providers/SearchProvider"
 
 
 const SearchControls = ({
@@ -11,7 +11,7 @@ const SearchControls = ({
   isOnline,
 }) => {
 
-  const { searchRef } = useSearchProvider();
+  const { searchRef } = useSearchRefs();
 
   return (
     <>

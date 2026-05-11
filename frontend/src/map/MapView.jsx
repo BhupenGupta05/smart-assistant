@@ -17,7 +17,7 @@ import { useMapDataController } from './controllers/useMapDataController';
 // UI
 import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
 import Sidebar from '../features/poi/ui/Sidebar';
-import { useSearchProvider } from '../providers/SearchProvider';
+import { useTransitLayer } from '../providers/SearchProvider';
 import { usePOI } from '../features/poi/hooks/usePOIContext';
 import useNetwork from '../features/network/hooks/useNetwork';
 
@@ -54,7 +54,7 @@ const MapView = () => {
 
     const isOnline = useNetwork();
     const { mode } = useMapUI();
-    const { showTransitLayer } = useSearchProvider();
+    const { showTransitLayer } = useTransitLayer();
 
     const {
         poiResults,
