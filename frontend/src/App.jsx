@@ -1,6 +1,3 @@
-import { AssistantContext } from './hooks/useAssistant'
-import { useGeolocation } from './hooks/useGeolocationContext'
-import { useMemo } from 'react'
 import MapView from './map/MapView'
 import useNetwork from './features/network/hooks/useNetwork'
 import OfflineBanner from './components/OfflineBanner'
@@ -8,23 +5,7 @@ import { loadCacheMeta } from './features/offline/utils/locationCache'
 import { lastUpdated } from './features/offline/utils/lastUpdated'
 
 const App = () => {
-  const { position, setPosition, selectedPlace, setSelectedPlace } = useGeolocation();
-  const isOnline = useNetwork()
-
-
-  const assistantContextValue = useMemo(() => ({
-    position,
-    setPosition,
-    selectedPlace,
-    setSelectedPlace,
-    isOnline
-  }), [
-    position,
-    setPosition,
-    selectedPlace,
-    setSelectedPlace,
-    isOnline
-  ])
+  const isOnline = useNetwork();
 
   const locationLastUpdatedTs = !isOnline
     ? loadCacheMeta()
@@ -39,14 +20,14 @@ const App = () => {
     : `⚠️ You’re offline — using last known location`;
 
   return (
-    <AssistantContext.Provider value={assistantContextValue}>
+    <>
       {!isOnline && <OfflineBanner message={offlineMessage} />}
       <div className='text-center text-2xl font-bold'>
         <MapView
         />
 
       </div>
-    </AssistantContext.Provider>
+    </>
   )
 }
 

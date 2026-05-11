@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import axios from "axios";
-import { useAssistant } from "../../../hooks/useAssistant";
 import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
 import useNetwork from "../../../features/network/hooks/useNetwork";
 import { useSearchProvider } from "../../../providers/SearchProvider";
+import { useGeolocation } from "../../../hooks/useGeolocationContext";
+import { usePOI } from "../../../features/poi/hooks/usePOIContext";
 
 export const useChatbotLogic = () => {
   const [messages, setMessages] = useState([
@@ -20,12 +21,8 @@ export const useChatbotLogic = () => {
 
   const { searchRef, directionsRef, setShowTransitLayer } = useSearchProvider();
 
-  const {
-    setPosition,
-    setSelectedPlace,
-    poiIntent,
-    onPOIIntent
-  } = useAssistant();
+  const { setPosition, setSelectedPlace } = useGeolocation();
+  const { onPOIIntent } = usePOI();
 
   /* ---------------- UI helpers ---------------- */
 

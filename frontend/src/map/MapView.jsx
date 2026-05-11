@@ -13,13 +13,13 @@ import MapRenderer from '../map/components/mapRenderer/ui/MapRenderer'
 import { useMapUI } from '../providers/MapUIProvider';
 import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
 import { useMapDataController } from './controllers/useMapDataController';
-import { useAssistant } from '../hooks/useAssistant';
 
 // UI
 import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
 import Sidebar from '../features/poi/ui/Sidebar';
 import { useSearchProvider } from '../providers/SearchProvider';
 import { usePOI } from '../features/poi/hooks/usePOIContext';
+import useNetwork from '../features/network/hooks/useNetwork';
 
 // Lazy 
 const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
@@ -52,8 +52,8 @@ const DirectionsPanelFallback = () => (
 const MapView = () => {
     const mapRef = useRef(null); // Using same map instance
 
-    const { isOnline } = useAssistant();
-    const { mode} = useMapUI();
+    const isOnline = useNetwork();
+    const { mode } = useMapUI();
     const { showTransitLayer } = useSearchProvider();
 
     const {
