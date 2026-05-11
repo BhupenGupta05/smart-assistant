@@ -18,11 +18,12 @@ const MapControls = ({
     loading,
     error,
     clearRoutes,
-    isOnline
+    isOnline,
+    onCategorySelect
 }) => {
 
     const { mode } = useMapUI();
-    const { poiType, showMore, onCategorySelect, closeMore } = usePOI();
+    const { poiType, showMore, closeMore } = usePOI();
 
     useSearchSelection({
         selectedPlace,

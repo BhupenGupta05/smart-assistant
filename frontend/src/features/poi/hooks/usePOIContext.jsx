@@ -9,7 +9,7 @@
 
 //state + context only
 
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo, useState, useCallback } from 'react';
 import { usePOIController } from './usePOIController';
 import { useGeolocation } from '../../../hooks/useGeolocationContext';
 import { useDebouncedPosition } from '../../../map/controllers/useDebouncedPosition';

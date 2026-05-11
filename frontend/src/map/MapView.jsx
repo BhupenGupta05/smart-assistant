@@ -61,7 +61,8 @@ const MapView = () => {
         poiType,
         setPoiType,
         onCategorySelect: rawOnCategorySelect,
-        closeMore
+        closeMore,
+        onPOIIntent
     } = usePOI();
 
     const {
@@ -90,8 +91,8 @@ const MapView = () => {
         const intent = rawOnCategorySelect(type);
         if (!intent) return;
         
-        setPoiType(intent);
-    }, [rawOnCategorySelect, setPoiType]);
+        onPOIIntent({ type: intent, radius: 1500});
+    }, [rawOnCategorySelect, onPOIIntent]);
 
     return (
         <div className='relative h-screen w-screen'>
@@ -107,6 +108,7 @@ const MapView = () => {
                 error={directions.error}
                 clearRoutes={directions.clearRoutes}
                 isOnline={isOnline}
+                onCategorySelect={handleCategorySelect}
             />
 
 
