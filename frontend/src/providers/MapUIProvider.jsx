@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-const MapUIContext = createContext(null);
+const MapUIStateContext = createContext(null);
+const MapUIHoverContext = createContext(null);
 
 export const MapUIProvider = ({ children }) => {
 
@@ -11,14 +12,13 @@ export const MapUIProvider = ({ children }) => {
     const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
     const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
 
-    const value = useMemo(() => ({
+    const stateValue = useMemo(() => ({
         //state
         mode,
         selectedMode,
         origin,
         destination,
         activeField,
-        hoverPOIId,
 
         //setters
         setMode,
@@ -26,21 +26,38 @@ export const MapUIProvider = ({ children }) => {
         setOrigin,
         setDestination,
         setActiveField,
+    }), [mode, selectedMode, origin, destination, activeField])
+
+    const hoverValue = useMemo(() => ({
+        //state
+        hoverPOIId,
+
+        //setters
         setHoverPOIId,
-    }), [mode, selectedMode, origin, destination, activeField, hoverPOIId])
+    }), [hoverPOIId])
 
     return (
-        <MapUIContext.Provider value={value}>
-            {children}
-        </MapUIContext.Provider>
+        <MapUIStateContext.Provider value={stateValue}>
+            <MapUIHoverContext.Provider value={hoverValue}>
+                {children}
+            </MapUIHoverContext.Provider>
+        </MapUIStateContext.Provider>
     )
 }
 
 export const useMapUI = () => {
-    const context = useContext(MapUIContext);
+    const context = useContext(MapUIStateContext);
     if (!context) {
         throw new Error("useMapUI must be used within a MapUIProvider");
     }
     return context;
 
+}
+
+export const useMapHover = () => {
+    const context = useContext(MapUIHoverContext);
+    if (!context) {
+        throw new Error("useMapUI must be used within a MapUIProvider");
+    }
+    return context;
 }

@@ -7,7 +7,7 @@ import { useDebouncedPosition } from "./useDebouncedPosition";
 
 export const useMapDataController = () => {
     const geolocation = useGeolocation();
-    const { getCoords } = geolocation;
+    const { coords } = geolocation;
 
     // | Check                                                                  | What it's doing                                     | Why it's needed                    |
     // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
@@ -19,7 +19,7 @@ export const useMapDataController = () => {
 
 
     const position = useMemo(() => {
-        const raw = getCoords();
+        const raw = coords;
         if (
             raw &&
             Array.isArray(raw) &&
@@ -32,7 +32,7 @@ export const useMapDataController = () => {
             return { lat: raw[0], lng: raw[1] };
         }
         return null;
-    }, [getCoords]);
+    }, [coords]);
 
     const debouncedPosition = useDebouncedPosition(position, 600);
 

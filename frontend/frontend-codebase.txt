@@ -1,0 +1,5449 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: src/**/*
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+src/
+  assets/
+    react.svg
+  components/
+    chatbot/
+      controllers/
+        useChatbotLogic.js
+      ui/
+        Chatbot.jsx
+    FitBounds.jsx
+    FlyToLocation.jsx
+    OfflineBanner.jsx
+    Recenter.jsx
+  features/
+    directions/
+      context/
+        DirectionsContext.jsx
+        DirectionsProvider.jsx
+        useDirectionsContext.jsx
+      controllers/
+        useDirectionsController.jsx
+      hooks/
+        useDirections.jsx
+      ui/
+        DirectionsLayer.jsx
+        DirectionsPanel.jsx
+    layers/
+      ui/
+        Layers.jsx
+    network/
+      hooks/
+        getIsOnline.js
+        useNetwork.jsx
+        useNetworkStatus.jsx
+      providers/
+        NetworkContext.jsx
+        NetworkProvider.jsx
+    offline/
+      utils/
+        aqiCache.js
+        lastUpdated.js
+        locationCache.js
+        poiCache.js
+        weatherCache.js
+    poi/
+      controllers/
+        usePOICategory.js
+        usePOIInteraction.js
+        usePOISidebar.js
+      hooks/
+        usePOIContext.jsx
+        usePOIController.jsx
+        usePOIFetcher.jsx
+      ui/
+        BottomSheet.jsx
+        POICard.jsx
+        POICategory.jsx
+        POIDetails.jsx
+        POIMarker.jsx
+        POIMore.jsx
+        POISidebar.jsx
+        Sidebar.jsx
+      utils/
+        normalizePlace.js
+    report/
+      ui/
+        Report.jsx
+    search/
+      controllers/
+        useSearch.js
+      hooks/
+        useCurrentLocation.js
+        useSearchSelection.js
+      ui/
+        SearchBar.jsx
+      utils/
+        getCurrentPosition.js
+      search.api.js
+    transit-layer/
+      controllers/
+        useTransitLayer.jsx
+    weather/
+      aqi/
+        controllers/
+          useAQI.jsx
+        hooks/
+          useAQIFetch.jsx
+        ui/
+          AQIIndicator.jsx
+      controllers/
+        useWeather.jsx
+      hooks/
+        useWeatherFetch.jsx
+      ui/
+        Card.jsx
+        MobileWeatherWidget.jsx
+        ResponsiveWeatherWidget.jsx
+        WeatherWidget.jsx
+      utility/
+        aqi.js
+  hooks/
+    useAutocompleteSearch.jsx
+    useFetchPlaces.jsx
+    useGeolocationContext.jsx
+    usePlacesSearch.jsx
+  map/
+    components/
+      mapControls/
+        controllers/
+          useMapControlsLogic.js
+        ui/
+          MapControls.jsx
+      mapRenderer/
+        controllers/
+          useMapRendererLogic.js
+        ui/
+          MapRenderer.jsx
+    controllers/
+      useDebouncedPosition.jsx
+      useMapDataController.jsx
+    controls/
+      directionControls/
+        hooks/
+          useDirectionControlsLogic.js
+        ui/
+          Container.jsx
+          DirectionControls.jsx
+      searchControls/
+        hooks/
+          useSearchControlsLogic.js
+        ui/
+          Container.jsx
+          SearchControls.jsx
+    icons/
+      CustomClusterIcon.jsx
+      markers.js
+    MapView.jsx
+  pages/
+    LandingPage.jsx
+  providers/
+    AppProvider.jsx
+    MapUIProvider.jsx
+    SearchProvider.jsx
+  App.jsx
+  index.css
+  main.jsx
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/components/chatbot/controllers/useChatbotLogic.js">
+import { useRef, useState } from "react";
+import axios from "axios";
+import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
+import useNetwork from "../../../features/network/hooks/useNetwork";
+import { useSearchProvider } from "../../../providers/SearchProvider";
+import { useGeolocation } from "../../../hooks/useGeolocationContext";
+import { usePOI } from "../../../features/poi/hooks/usePOIContext";
+
+export const useChatbotLogic = () => {
+  const [messages, setMessages] = useState([
+    { role: "assistant", content: "Hi there! Ask me anything - I can move the map, find places, set directions, and more." }
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const chatRef = useRef(null);
+  const isOnline = useNetwork();
+
+  const { getCurrentLocation } = useCurrentLocation();
+
+  const { searchRef, directionsRef, setShowTransitLayer } = useSearchProvider();
+
+  const { setPosition, setSelectedPlace } = useGeolocation();
+  const { onPOIIntent } = usePOI();
+
+  /* ---------------- UI helpers ---------------- */
+
+  const toggleChat = () => setIsOpen(v => !v);
+
+  /* ---------------- Map Actions ---------------- */
+
+  const moveToLocation = async (location) => {
+    if (directionsRef.current?.switchToSearchMode) {
+      directionsRef.current.switchToSearchMode();
+    }
+
+    if (location === "current") {
+      const [lat, lng] = await getCurrentLocation();
+      setPosition([lat, lng]);
+      setSelectedPlace(null);
+      return "Moved to current location";
+    }
+
+    let success = await searchRef.current?.searchLocationAndSelectFirst(location);
+
+    if (!success && directionsRef.current?.switchToSearchMode) {
+      success = await directionsRef.current.searchLocation(location);
+    }
+
+    if (!success) {
+      throw new Error(`Could not find location: "${location}"`);
+    }
+
+    return `Successfully moved to ${location}`;
+  };
+
+  const toggleTransit = () => {
+    setShowTransitLayer(prev => !prev);
+    return "Toggled transit layer";
+  };
+
+  /* ---------------- Directions ---------------- */
+
+
+  // HELPER FUNCTION
+  // WAITING TILL THE DIRECTION REF MOUNTS SO THAT WE CAN SET ORIGIN/DESTINATION IN INPUTS
+  const waitForRef = async (ref, retries = 10, delay = 200) => {
+    let count = 0;
+    while ((!ref.current || !ref.current.ready) && count < retries) {
+      await new Promise(r => setTimeout(r, delay));
+      count++;
+    }
+    return ref.current;
+  };
+
+  const setDirections = async ({ origin = "current", destination }) => {
+    const dirRef = await waitForRef(directionsRef);
+    if (!dirRef) throw new Error("Directions controls not ready");
+    if (!destination) throw new Error("Destination is required");
+
+    let success;
+
+    if (origin === "current") {
+      const [lat, lng] = await getCurrentLocation();
+      success = await dirRef.searchAndSetOrigin("", [lat, lng]);
+    } else {
+      success = await dirRef.searchAndSetOrigin(origin);
+    }
+
+    if (!success) throw new Error("Failed to set origin");
+
+    success = await dirRef.searchAndSetDestination(
+      typeof destination === "string" ? destination : destination.name
+    );
+    if (!success) throw new Error("Failed to set destination");
+
+    dirRef.switchToDirectionsMode();
+    await dirRef.calculateDirections();
+
+    return `Directions set from ${origin} to ${destination.name || destination}`;
+  };
+
+  /* ---------------- Tool Runner ---------------- */
+
+  const runTool = async (tool, lastUserMessage) => {
+    if (!isOnline) {
+      throw new Error("You are offline. This action requires internet.");
+    }
+    const { name, arguments: argsJSON } = tool.function;
+    const args = JSON.parse(argsJSON);
+
+    let command = name;
+
+    if (command === "move_to_location" && lastUserMessage.includes("route")) {
+      command = "set_directions";
+      args.destination = { name: args.location };
+    }
+
+    switch (command) {
+      case "move_to_location":
+        return moveToLocation(args.location);
+
+      case "toggle_transit_layer":
+        return toggleTransit();
+
+      case "set_poi_type":
+        return onPOIIntent({
+          type: args.poi,  
+          radius: 1500
+        });
+
+      case "search_poi":
+        return onPOIIntent({
+          type: args.type || args.query,
+          query: args.query,
+          radius: args.radius ?? 1500
+        });
+
+      case "set_directions":
+        return setDirections({
+          origin: args.origin || "current",
+          destination: args.destination
+        });
+
+      default:
+        throw new Error(`Unknown command: ${command}`);
+    }
+  };
+
+  /* ---------------- Message Send ---------------- */
+
+  const sendMessage = async () => {
+    if (loading || !input.trim()) return;
+
+    if (!isOnline) {
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "You’re offline. I can’t fetch new answers right now." }
+      ]);
+      setInput("");
+      return;
+    }
+
+    const userMessage = { role: "user", content: input };
+    const nextMessages = [...messages, userMessage];
+
+    setMessages(nextMessages);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/chat`,
+        { messages: nextMessages }
+      );
+
+      if (data.reply) {
+        setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+      }
+
+      if (data.tool_calls?.length) {
+        for (const toolCall of data.tool_calls) {
+          try {
+            const result = await runTool(toolCall, userMessage.content);
+            setMessages(prev => [...prev, { role: "assistant", content: `${result}` }]);
+          } catch (err) {
+            setMessages(prev => [...prev, { role: "assistant", content: `${err.message}` }]);
+          }
+        }
+      }
+
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", content: "⚠️ Something went wrong." }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    // state
+    messages,
+    input,
+    loading,
+    isOpen,
+    chatRef,
+
+    // setters
+    setInput,
+
+    // actions
+    toggleChat,
+    sendMessage
+  };
+};
+</file>
+
+<file path="src/components/chatbot/ui/Chatbot.jsx">
+import { MessagesSquare, X } from 'lucide-react';
+import { useChatbotLogic } from '../controllers/useChatbotLogic';
+
+
+const SUGGESTIONS = [
+    { label: 'Nearby restaurants', msg: 'Show nearby restaurants' },
+    { label: 'Take me home', msg: 'Take me home' },
+    { label: 'Show transit', msg: 'Toggle transit layer' },
+];
+
+const Chatbot = () => {
+    const {
+        messages,
+        input,
+        loading,
+        isOpen,
+        chatRef,
+        setInput,
+        toggleChat,
+        sendMessage
+    } = useChatbotLogic();
+
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !loading) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
+
+    return (
+        <>
+            {/* Floating Button */}
+            {!isOpen && (
+                <button
+                    onClick={toggleChat}
+                    className="fixed bottom-5 right-5 z-[9999] bg-white p-2 rounded-full shadow-lg hover:bg-gray-100 transition active:scale-95"
+                >
+                    <MessagesSquare className='w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600' />
+                </button>
+            )}
+
+            {/* IMPLEMENT ANIMATE SLIDE-DOWN */}
+
+            <div
+                ref={chatRef}
+                className={`chatbot z-[9999] transform transition-all duration-300 ease-in-out ${isOpen
+                    ? 'translate-y-0 opacity-100 pointer-events-auto'
+                    : 'translate-y-full opacity-0 pointer-events-none'
+                    }`}
+            >
+                <div className='chat-header flex justify-between items-center'>
+                    <span className='ml-3'>Smart Assistant</span>
+
+                    <button
+                        onClick={toggleChat}
+                        className="text-white hover:text-gray-300 slide-down transition"
+                    >
+                        <X className='w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5' />
+                    </button>
+                </div>
+                <div className="chat-messages">
+                    {messages.map((msg, i) => (
+                        <div key={i} className={`message ${msg.role}`}>
+                            {msg.content}
+                        </div>
+                    ))}
+                    {loading && <div className="message assistant">Thinking...</div>}
+                </div>
+                <input
+                    type="text"
+                    placeholder="Ask a question..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={loading}
+                    className={`p-2 text-sm font-normal outline-none border-t-[1px] border-t-slate-300 ${loading ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
+                />
+            </div>
+        </>
+
+    );
+};
+
+export default Chatbot;
+</file>
+
+<file path="src/components/FitBounds.jsx">
+import { useEffect } from "react";
+import { useMap } from "react-leaflet";
+
+export default function FitBounds({ routes }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (routes.length > 0) {
+      const allCoords = routes.flatMap((r) => r.coords || []);
+
+      if (allCoords.length) {
+         // Smoothly fit bounds using flyToBounds
+        map.flyToBounds(allCoords, { padding: [50, 50], animate: true, duration: 1.5 });
+      }
+    }
+  }, [routes, map]);
+
+  return null;
+}
+</file>
+
+<file path="src/components/FlyToLocation.jsx">
+import { useEffect } from "react";
+import { useMap } from "react-leaflet";
+import { useGeolocation } from "../hooks/useGeolocationContext";
+
+const FlyToLocation = () => {
+    // console.log("FLYING TO: ", coords);
+
+    const map = useMap();
+    const { coords } = useGeolocation();
+    // const prevCoords = useRef(null);
+
+
+    // NEW IMPLEMENTATION
+    // If it creates a new array, and values are also different only then fly to location
+    useEffect(() => {
+        if (
+            Array.isArray(coords) &&
+            coords.length === 2 &&
+            typeof coords[0] === 'number' &&
+            typeof coords[1] === 'number'
+            // (
+            //     !Array.isArray(prevCoords.current) ||
+            //     coords[0] !== prevCoords.current[0] ||
+            //     coords[1] !== prevCoords.current[1]
+            // )
+        ) {
+            map.flyTo(coords, 14);
+            // prevCoords.current = coords;
+        }
+    }, [coords, map]);
+
+    return null;
+}
+
+export default FlyToLocation
+</file>
+
+<file path="src/components/OfflineBanner.jsx">
+export default function OfflineBanner({ message }) {
+  return (
+    <div className="
+      fixed top-0 left-0 right-0 z-[9999]
+      bg-yellow-100 text-yellow-900
+      text-xs md:text-sm px-2 py-1
+      flex items-center justify-center
+    ">
+      {message}
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/Recenter.jsx">
+import L from 'leaflet'
+import { Locate } from "lucide-react";
+import { useRef } from "react";
+import { useMapUI } from '../providers/MapUIProvider';
+
+
+const isAlreadyCentered = (map, target, zoom, tolerance = 10) => {
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+
+    const distance = map.distance(currentCenter, target);
+
+    return distance < tolerance && currentZoom === zoom;
+}
+
+const Recenter = ({ mapRef, routes, setPosition, setSelectedPlace }) => {
+    const buttonRef = useRef(null);
+
+    const {
+        mode,
+        selectedMode
+    } = useMapUI();
+
+    const triggerPulse = () => {
+        if (!buttonRef.current) return;
+
+        buttonRef.current.classList.remove("animate-recenter");
+        // force reflow so animation restarts
+        void buttonRef.current.offsetWidth;
+        buttonRef.current.classList.add("animate-recenter");
+
+        setTimeout(() => {
+            buttonRef.current?.classList.remove("animate-recenter");
+        }, 800);
+    }
+
+    const handleRecenter = () => {
+
+        if (!navigator.geolocation) {
+            alert("Geolocation is not enabled by your browser.");
+            return;
+        }
+
+        const map = mapRef.current;
+        if (!map) return;
+
+        if (mode === "directions" && routes?.length > 0) {
+            const activeRoute = routes.find(r => r.mode === selectedMode || routes[0]);
+            const coords = activeRoute?.coords || [];
+
+            if (coords.length > 0) {
+                const bounds = L.latLngBounds(coords);
+
+                // Prevent re-fitting same bounds
+                if (!map.getBounds().equals(bounds)) {
+                    triggerPulse();
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+                return;
+            }
+        }
+
+        // Normal Recenter
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const coords = [pos.coords.latitude, pos.coords.longitude];
+                const zoom = 13;
+
+                if (isAlreadyCentered(map, coords, zoom)) {
+                    return;
+                }
+                triggerPulse();
+                setPosition(coords);
+                setSelectedPlace(null);
+                map.flyTo(coords, zoom, {
+                    animate: true,
+                    duration: 0.8
+                });
+            },
+            (err) => {
+                alert("Please enable location access to recenter the map.");
+                console.error("Geolocation error:", err.message);
+            }
+        );
+    }
+    return (
+        <button
+            ref={buttonRef}
+            className='absolute bottom-48 right-5 z-[9999]
+    bg-white p-[6px] sm:p-2 md:p-[10px]
+    rounded-full shadow-md border
+    hover:bg-gray-100 transition
+    active:scale-95
+    motion-reduce:animate-none'
+            onClick={handleRecenter}>
+            <Locate className='w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-600' />
+        </button>
+    )
+}
+
+export default Recenter
+</file>
+
+<file path="src/features/directions/context/DirectionsContext.jsx">
+import { createContext } from "react";
+
+export const DirectionsContext = createContext();
+</file>
+
+<file path="src/features/directions/context/DirectionsProvider.jsx">
+import { DirectionsContext } from "./DirectionsContext";
+import { useDirections } from "../hooks/useDirections";
+
+export const DirectionsProvider = ({ children }) => {
+  const directions = useDirections();
+
+  return (
+    <DirectionsContext.Provider value={directions}>
+      {children}
+    </DirectionsContext.Provider>
+  );
+};
+</file>
+
+<file path="src/features/directions/context/useDirectionsContext.jsx">
+import { useContext } from "react";
+import { DirectionsContext } from "./DirectionsContext";
+
+export const useDirectionsContext = () => {
+  const ctx = useContext(DirectionsContext);
+  if (!ctx) {
+    throw new Error("useDirectionsContext must be used inside DirectionsProvider");
+  }
+  return ctx;
+};
+</file>
+
+<file path="src/features/directions/controllers/useDirectionsController.jsx">
+import { useEffect } from "react";
+import { useDirectionsContext } from "../context/useDirectionsContext";
+import { useMapUI } from "../../../providers/MapUIProvider";
+
+export const useDirectionsController = () => {
+    const { routes, loading, error, getDirections, clearRoutes } = useDirectionsContext();
+    const { selectedMode, setSelectedMode } = useMapUI();
+
+    // By default, set selectedMode to first available mode when routes change
+    useEffect(() => {
+        if (routes?.length && !selectedMode) {
+            setSelectedMode(routes[0].mode);
+        }
+    }, [routes, selectedMode, setSelectedMode]);
+
+    return {
+        routes,
+        loading,
+        error,
+        getDirections,
+        clearRoutes
+    }
+}
+</file>
+
+<file path="src/features/directions/hooks/useDirections.jsx">
+// Custom hook to fetch directions between two points using various modes of transportation
+
+import { useCallback, useState, useRef } from "react";
+import axios from "axios";
+import useNetwork from "../../network/hooks/useNetwork";
+
+//HELPER
+const normalizeCoords = (point) => {
+  if (!point) return null;
+
+  if (Array.isArray(point)) return point;
+
+  if (point.location && Array.isArray(point.location)) {
+    return point.location;
+  }
+
+  if (typeof point.lat === "number" && typeof point.lng === "number") {
+    return [point.lat, point.lng];
+  }
+
+  return null;
+};
+
+
+export const useDirections = () => {
+  const [routes, setRoutes] = useState([]); // Store routes for every pair of origin and destination
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const abortRef = useRef(null);
+  const isOnline = useNetwork();
+
+  // Clear routes and errors
+  const clearRoutes = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setRoutes([]);
+    setError(null);
+    setLoading(false);
+  }, []);
+
+  // Fetch directions between origin and destination
+  const getDirections = useCallback(async (origin, destination, modes = ["driving", "walking", "transit"]) => {
+    const originCoords = normalizeCoords(origin);
+    const destCoords = normalizeCoords(destination);
+
+    if (!originCoords || !destCoords) {
+      console.error("Invalid coordinates:", { origin, destination });
+      setRoutes([]);
+      setError("Invalid origin or destination");
+      setLoading(false);
+      return;
+    }
+
+    if (!isOnline) {
+      setError("You are offline");
+      setRoutes([]);
+      setLoading(false);
+      return;
+    }
+
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const qs = new URLSearchParams({
+        origin: originCoords.join(","),
+        destination: destCoords.join(","),
+        modes: modes.join(","),
+      });
+
+      const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/directions?${qs}`, { signal: controller.signal });
+      setRoutes(data.routes || []);
+      setError(null);
+    } catch (e) {
+      if (e.name === "CanceledError" || e.name === "AbortError") return;
+      setRoutes([]);
+      setError("Could not fetch directions");
+    } finally {
+      setLoading(false);
+    }
+  }, [isOnline]);
+
+  return { routes, getDirections, clearRoutes, loading, error };
+};
+</file>
+
+<file path="src/features/directions/ui/DirectionsLayer.jsx">
+import { Polyline, Popup } from "react-leaflet";
+import FitBounds from '../../../components/FitBounds'
+
+export default function DirectionsLayer({ routes, selectedMode, setSelectedMode }) {
+  if (!routes?.length) return null;
+
+  return (
+    <>
+      {routes.map((route, idx) => {
+        const latlngs = route.coords || [];
+        if (!latlngs.length) return null;
+
+        const isActive = route.mode === selectedMode;
+
+        return (
+          <Polyline
+            key={route.mode}
+            positions={latlngs}
+            pathOptions={{
+              color: isActive ? "blue" : "gray",
+              weight: isActive ? 3 : 1.5,   
+              opacity: isActive ? 1 : 0.9
+            }}
+            // dashArray={idx === activeRouteIndex ? null : "6,6"}
+            eventHandlers={{
+              click: () => setSelectedMode(route.mode)
+            }}>
+            <Popup>
+              {route.mode.toUpperCase()} — {(route.distance_meters / 1000).toFixed(1)} km,{" "}
+              {(route.duration_seconds / 60).toFixed(0)} min
+            </Popup>
+          </Polyline>
+        );
+      })}
+
+      <FitBounds routes={routes} />
+    </>
+  );
+}
+</file>
+
+<file path="src/features/directions/ui/DirectionsPanel.jsx">
+import { useState } from "react";
+import { CarFront, Bus, Footprints, Plane } from "lucide-react";
+import { useMapUI } from "../../../providers/MapUIProvider";
+
+const travelModes = [
+  { key: "driving", icon: CarFront, label: "Driving" },
+  { key: "transit", icon: Bus, label: "Transit" },
+  { key: "walking", icon: Footprints, label: "Walking" },
+];
+
+export default function DirectionsPanel({
+  routes
+}) {
+  const { selectedMode, setSelectedMode} = useMapUI();
+  const [expanded, setExpanded] = useState(false);
+
+  if (!routes?.length) return null;
+
+  // console.log("ROUTES: ",routes);
+
+  const filteredRoutes = routes.filter((route) => route.mode === selectedMode);
+  const hasRoutes = filteredRoutes.length > 0;
+
+  return (
+    <div
+      className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[1000] transition-all duration-300 flex flex-col ${expanded ? "h-[40%]" : "h-[120px]"
+        }`}
+    >
+      {/* Panel div */}
+      <div
+        className="flex justify-center py-2 cursor-pointer"
+        onClick={() => setExpanded((prev) => !prev)}
+      >
+        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+      </div>
+
+      {/* Travel Modes */}
+      <div className="flex justify-around px-6 mb-4">
+        {travelModes.map(({ key, icon: Icon, label }) => {
+          const active = selectedMode === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setSelectedMode(key)}
+              className={`flex flex-col items-center px-4 py-2 rounded-xl transition ${active
+                  ? "text-blue-600 font-semibold bg-blue-50 shadow-sm"
+                  : "text-gray-500 hover:bg-gray-100"
+                }`}
+            >
+              <Icon size={24} className="mb-1" />
+              <span className="text-xs">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Routes */}
+      <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-3">
+        {hasRoutes ? filteredRoutes
+          .map((route, idx) => {
+            const isActive = route.mode === selectedMode;
+
+            return (
+              <div
+                key={idx}
+                onClick={() => setSelectedMode(route.mode)
+                }
+                className={`p-4 rounded-2xl cursor-pointer transition shadow-sm ${isActive
+                    ? "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-400"
+                    : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  }`}
+              >
+                <div className="flex justify-between items-center mb-1">
+                  {/* Duration */}
+                  <span
+                    className={`text-xl font-bold ${isActive ? "text-blue-700" : "text-gray-800"
+                      }`}
+                  >
+                    {(route.duration_seconds / 60).toFixed(0)} min
+                  </span>
+                  {/* Distance */}
+                  <span className="text-sm text-gray-600">
+                    {(route.distance_meters / 1000).toFixed(1)} km
+                  </span>
+                </div>
+
+                {/* Carbon Emissions */}
+                {route.emission_grams !== undefined && (
+                  <div className="text-xs text-gray-500">
+                    {((route.emission_grams) / 1000).toFixed(2)} kg CO₂
+                  </div>
+                )}
+              </div>
+            );
+          }) : (
+          <div className="flex flex-col items-center justify-center text-center text-gray-500 py-10 px-4">
+            <Plane className="w-8 h-8 mb-3 text-gray-400" />
+            <p className="text-sm font-medium">
+              No {selectedMode} routes available between these locations.
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              For long distances, try checking flights or other travel options.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/features/layers/ui/Layers.jsx">
+import { Layers } from "lucide-react"
+import { useSearchProvider } from "../../../providers/SearchProvider"
+
+const LayersTile = () => {
+  const { showTransitLayer, setShowTransitLayer } = useSearchProvider();
+
+  //need to check the function setshowtransit
+  return (
+    <button
+    onClick={() => setShowTransitLayer(!showTransitLayer)}
+      className={`
+        h-9 w-9
+        md:h-9 md:w-9
+        lg:h-10 lg:w-10
+    rounded-xl
+    bg-white
+    backdrop-blur-md
+    shadow-lg
+    ring-1 ring-black/5
+    hover:bg-gray-100
+    transition
+    flex items-center justify-center
+    `}
+      title="Map Tiles"
+    >
+      <Layers className="h-3 w-3 md:h-4 md:w-4 lg:h-5 lg:w-5" />
+    </button>
+  )
+}
+
+export default LayersTile
+</file>
+
+<file path="src/features/network/hooks/getIsOnline.js">
+export function getIsOnline() {
+  if (typeof navigator === "undefined") return true;
+  return navigator.onLine;
+}
+</file>
+
+<file path="src/features/network/hooks/useNetwork.jsx">
+import { useContext } from "react";
+import { NetworkContext } from "../providers/NetworkContext";
+
+export default function useNetwork() {
+  const ctx = useContext(NetworkContext);
+  if (ctx === undefined) {
+    throw new Error("useNetwork must be used inside NetworkProvider");
+  }
+  return ctx;
+}
+</file>
+
+<file path="src/features/network/hooks/useNetworkStatus.jsx">
+import { useEffect, useState } from "react";
+
+export default function useNetworkStatus() {
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+    useEffect(() => {
+        const online = () => setIsOnline(true);
+        const offline = () => setIsOnline(false);
+
+        window.addEventListener("online", online);
+        window.addEventListener("offline", offline);
+
+        return () => {
+            window.removeEventListener("online", online);
+            window.removeEventListener("offline", offline);
+        }
+    }, [])
+
+    useEffect(() => {
+        console.log("[Network] isOnline state →", isOnline);
+    }, [isOnline]);
+
+    return isOnline;
+}
+</file>
+
+<file path="src/features/network/providers/NetworkContext.jsx">
+import { createContext } from "react";
+
+export const NetworkContext = createContext(undefined);
+</file>
+
+<file path="src/features/network/providers/NetworkProvider.jsx">
+import useNetworkStatus from "../hooks/useNetworkStatus";
+import { NetworkContext } from "./NetworkContext";
+
+export default function NetworkProvider({ children }) {
+  const isOnline = useNetworkStatus();
+
+  return (
+    <NetworkContext.Provider value={isOnline}>
+      {children}
+    </NetworkContext.Provider>
+  );
+}
+</file>
+
+<file path="src/features/offline/utils/aqiCache.js">
+// aqiCache.js
+export function saveAQI(lat, lng, aqiValue) {
+    const key = `aqi:${lat.toFixed(2)}:${lng.toFixed(2)}`;
+    localStorage.setItem(
+        key,
+        JSON.stringify({ 
+            data: aqiValue,  // Store as 'data' property
+            timestamp: Date.now() 
+        })
+    );
+}
+
+export function loadAQI(lat, lng, maxAge) {
+    const key = `aqi:${lat.toFixed(2)}:${lng.toFixed(2)}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+
+    try {
+        const parsed = JSON.parse(raw);
+        
+        // Check if data is expired
+        if (Date.now() - parsed.timestamp > maxAge) {
+            // Clean up expired data
+            localStorage.removeItem(key);
+            return null;
+        }
+        
+        return parsed; // Returns { data: number, timestamp: number }
+    } catch (err) {
+        console.error("Failed to parse cached AQI:", err);
+        localStorage.removeItem(key); // Clean up corrupted data
+        return null;
+    }
+}
+</file>
+
+<file path="src/features/offline/utils/lastUpdated.js">
+export function lastUpdated(timestamp) {
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
+
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs} hr${hrs === 1 ? '' : 's'} ago`;
+
+    const days = Math.floor(hrs / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+</file>
+
+<file path="src/features/offline/utils/locationCache.js">
+const LOCATION_KEY = 'last_known_location';
+
+export function saveLocation(lat, lng) {
+  try {
+    localStorage.setItem(LOCATION_KEY, JSON.stringify({ lat, lng, timestamp: Date.now() }));
+  } catch (err) {
+    console.warn("Failed to save location", err);
+  }
+}
+
+export function loadLocation(maxAge = 24 * 60 * 60 * 1000) { // 24 hours default
+  try {
+    const raw = localStorage.getItem(LOCATION_KEY);
+    if (!raw) return null;
+    
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp > maxAge) return null;
+    
+    return { lat: parsed.lat, lng: parsed.lng };
+  } catch (err) {
+    console.warn("Failed to load location", err);
+    return null;
+  }
+}
+
+// FOR ACCESSING TIMESTAMP ONLY
+export function loadCacheMeta() {
+    try {
+        const raw = localStorage.getItem(LOCATION_KEY);
+        if (!raw) return null;
+
+        const { timestamp } = JSON.parse(raw);
+        return timestamp;
+    } catch {
+        return null;
+    }
+}
+</file>
+
+<file path="src/features/offline/utils/poiCache.js">
+const PREFIX = "offline_cache_v1";
+
+export function saveCache(key, data) {
+    try {
+        localStorage.setItem(
+            PREFIX + key,
+            JSON.stringify({
+                data,
+                timestamp: Date.now()
+            })
+        );
+    } catch (err) {
+        console.warn("Cache save failed", err);
+    }
+}
+
+export function loadCache(key, maxAge = Infinity) {
+    try {
+        const raw = localStorage.getItem(PREFIX + key);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (Date.now() - parsed.timestamp > maxAge) return null;
+
+        return parsed.data;
+
+    } catch (err) {
+        console.warn("Cache load failed", err);
+        return null;
+    }
+}
+
+// FOR ACCESSING TIMESTAMP ONLY
+export function loadCacheMeta(key) {
+    try {
+        const raw = localStorage.getItem(PREFIX + key);
+        if (!raw) return null;
+
+        const { timestamp } = JSON.parse(raw);
+        return timestamp;
+    } catch {
+        return null;
+    }
+}
+</file>
+
+<file path="src/features/offline/utils/weatherCache.js">
+const WEATHER_CACHE_KEY = "weather_cache_v1";
+
+/**
+ * Normalize location into a bucket
+ * ~1km precision (good for 3–7km assumption)
+ */
+const getWeatherKey = (lat, lng) =>
+  `${lat.toFixed(2)},${lng.toFixed(2)}`;
+
+export const saveWeather = (lat, lng, weather) => {
+  try {
+    const key = getWeatherKey(lat, lng);
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    const cache = raw ? JSON.parse(raw) : {};
+
+    cache[key] = {
+      data: weather,
+      timestamp: Date.now(),
+    };
+
+    localStorage.setItem(
+      WEATHER_CACHE_KEY,
+      JSON.stringify(cache)
+    );
+  } catch (err) {
+    console.warn("Weather cache save failed", err);
+  }
+};
+
+export const loadWeather = (lat, lng, maxAge) => {
+  try {
+    const key = getWeatherKey(lat, lng);
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return null;
+
+    const cache = JSON.parse(raw);
+    const entry = cache[key];
+    if (!entry) return null;
+
+    if (Date.now() - entry.timestamp > maxAge) {
+      return null;
+    }
+
+    return entry;
+  } catch (err) {
+    console.warn("Weather cache load failed", err);
+    return null;
+  }
+};
+</file>
+
+<file path="src/features/poi/controllers/usePOICategory.js">
+import { useState, useCallback } from "react";
+
+export default function usePOICategory() {
+
+  const [showMore, setShowMore] = useState(false);
+
+  const onCategorySelect = useCallback(
+    (type) => {
+      // UI intent: open modal
+      if (type === "more") {
+        setShowMore(true);
+        return null;
+      }
+      return type;
+    },[]);
+
+  const closeMore = useCallback(() => {
+    setShowMore(false);
+  }, []);
+
+  return {
+    showMore,
+    onCategorySelect,
+    closeMore
+  };
+}
+</file>
+
+<file path="src/features/poi/controllers/usePOIInteraction.js">
+import { useMapUI } from "../../../providers/MapUIProvider";
+import { normalizePlace } from "../utils/normalizePlace";
+
+export default function usePOIInteraction({
+    setSelectedPlace,
+    clearRoutes,
+    position
+}) {
+    const { setOrigin, setDestination, setMode } = useMapUI();
+    
+    const startDirectionsWith = (place) => {
+        if (clearRoutes) clearRoutes();
+
+        const destinationPlace = normalizePlace(place);
+        setDestination(destinationPlace);
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const currentLocation = {
+                        name: "Current Location",
+                        address: "Your current location",
+                        location: [pos.coords.latitude, pos.coords.longitude],
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                    };
+                    setOrigin(currentLocation);
+                },
+                (err) => {
+                    console.warn("⚠️ Failed to fetch current location:", err);
+                    if (position) {
+                        setOrigin({
+                            name: "Current Location",
+                            address: "Your current location",
+                            location: position,
+                            lat: position[0],
+                            lng: position[1],
+                        });
+                    }
+                }
+            );
+        }
+
+        setMode("directions");
+        setSelectedPlace(null);
+    };
+
+    return { startDirectionsWith };
+}
+</file>
+
+<file path="src/features/poi/controllers/usePOISidebar.js">
+import { useEffect, useRef, useState } from "react";
+
+export default function usePOISidebar(poiResults, selectedPlace) {
+    const itemRefs = useRef({});
+    // BUG FIX: CLICKING ON PLACE CRETED A SNAPPY EFFECT BECAUSE OF scrollIntoView
+    // WHEN USER MANUALL SELECTS A PLACE IN SIDEBAR, scrollIntoView SHOULD NOT WORK
+    const userClickedRef = useRef(false);
+    const containerRef = useRef(null); // HIDE DIVIDER ON TOP
+    const [showDivider, setShowDivider] = useState(false);
+
+    // Scroll detection for header border
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            setShowDivider(container.scrollTop > 8);
+        };
+
+        container.addEventListener("scroll", handleScroll);
+        return () => container.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    useEffect(() => {
+        if (selectedPlace && !userClickedRef.current) {
+            const poiId = selectedPlace.place_id || poiResults.indexOf(selectedPlace);
+            const currentItem = itemRefs.current[poiId];
+            if (currentItem) {
+                currentItem.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+
+        // RESET FLAG
+        userClickedRef.current = false;
+    }, [selectedPlace, poiResults]);
+
+    return {
+        itemRefs,
+        containerRef,
+        showDivider,
+        userClickedRef
+    };
+}
+</file>
+
+<file path="src/features/poi/hooks/usePOIContext.jsx">
+// Fetch nearby POIs based on the current position or selected place
+// If the user selects a place from suggestions, it will update the position and fetch POIs again
+
+// Retry fetching POIs every 5 seconds if there was an error
+// This will keep trying to fetch POIs until it succeeds
+// or the component is unmounted
+
+
+
+//state + context only
+
+import { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import { usePOIController } from './usePOIController';
+import { useGeolocation } from '../../../hooks/useGeolocationContext';
+import { useDebouncedPosition } from '../../../map/controllers/useDebouncedPosition';
+import usePOICategory from '../controllers/usePOICategory';
+
+const POIContext = createContext();
+
+
+export const POIProvider = ({ children }) => {
+
+    const [poiIntent, setPoiIntent] = useState(null);
+
+    const { coords } = useGeolocation();
+
+    const position = useMemo(() => {
+        const raw = coords;
+        if (
+            raw &&
+            Array.isArray(raw) &&
+            raw.length === 2 &&
+            typeof raw[0] === "number" &&
+            typeof raw[1] === "number" &&
+            raw[0] != null &&
+            raw[1] != null
+        ) {
+            return { lat: raw[0], lng: raw[1] };
+        }
+        return null;
+    }, [coords]);
+
+    const debouncedPosition = useDebouncedPosition(position, 600);
+
+    const onPOIIntent = useCallback((intent) => {
+        if (!intent) return;
+
+        const { type, query, radius } = intent;
+
+        const poiType = (type || query)?.toLowerCase();
+
+        setPoiIntent({
+            type: poiType,
+            radius: radius || 1500
+        });
+
+        return `Showing nearby ${poiType}`;
+    }, []);
+
+    const poi = usePOIController({
+        position: debouncedPosition,
+        poiIntent
+    });
+
+    const category = usePOICategory();
+
+    const value = useMemo(() => ({
+        // Intent
+        poiIntent,
+        onPOIIntent,
+
+        // POI data
+        poiResults: poi.poiResults,
+        poiLoading: poi.loading,
+        poiError: poi.error,
+        poiType: poi.poiType,
+        setPoiType: poi.setPoiType,
+        refetchPOIs: poi.refetchPOIs,
+        clearPOIs: poi.clearPOIs,
+
+        // Category UI state
+        showMore: category.showMore,
+        onCategorySelect: category.onCategorySelect,
+        closeMore: category.closeMore,
+
+    }), [
+        poiIntent,
+        onPOIIntent,
+        poi.poiResults,
+        poi.loading,
+        poi.error,
+        poi.poiType,
+        poi.setPoiType,
+        poi.refetchPOIs,
+        poi.clearPOIs,
+        category.showMore,
+        category.onCategorySelect,
+        category.closeMore,
+
+    ])
+
+    return (
+        <POIContext.Provider value={value}>
+            {children}
+        </POIContext.Provider>
+    );
+};
+
+export const usePOI = () => {
+    const context = useContext(POIContext);
+
+    if (!context) {
+        throw new Error("usePOI must be used within a POIProvider");
+    }
+
+    return context;
+};
+</file>
+
+<file path="src/features/poi/hooks/usePOIController.jsx">
+//behavior (when / why to fetch)
+
+import { useCallback, useEffect, useState } from "react";
+import { usePOIFetcher } from "./usePOIFetcher";
+
+const DEFAULT_RADIUS = 1500; // Default search radius in meters
+
+export const usePOIController = ({ position, poiIntent }) => {
+  const { fetchPOIs, cancel } = usePOIFetcher();
+
+  const [poiType, setPoiType] = useState(null);
+  const [poiResults, setPoiResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const radius = poiIntent?.radius || DEFAULT_RADIUS;
+
+  useEffect(() => {
+    if (!poiIntent?.type) return;
+    setPoiType(poiIntent.type);
+  }, [poiIntent]);
+
+  const loadPOIs = useCallback(async () => {
+    if (!poiType || !position) return;
+
+    const { lat, lng } = position;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await fetchPOIs({ lat, lng, type: poiType, radius });
+
+      setPoiResults(data);
+    } catch (err) {
+      if (err.name === "CanceledError") return;
+      console.error("POI fetch failed:", err);
+      setPoiResults([]);
+      setError("Could not fetch POIs");
+    } finally {
+      setLoading(false);
+    }
+  }, [poiType, position, radius, fetchPOIs]);
+
+  // Fetch when type or location changes
+  useEffect(() => {
+    loadPOIs();
+    return cancel;
+  }, [loadPOIs, cancel]);
+
+  // Retry on error
+  useEffect(() => {
+    if (!error) return;
+
+    const retry = setInterval(loadPOIs, 15_000);
+    return () => clearInterval(retry);
+  }, [error, loadPOIs]);
+
+  return {
+    poiType,
+    setPoiType,
+    poiResults,
+    loading,
+    error,
+    refetchPOIs: loadPOIs,
+    clearPOIs: () => setPoiResults([]),
+  };
+};
+</file>
+
+<file path="src/features/poi/hooks/usePOIFetcher.jsx">
+import { useCallback, useRef } from "react";
+import axios from "axios";
+import useNetwork from "../../network/hooks/useNetwork";
+import { loadCache, saveCache } from "../../offline/utils/poiCache";
+
+const CACHE_TTL = 60_000; // 1 minute
+const OFFLINE_CACHE_TTL = 10 * 60 * 1000 //10mins
+const DEFAULT_RADIUS = 1500; // meters
+
+export const usePOIFetcher = () => {
+  const cacheRef = useRef(new Map());
+  const abortRef = useRef(null);
+
+  const isOnline = useNetwork();
+
+  const fetchPOIs = useCallback(async ({ lat, lng, type, radius = DEFAULT_RADIUS }) => {
+    if (!lat || !lng || !type) return [];
+
+    // const cacheKey = `pois:${lat.toFixed(5)},${lng.toFixed(5)}-${type}`;
+    const cacheKey = `pois:${lat.toFixed(3)},${lng.toFixed(3)}-${type}-${radius}`;
+
+
+
+    // OFFLINE -> READ CACHE
+    if (!isOnline) {
+      console.log("📴 OFFLINE: Loading POIs from cache");
+      const cached = loadCache(cacheKey, OFFLINE_CACHE_TTL)
+      return cached || [];
+    }
+
+    // ONLINE -> FETCH
+    const memoryCached = cacheRef.current.get(cacheKey);
+
+    if (memoryCached) {
+      const age = Date.now() - memoryCached.timestamp;
+
+      if (age < CACHE_TTL) {
+        // console.log(`⚡ Memory cache hit (${radius}m)`);
+        return memoryCached.data;
+      }
+    }
+
+    // Check localStorage cache as fallback
+    const localStorageCached = loadCache(cacheKey, CACHE_TTL);
+
+    if (localStorageCached) {
+      console.log("💾 ONLINE: Found in localStorage, updating in background");
+      cacheRef.current.set(cacheKey, {
+        data: localStorageCached,
+        timestamp: Date.now()
+      });
+
+      // Fetch fresh data in background
+      fetchFreshData(cacheKey, lat, lng, type, radius).catch(console.error);
+
+      return localStorageCached;
+    }
+
+    return await fetchFreshData(cacheKey, lat, lng, type, radius);
+  }, [isOnline]);
+
+  const fetchFreshData = useCallback(async (cacheKey, lat, lng, type, radius) => {
+    // cancel previous request
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const url = `${import.meta.env.VITE_BASE_URL}/api/nearby?lat=${lat}&lng=${lng}&radius=${radius}&type=${type}`;
+      const { data } = await axios.get(url, {
+        signal: controller.signal,
+        timeout: 10000
+      });
+
+      // save to both caches
+      cacheRef.current.set(cacheKey, {
+        data,
+        timestamp: Date.now(),
+      });
+
+      saveCache(cacheKey, data);
+      console.log("Data cached for offline use");
+
+      return data;
+    } catch (err) {
+      // ignore abort errors
+      if (err.name === "CanceledError" || err.name === "AbortError") {
+        return [];
+      }
+
+      // On network error, try to serve stale cache
+      const staleCache = loadCache(cacheKey, OFFLINE_CACHE_TTL * 2); //allow older data
+      if (staleCache) {
+        console.warn("🌐 Network error, serving stale cache", err.message);
+        return staleCache;
+      }
+      throw err;
+    } finally {
+      abortRef.current = null;
+    }
+  }, []);
+
+  const cancel = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+  }, []);
+
+  // Optional: Clear cache function
+  const clearCache = useCallback(() => {
+    cacheRef.current.clear();
+    // You could also clear localStorage entries with your prefix
+  }, []);
+  return { fetchPOIs, cancel };
+};
+</file>
+
+<file path="src/features/poi/ui/BottomSheet.jsx">
+import { ChevronUp, Loader2 } from "lucide-react";
+import usePOISidebar from "../controllers/usePOISidebar";
+import POICard from "./POICard";
+import { useState } from "react";
+import useNetwork from "../../network/hooks/useNetwork";
+import { loadCacheMeta } from "../../offline/utils/poiCache";
+import { lastUpdated } from "../../offline/utils/lastUpdated";
+import { useMapHover, useMapUI } from "../../../providers/MapUIProvider";
+import { usePOI } from "../hooks/usePOIContext";
+import { useGeolocation } from "../../../hooks/useGeolocationContext";
+
+export default function BottomSheet({
+    position,
+    onDirections
+}) {
+
+    const { setHoverPOIId } = useMapHover();
+    const { poiType, poiResults, poiLoading, poiError } = usePOI();
+    const { selectedPlace, setSelectedPlace } = useGeolocation();
+
+    const [isExpanded, setIsExpanded] = useState(false);
+    const { itemRefs, containerRef } = usePOISidebar(poiResults, selectedPlace);
+    const isOnline = useNetwork();
+
+    const poiCacheKey =
+        position && poiType
+            ? `pois:${position.lat.toFixed(2)},${position.lng.toFixed(2)}-${poiType}`
+            : null;
+
+
+    const poiLastUpdatedTs = !isOnline && poiCacheKey
+        ? loadCacheMeta(poiCacheKey)
+        : null;
+
+    const poiLastUpdatedText = poiLastUpdatedTs
+        ? lastUpdated(poiLastUpdatedTs)
+        : null;
+
+
+    if (!poiType) return null;
+
+    return (
+        <div
+            ref={containerRef}
+            className="absolute bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-end pb-6 md:pb-8 px-4 h-screen text-slate-700 pointer-events-none">
+
+            {/* Mobile/Desktop Responsive Container */}
+            <div
+                className="w-full pointer-events-auto"
+            >
+                {/* Handle Bar for Mobile Drag hint (Visual only for now) */}
+                <div className="w-full flex justify-center mb-2 md:hidden">
+                    <div className="w-12 h-1.5 bg-white/50 backdrop-blur-md rounded-full shadow-sm" />
+                </div>
+
+                <div
+                    className={`
+    mx-auto w-full lg:max-w-5xl xl:max-w-7xl
+    bg-white/80 backdrop-blur-xl border border-white/40 shadow-2xl
+    rounded-[2rem] overflow-hidden flex flex-col
+    transition-[max-height] duration-500 ease-in-out
+    ${isExpanded ? "max-h-[50vh]" : "max-h-[30vh]"}
+  `}
+                >
+
+
+
+                    {/* Header Area */}
+                    <div className="px-4 md:px-6 py-3 md:py-4 border-b border-black/5 flex items-center justify-between bg-white/50">
+                        <h2 className="font-display font-bold text-base md:text-lg text-foreground">
+                            Nearby Places {poiResults.length > 0 && <span className="text-muted-foreground text-xs md:text-sm font-normal ml-2">({poiResults.length} results)</span>}
+
+                            {!isOnline && poiLastUpdatedText && (
+                                <span className="text-muted-foreground text-2xs md:text-sm font-normal ml-2">Last updated {poiLastUpdatedText}</span>
+                            )}
+                        </h2>
+
+                        <button
+                            onClick={() => setIsExpanded((v) => !v)}
+                            className="ml-2 p-2 rounded-full hover:bg-black/5 transition"
+                            aria-label={isExpanded ? "Collapse" : "Expand"}
+                        >
+                            <ChevronUp
+                                className={`w-4 md:w-5 h-4 md:h-5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""
+                                    }`}
+                            />
+                        </button>
+                    </div>
+
+                    {/* List Content */}
+                    <div className="overflow-y-auto overflow-x-hidden p-4 bg-gray-50/50">
+                        {poiLoading ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground text-slate-700">
+                                <Loader2 className="w-4 md:w-8 h-4 md:h-8 animate-spin mb-2" />
+                                <p className="text-sm md:text-base">Finding best places...</p>
+                            </div>
+                        ) : (!isOnline && poiResults.length === 0) ? ( //OFFLINE AND NO POIs CACHED
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p className="font-medium">You're offline</p>
+                                <p className="text-sm mt-1">
+                                    No cached places available for this area.
+                                </p>
+                            </div>
+                        ) : poiError ? (
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p className="font-medium">Something went wrong</p>
+                                <p className="text-sm mt-1">
+                                    Unable to fetch places right now. Try again later.
+                                </p>
+                            </div>
+
+                        ) : poiResults.length === 0 ? ( //ONLINE AND NO RESULTS
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p>No places found in this area.</p>
+                                <p className="text-sm mt-1">Try adjusting your search or filters.</p>
+                            </div>
+                        ) : (
+                            // Desktop: Horizontal Scroll / Grid. Mobile: Vertical List
+                            <div className="flex flex-col gap-2 md:gap-4">
+                                {poiResults.map((poi) => {
+                                    if (!poi.place_id) return null;
+
+                                    const poiId = poi.place_id;
+                                    const isActive = selectedPlace?.place_id === poiId;
+
+
+                                    return (
+                                        <POICard
+                                            key={poiId}
+                                            ref={(el) => (itemRefs.current[poiId] = el)}
+                                            poi={poi}
+                                            isActive={isActive}
+                                            onMouseEnter={() => setHoverPOIId(poi.place_id)}
+                                            onMouseLeave={() => setHoverPOIId(null)}
+                                            onClick={() => setSelectedPlace(poi)}
+                                            onDirections={onDirections}
+                                        />
+
+                                    )
+
+                                })}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+</file>
+
+<file path="src/features/poi/ui/POICard.jsx">
+import { Star, MapPin, Navigation2 } from "lucide-react";
+import useNetwork from "../../network/hooks/useNetwork";
+
+export default function POICard({
+    poi,
+    isActive,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    onDirections
+}) {
+
+    const isOnline = useNetwork();
+
+
+    return (
+        <div
+            onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            className={`
+        group relative flex-shrink-0 w-full p-3 md:p-4 bg-white rounded-2xl cursor-pointer
+        transition-all duration-300 border text-slate-700
+        ${isActive
+                    ? 'border-primary ring-2 ring-primary/5 shadow-xl bg-blue-50/30'
+                    : 'border-transparent shadow-sm hover:shadow-md hover:border-gray-100'
+                }
+      `}
+        >
+            <div className="flex gap-3 md:gap-4">
+                {/* Thumbnail */}
+                <div className="w-16 md:w-16 h-16 md:h-16 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
+                    {poi.photos?.length > 0 ? (
+                        <img
+                            src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${poi.photos[0].photo_reference}`}
+                            alt={poi.name}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <MapPin className="w-6 md:w-8 h-6 md:h-8" />
+                        </div>
+                    )}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    <h3 className="text-left text-sm md:text-base font-semibold text-foreground truncate">{poi.name}</h3>
+
+                    <div className="flex items-center gap-1 mt-1 text-amber-500">
+                        <span className="text-xs md:text-sm">{poi.rating === "NA" ? "No Ratings yet" : poi.rating}</span>
+                        {poi.rating !== "NA" && (
+                            <div className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        className={`w-3 h-3 ${i < Math.floor(poi.rating || 0) ? 'fill-current' : 'text-gray-200'}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                        {poi.user_ratings_total !== "NA" && (
+                            <span className="text-xs text-muted-foreground ml-1 text-slate-700 font-light">({poi.user_ratings_total})</span>
+                        )}
+                    </div>
+
+
+                    <div className="text-left mt-2 text-xs text-muted-foreground truncate w-full font-light">
+                        {poi.address}
+                    </div>
+                </div>
+            </div>
+
+            {/* Expandable Actions */}
+            <div
+                className={`
+    grid transition-all duration-300 ease-out
+    ${isActive ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}
+    group-hover:grid-rows-[1fr]
+  `}
+            >
+                <div className="overflow-hidden">
+                    <div className="mt-4 flex gap-2">
+                        <button
+                            disabled={!isOnline}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDirections(poi);
+                            }}
+                            className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-white bg-blue-600 text-xs md:text-sm font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors flex items-center justify-center gap-1 md:gap-2">
+                            <Navigation2 className="w-3 md:w-4 h-3 md:h-4" />
+                            Navigate
+                        </button>
+
+                        {poi.phone && (
+                            <button className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-xs md:text-sm font-medium hover:bg-secondary/80 transition-colors bg-slate-100">
+                                {/* <a href={`tel:${phone}`}></a> */}
+                                Call
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    );
+}
+</file>
+
+<file path="src/features/poi/ui/POICategory.jsx">
+import { Ellipsis, Utensils, Coffee, Stethoscope, TramFront, Landmark } from 'lucide-react'
+import POIMore from './POIMore'
+
+const categories = [
+    { label: "Restaurants", type: "restaurant", icon: Utensils },
+    { label: "Health", type: "hospital", icon: Stethoscope },
+    { label: "Cafes", type: "cafe", icon: Coffee },
+    { label: "Banks", type: "bank", icon: Landmark },
+    { label: "Transit", type: "transit_station", icon: TramFront },
+    { label: "More", type: "more", icon: Ellipsis }
+]
+
+const POICategory = ({ poiType, showMore, onCategorySelect, closeMore }) => {
+
+    // CLOSE MORE PAGE WHEN A CATEGORY IS SELECTED
+    const handleSelect = (type) => {
+        onCategorySelect(type);
+        closeMore();
+    };
+
+    return (
+        <>
+            <div className='absolute top-[56px] sm:top-[60px] md:top-[64px]
+    lg:top-[68px] justify-start z-[999] flex'>
+                <div className='flex flex-wrap items-center sm:flex-nowrap overflow-x-auto gap-1 sm:gap-2 md:gap-3 py-2 no-scrollbar mx-4'>
+                    {categories.map(({ label, type, icon: Icon }) => (
+                        <button
+                            key={type}
+                            onClick={() => onCategorySelect(type)}
+                            className={`flex gap-2 md:gap-3 items-center whitespace-nowrap text-xs text-slate-500 px-4 py-2 rounded-full drop-shadow-md transition ${poiType === type ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-100'
+                                }`}
+                        >
+                            <Icon className='w-3 h-3 md:w-4 md:h-4' />
+                            {label}
+                        </button>
+
+                    ))}
+                </div>
+            </div>
+
+            {showMore && (
+                <POIMore
+                    onClose={closeMore}
+                    onSelect={handleSelect} />
+            )}
+        </>
+    )
+}
+
+export default POICategory
+</file>
+
+<file path="src/features/poi/ui/POIDetails.jsx">
+import { Navigation, Bookmark, Share2 } from "lucide-react";
+
+const POIDetails = ({ place, onBack, onDirections }) => {
+  if (!place) return null;
+
+  // console.log("PLACE: ", place);
+
+
+  return (
+    <div className="bg-white h-full overflow-y-auto p-5 rounded-2xl shadow-sm">
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="mb-4 text-sm text-blue-600 hover:underline"
+      >
+        ← Back to results
+      </button>
+
+      {/* Photos Grid (keep same layout) */}
+      {place.photos?.length > 0 ? (
+        <div className="columns-2 sm:columns-3 gap-2 mb-5">
+          {place.photos.slice(0, 6).map((photo, idx) => (
+            <img
+              key={idx}
+              src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${photo.photo_reference}`}
+              alt={place.name}
+              loading="lazy"
+              onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
+              className="w-full mb-2 rounded-xl object-cover break-inside-avoid-column transition-opacity duration-700 ease-in-out"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="w-full h-36 bg-gray-50 flex items-center justify-center rounded-xl text-sm text-gray-400 mb-5">
+          No images available
+        </div>
+      )}
+
+      {/* Basic Info */}
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 leading-tight">
+          {place.name}
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          {place.vicinity || place.formatted_address}
+        </p>
+      </div>
+
+      {/* Ratings and Status */}
+      {place.user_ratings_total !== 'NA' && (<div className="flex items-center gap-3 text-sm text-gray-700 mb-5">
+        {place.rating && (
+          <span className="font-medium">{place.rating} ⭐</span>
+        )}
+        {place.user_ratings_total && (
+          <span>
+            ({place.user_ratings_total} reviews)
+          </span>
+        )}
+        {place.opening_hours && (
+          <span
+            className={`font-medium ${place.opening_hours.open_now
+              ? "text-green-600"
+              : "text-red-500"
+              }`}
+          >
+            {place.opening_hours.open_now ? "Open now" : "Closed"}
+          </span>
+        )}
+      </div>)}
+
+      {/* Actions */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => onDirections(place)}
+          title="Get directions to this place"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition"
+        >
+          <Navigation size={14} />
+          Directions
+        </button>
+
+        {/* <div className="relative group">
+          <button
+            onClick={() => onDirections(normalize(place))}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-medium transition"
+          >
+            <Navigation size={14} />
+          </button>
+          <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+            Get directions
+          </span>
+        </div> */}
+
+        {place.website && (
+          <a
+            href={place.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-xs font-medium transition"
+          >
+            Website
+          </a>
+        )}
+
+        {place.formatted_phone_number && (
+          <a
+            href={`tel:${place.formatted_phone_number}`}
+            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-xs font-medium transition"
+          >
+            Call
+          </a>
+        )}
+
+        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-xs font-medium transition">
+          <Bookmark size={14} />
+          Save
+        </button>
+
+        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-xs font-medium transition">
+          <Share2 size={14} />
+          Share
+        </button>
+      </div>
+
+
+    </div>
+  );
+};
+
+export default POIDetails;
+</file>
+
+<file path="src/features/poi/ui/POIMarker.jsx">
+import React from 'react'
+import { Marker, Popup } from 'react-leaflet';
+
+const POIMarker = React.memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onClick }) => {
+    
+    return (
+        <Marker
+            position={[poi.lat, poi.lng]}
+            icon={icon}
+            eventHandlers={{
+                mouseover: () => onMouseOver(poiId),
+                mouseout: () => onMouseOut(),
+                click: () => {
+                    onClick(poi),
+                    onMouseOver(poiId)
+                }
+            }}>
+
+            <Popup className='transparent-popup'>
+                <strong>{poi.name}</strong><br />
+                📍 {poi.address}<br />
+                ⭐ {poi.rating} ratings
+            </Popup>
+        </Marker>
+    )
+}, (prev, next) =>
+    prev.poiId === next.poiId &&
+    prev.icon === next.icon &&
+    prev.poi.lat === next.poi.lat &&
+    prev.poi.lng === next.poi.lng)
+
+export default POIMarker
+</file>
+
+<file path="src/features/poi/ui/POIMore.jsx">
+import { Bed, Fuel, Binoculars, Clapperboard, Croissant, IceCreamCone, IndianRupee, LibraryBig, Martini, PillBottle, Plug, ShoppingBag, Siren, Sofa, Trees, X } from "lucide-react";
+
+const sections = [
+    {
+        title: "🍽️ Food & Drinks",
+        items: [
+            { label: "Bakeries", type: "bakery", icon: Croissant },
+            { label: "Bars & Pubs", type: "bar", icon: Martini },
+            { label: "Ice Cream", type: "ice_cream", icon: IceCreamCone },
+            { label: "Hotels", type: "lodging", icon: Bed },
+        ],
+    },
+    {
+        title: "🛍️ Shopping",
+        items: [
+            { label: "Malls", type: "shopping_mall", icon: ShoppingBag },
+            { label: "Electronics", type: "electronics_store", icon: Plug },
+            { label: "Bookstores", type: "book_store", icon: LibraryBig },
+            { label: "Furniture", type: "furniture_store", icon: Sofa },
+        ],
+    },
+    {
+        title: "🏥 Services",
+        items: [
+            { label: "Pharmacies", type: "pharmacy", icon: PillBottle },
+            { label: "Police Stations", type: "police", icon: Siren },
+            { label: "ATMs", type: "atm", icon: IndianRupee },
+            { label: "Petrol", type: "gas_station", icon: Fuel },
+        ],
+    },
+    {
+        title: "🎭 Leisure & Attractions",
+        items: [
+            { label: "Parks", type: "park", icon: Trees },
+            { label: "Tourist Attractions", type: "tourist_attraction", icon: Binoculars },
+            { label: "Movie Theaters", type: "movie_theater", icon: Clapperboard },
+        ],
+    }
+];
+
+const POIMore = ({ onClose, onSelect }) => {
+
+    return (
+        <div className="fixed inset-0 bg-white z-[1000] animate-slide-up overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
+                <h2 className="text-lg font-semibold">Explore Nearby</h2>
+                <button onClick={onClose}>
+                    <X size={22} className="text-gray-600" />
+                </button>
+            </div>
+
+            {/* Category Sections */}
+            <div className="p-4 space-y-6">
+                {sections.map((section, idx) => (
+                    <div key={idx}>
+                        <h3 className="text-sm font-semibold text-gray-600 mb-3">
+                            {section.title}
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {section.items.map(({ label, type, icon: Icon }) => (
+                                <button
+                                    key={type}
+                                    onClick={() =>
+                                        onSelect(type)
+                                    }
+                                    className="flex gap-2 items-center bg-gray-100 hover:bg-gray-200 rounded-lg p-3 text-sm text-gray-800 transition"
+                                >
+                                    <Icon size={16} />
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+export default POIMore
+</file>
+
+<file path="src/features/poi/ui/POISidebar.jsx">
+// NOT IN USE
+
+import POIDetails from './POIDetails';
+import usePOISidebar from '../controllers/usePOISidebar';
+
+const POISidebar = ({
+  poiType,
+  poiResults,
+  poiLoading,
+  poiError,
+  activePOIId,
+  setActivePOIId,
+  selectedPlace,
+  setSelectedPlace,
+  onDirections
+}) => {
+  if (!poiType) return null;
+
+  const { itemRefs, containerRef, showDivider, userClickedRef } = usePOISidebar(poiResults, selectedPlace);
+
+  if (selectedPlace) {
+    return (
+      <POIDetails
+        place={selectedPlace}
+        onBack={() => setSelectedPlace(null)}
+        onDirections={() => onDirections(selectedPlace)}
+      />
+    );
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-t-2xl shadow-xl max-h-[35%] overflow-y-auto transition-all duration-300"
+    >
+      {/* Header */}
+      <div
+        className={`sticky top-0 bg-white/90 backdrop-blur-md p-4 transition-all duration-300 ${showDivider ? "border-b border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" : "border-none shadow-none"
+          }`}
+      >
+        <h2 className="text-lg font-semibold text-gray-800">
+          Nearby {poiType?.charAt(0).toUpperCase() + poiType?.slice(1)}
+        </h2>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        {poiLoading && <p className="text-gray-500 text-sm">Loading nearby places...</p>}
+        {poiError && !poiLoading && (
+          <p className="text-red-500 text-sm mb-2">{poiError}</p>
+        )}
+        {!poiError && !poiLoading && poiResults.length === 0 && (
+          <p className="text-gray-500 text-sm">No places found nearby.</p>
+        )}
+
+        <ul className="space-y-3">
+          {poiResults.map((place, idx) => {
+            const poiId = place.place_id || idx;
+            const isActive = activePOIId === poiId;
+
+            return (
+              <li
+                key={poiId}
+                ref={(el) => (itemRefs.current[poiId] = el)}
+                className={`flex flex-col sm:flex-row gap-3 border rounded-xl p-3 shadow-sm cursor-pointer transition-all duration-300 ${isActive
+                  ? "bg-blue-50 border-blue-400 shadow-md"
+                  : "hover:bg-gray-50"
+                  }`}
+                onMouseEnter={() => setActivePOIId(poiId)}
+                onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
+                onClick={() => {
+                  userClickedRef.current = true;
+                  setSelectedPlace(place);
+                  setActivePOIId(poiId);
+                }}
+              >
+                {/* Image */}
+                {place.photos?.length > 0 ? (
+                  <img
+                    key={idx}
+                    src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
+                    alt={place.name}
+                    loading="lazy"
+                    onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
+                    className="w-24 h-24 object-cover rounded-lg border transition-opacity duration-700 ease-in-out"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-lg text-xs text-gray-500">
+                    No Image
+                  </div>
+                )}
+
+                {/* Info */}
+                {place.user_ratings_total !== 'NA' && (<div className="flex flex-col justify-between flex-1">
+                  <div>
+                    <p className="text-base font-semibold text-gray-800 truncate">
+                      {place.name}
+                    </p>
+
+                    <div className="flex items-center flex-wrap gap-2 text-xs mt-1 text-gray-600">
+                      {place.rating && (
+                        <span className="font-medium">{place.rating} ⭐</span>
+                      )}
+                      {place.user_ratings_total && (
+                        <span>({place.user_ratings_total})</span>
+                      )}
+                      <span
+                        className={`font-semibold ${place.opening_hours === true
+                            ? "text-green-600"
+                            : place.opening_hours === false
+                              ? "text-red-500"
+                              : "text-gray-500"
+                          }`}
+                      >
+                        {place.opening_hours === true
+                          ? "Open"
+                          : place.opening_hours === false
+                            ? "Closed"
+                            : "Unknown"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDirections(place);
+                      }}
+                      className="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition"
+                    >
+                      Directions
+                    </button>
+                    {place.website && (
+                      <a
+                        href={place.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full hover:bg-purple-100 transition"
+                      >
+                        Website
+                      </a>
+                    )}
+                    {place.formatted_phone_number && (
+                      <a
+                        href={`tel:${place.formatted_phone_number}`}
+                        className="px-2 py-1 text-xs font-medium text-green-600 bg-green-50 rounded-full hover:bg-green-100 transition"
+                      >
+                        Call
+                      </a>
+                    )}
+                  </div>
+                </div>)}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default POISidebar;
+</file>
+
+<file path="src/features/poi/ui/Sidebar.jsx">
+import {
+  Navigation,
+  Heart,
+  Share2,
+  X,
+} from "lucide-react";
+
+export default function Sidebar({ place, onNavigate, onClose }) {
+  if (!place) return null;
+
+  return (
+    <aside
+      className="
+    fixed z-40 bg-white shadow-2xl
+    flex flex-col overflow-hidden
+    inset-x-3 bottom-3
+    h-[45vh]
+    rounded-2xl 
+    sm:left-6 sm:bottom-28
+    sm:h-[60vh]
+    sm:w-[400px]
+    sm:rounded-2xl
+    text-left
+  "
+    >
+
+      {/* Header / Image */}
+      <div className="relative h-32 sm:h-48 bg-gradient-to-br from-indigo-200 to-violet-200">
+
+        {/* Close button (RIGHT) */}
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="
+      absolute top-3 right-3 z-10
+      flex items-center justify-center
+      h-9 w-9 sm:h-10 sm:w-10
+      rounded-full
+      bg-white/90 backdrop-blur
+      shadow-md
+      hover:bg-white
+      transition
+    "
+        >
+          <X className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800" />
+        </button>
+
+      </div>
+
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-5 py-6">
+
+        {/* Badge */}
+        <span className="inline-block mb-2 px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold uppercase tracking-wide">
+          Searched
+        </span>
+
+        {/* Title */}
+        <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 mb-4">
+          {place.name}
+        </h1>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate(place);
+            }}
+            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2 text-xs sm:text-sm font-medium shadow"
+          >
+            <Navigation className="w-3 h-3 sm:w-4 sm:h-4" />
+            Navigate
+          </button>
+
+          <button className="p-[10px] rounded-xl border hover:bg-gray-50">
+            <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-slate-700" />
+          </button>
+
+          <button className="p-[10px] rounded-xl border hover:bg-gray-50">
+            <Share2 className="w-3 h-3 sm:w-4 sm:h-4 text-slate-700" />
+          </button>
+        </div>
+
+        {/* Address */}
+        <p className="text-slate-500 font-extralight text-xs sm:text-sm leading-relaxed mb-6">
+          {place.address}
+        </p>
+
+        {/* Location Details */}
+        {/* <div className="mb-6">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+            <MapPin className="w-4 h-4 text-blue-600" />
+            Location Details
+          </h3>
+
+          <div className="bg-slate-50 border rounded-xl p-4 text-sm space-y-2">
+            <div className="flex justify-between">
+              <span className="text-slate-400 font-extralight">Latitude</span>
+              <span className="font-extralight">{place.lat}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400 font-extralight">Longitude</span>
+              <span className="font-extralight">{place.lng}</span>
+            </div>
+          </div>
+        </div> */}
+
+        {/* Info Section */}
+        {/* {place.source && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+              Info
+            </h3>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="border rounded-xl p-3">
+                <div className="text-xs text-gray-500 uppercase tracking-wide">
+                  Source
+                </div>
+                <div className="text-sm font-medium mt-1">
+                  {place.source}
+                </div>
+              </div>
+            </div>
+          </div>
+        )} */}
+      </div>
+
+      {/* Footer */}
+      {/* <div className="border-t px-5 py-4">
+        <a
+          href={place.osmUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-blue-600"
+        >
+          <ExternalLink className="w-4 h-4" />
+          View on OpenStreetMap
+        </a>
+      </div> */}
+    </aside>
+  );
+}
+</file>
+
+<file path="src/features/poi/utils/normalizePlace.js">
+// Helper function to normalize place data from various formats
+export const normalizePlace = (place) => {
+    if (!place) return null;
+
+    let lat, lng;
+
+    if (place.geometry?.location) {
+        lat = typeof place.geometry.location.lat === "function"
+            ? place.geometry.location.lat()
+            : place.geometry.location.lat;
+        lng = typeof place.geometry.location.lng === "function"
+            ? place.geometry.location.lng()
+            : place.geometry.location.lng;
+        console.log("🌍 geometry.location detected:", lat, lng);
+    } else if (Array.isArray(place.location)) {
+        [lat, lng] = place.location;
+        console.log("📦 array location detected:", lat, lng);
+    } else if (place.lat !== undefined && place.lng !== undefined) {
+        lat = place.lat;
+        lng = place.lng;
+        console.log("📍 direct lat/lng detected:", lat, lng);
+    } 
+
+    if (lat == null || lng == null) return null;
+
+    return {
+        name: place.name || place.formatted_address,
+        address: place.formatted_address || place.name,
+        location: [lat, lng],
+        lat,
+        lng,
+        place_id: place.place_id || place.id
+    };
+};
+</file>
+
+<file path="src/features/report/ui/Report.jsx">
+import { Flag } from 'lucide-react';
+import { useMapUI } from '../../../providers/MapUIProvider';
+
+const Report = () => {
+    const { mode, setMode }= useMapUI();
+    return (
+        <button
+            onClick={() =>
+                setMode(prev => (prev === "report" ? "search" : "report"))
+            }
+            className={` h-9 w-9
+        md:h-9 md:w-9
+        lg:h-10 lg:w-10
+    rounded-xl
+    backdrop-blur-md
+    shadow-lg
+    ring-1 ring-black/5
+    transition
+    flex items-center justify-center ${mode === "report" ? "bg-red-600 hover:bg-red-500 text-white" : "bg-white text-red-600 hover:bg-gray-100"}`}
+        >
+            <Flag className="h-[14px] w-[14px] md:h-4 md:w-4 lg:h-5 lg:w-5" />
+        </button>
+    )
+}
+
+export default Report
+</file>
+
+<file path="src/features/search/controllers/useSearch.js">
+import { useState, useRef, useCallback, useEffect } from "react";
+import { searchPlaces } from "../search.api";
+import useNetwork from "../../network/hooks/useNetwork";
+
+export default function useSearchController({ externalQuery, onExternalQueryChange, onSelectPlace, onSetPosition }) {
+    const [internalQuery, setInternalQuery] = useState("");
+    const [results, setResults] = useState([]);
+    const [showResults, setShowResults] = useState(false);
+    const cacheRef = useRef(new Map());
+
+    const isOnline = useNetwork();
+
+    // Single source of truth decided here
+    const effectiveQuery =
+        externalQuery !== undefined && externalQuery !== null
+            ? externalQuery
+            : internalQuery;
+
+    const search = useCallback(async (query) => {
+        if (!query || query.length < 3) return [];
+        const key = query.toLowerCase().trim();
+
+        if (cacheRef.current.has(key)) {
+            const cached = cacheRef.current.get(key);
+            setResults(cached);
+            return cached;
+        }
+
+        const data = await searchPlaces(query, isOnline);
+        cacheRef.current.set(key, data);
+        setResults(data);
+        return data;
+    }, [])
+
+    // Debounced search
+    useEffect(() => {
+        if (!effectiveQuery.trim()) {
+            setResults([]);
+            return;
+        }
+        const timer = setTimeout(() => search(effectiveQuery), 300);
+
+        return () => clearTimeout(timer);
+
+    }, [effectiveQuery, search]);
+
+    const updateQuery = (value) => {
+        if (externalQuery !== undefined) {
+            onExternalQueryChange(value);
+        } else {
+            setInternalQuery(value);
+        }
+    };
+
+    const selectPlace = (place) => {
+        if (!place?.lat || !place?.lng) return;
+
+        onSelectPlace(place);
+        onSetPosition([place.lat, place.lng]);
+        updateQuery(place.address);
+        setResults([]);
+        setShowResults(false);
+    }
+
+    const searchAndSelectFirst = async (query) => {
+        const res = await search(query);
+        if (!res.length) return false;
+
+        selectPlace(res[0]);
+        return true;
+    }
+
+    return {
+        value: effectiveQuery,
+        results,
+        showResults,
+        setShowResults,
+        updateQuery,
+        selectPlace,
+        searchAndSelectFirst
+    };
+}
+</file>
+
+<file path="src/features/search/hooks/useCurrentLocation.js">
+export function useCurrentLocation() {
+  const getCurrentLocation = () =>
+    new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation not supported"));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve([pos.coords.latitude, pos.coords.longitude]),
+        reject
+      );
+    });
+
+  return { getCurrentLocation };
+}
+</file>
+
+<file path="src/features/search/hooks/useSearchSelection.js">
+import { useEffect } from "react";
+import { useMapUI } from "../../../providers/MapUIProvider";
+import { normalizePlace } from "../../poi/utils/normalizePlace";
+
+export function useSearchSelection({
+  selectedPlace,
+  setPosition,
+  clearSelection
+}) {
+  const {
+    mode,
+    setOrigin,
+    setDestination,
+    activeField,
+    setActiveField
+  } = useMapUI();
+
+  useEffect(() => {
+    if (!selectedPlace) return;
+
+    const normalized = normalizePlace(selectedPlace);
+    if (!normalized) return;
+
+    if (mode === "search") {
+      setPosition(normalized.location);
+      return;
+    }
+
+    if (mode === "directions") {
+      if (activeField === "origin") setOrigin(normalized);
+      if (activeField === "destination") setDestination(normalized);
+      setActiveField(null);
+      clearSelection();
+    }
+
+  }, [selectedPlace, mode, activeField]);
+}
+</file>
+
+<file path="src/features/search/ui/SearchBar.jsx">
+import { useImperativeHandle, forwardRef } from 'react';
+import { Search } from 'lucide-react';
+import useSearch from '../controllers/useSearch'
+import { useSearchProvider } from '../../../providers/SearchProvider';
+
+const SearchBar = forwardRef(({ setPosition, setSelectedPlace, isOnline }, ref) => {
+
+    const { query, setQuery } = useSearchProvider();
+    const controller = useSearch({
+        externalQuery: query,
+        onExternalQueryChange: setQuery,
+        onSetPosition: setPosition,
+        onSelectPlace: setSelectedPlace
+    })
+
+
+    useImperativeHandle(ref, () => ({
+        searchLocationAndSelectFirst: controller.searchAndSelectFirst
+    }));
+
+    return (
+        <div className='w-full flex flex-col gap-3'>
+            <div className='relative w-full flex items-center flex-1'>
+                <input
+                    type="text"
+                    className={`w-full px-4 py-[10px] bg-white border-slate-200 text-xs text-slate-600 outline-none md:px-5 md:py-2 lg:px-5 lg:py-[10px] font-medium md:text-sm backdrop-blur-md shadow-lg ring-1 ring-black/5 rounded-2xl transition-all focus-visible:ring-2 focus-visible:ring-cyan-400/50`}
+                    placeholder='Search location, places...'
+                    value={controller.value}
+                    onChange={(e) => {
+                        controller.updateQuery(e.target.value);
+                    }}
+                    onFocus={() => controller.setShowResults(true)}
+                    onBlur={() => setTimeout(() => controller.setShowResults(false), 150)}
+                    disabled={!isOnline}
+                />
+
+                <button
+                    disabled={!isOnline}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer`}>
+                    <Search className='w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5' />
+                </button>
+            </div>
+
+
+            {controller.showResults && controller.results.length > 0 && (
+                <div
+                    className="
+      mt-1 max-h-64 overflow-y-auto
+      rounded-xl
+      bg-white/90 backdrop-blur-md
+      shadow-lg
+      ring-1 ring-black/5
+    "
+                >
+                    {controller.results.map((place, idx) => (
+                        <div
+                            key={idx}
+                            className="
+          flex items-start gap-3
+          px-4 py-3
+          cursor-pointer
+          text-xs md:text-sm font-medium
+          text-slate-700
+
+          transition-colors
+          hover:bg-cyan-50/70
+
+          border-b border-black/5
+          last:border-b-0
+        "
+                            onMouseDown={() => controller.selectPlace(place)}
+                        >
+                            <span className="leading-snug">📍 {place.address}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+        </div>
+    );
+});
+
+export default SearchBar;
+</file>
+
+<file path="src/features/search/utils/getCurrentPosition.js">
+export function getCurrentPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation not supported"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve([pos.coords.latitude, pos.coords.longitude]);
+      },
+      (err) => {
+        reject(err);
+      }
+    );
+  });
+}
+</file>
+
+<file path="src/features/search/search.api.js">
+import axios from "axios";
+
+export async function searchPlaces(query, isOnline) {
+    if (!isOnline) {
+        console.log("Offline → skipping searchPlaces");
+        return [];
+    }
+
+    const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+
+    try {
+        const { data } = await axios.get(url);
+        return data;
+    } catch (error) {
+        console.error('Search error:', error);
+        return [];
+    }
+}
+</file>
+
+<file path="src/features/transit-layer/controllers/useTransitLayer.jsx">
+import { useEffect } from "react";
+
+export const useTransitLayer = ({ poiType, showTransitLayer, setShowTransitLayer }) => {
+    // Disable Transit Layer Automatically When POI Type Changes
+    useEffect(() => {
+        if(!showTransitLayer) return;
+
+        if (poiType !== 'transit_station') {
+            setShowTransitLayer(false);
+        }
+    }, [poiType, showTransitLayer, setShowTransitLayer]);
+}
+</file>
+
+<file path="src/features/weather/aqi/controllers/useAQI.jsx">
+import { useEffect, useRef } from "react";
+import { useAQIFetch } from "../hooks/useAQIFetch";
+import useNetwork from "../../../network/hooks/useNetwork";
+
+export const useAQI = ({ position }) => {
+    const { aqi, loading, error, fetchAQI } = useAQIFetch();
+    const isOnline = useNetwork();
+
+    const abortRef = useRef(null);
+    const retryTimerRef = useRef(null);
+
+    // 🔁 Fetch on position change
+    useEffect(() => {
+        if (!position?.lat || !position?.lng) return;
+
+        abortRef.current?.abort();
+        
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        fetchAQI(position.lat, position.lng, controller.signal);
+
+        return () => controller.abort();
+    }, [position, fetchAQI, isOnline]);
+
+    // 🔁 Retry on error
+    useEffect(() => {
+        if (!error || !position) return;
+
+        retryTimerRef.current = window.setInterval(() => {
+            abortRef.current?.abort();
+
+            const controller = new AbortController();
+            abortRef.current = controller;
+            fetchAQI(position.lat, position.lng, controller.signal);
+        }, 15000);
+
+        return () => {
+            if (retryTimerRef.current) {
+                clearInterval(retryTimerRef.current);
+            }
+        };
+    }, [error, position, fetchAQI]);
+
+    // Global unmount cleanup 
+    useEffect(() => {
+        return () => {
+            abortRef.current?.abort();
+            if (retryTimerRef.current) {
+                clearInterval(retryTimerRef.current);
+            }
+        };
+    }, []);
+
+    return {
+        aqi,
+        loading,
+        error
+    };
+};
+</file>
+
+<file path="src/features/weather/aqi/hooks/useAQIFetch.jsx">
+import { useState, useRef, useCallback } from "react";
+import axios from "axios";
+import useNetwork from "../../../network/hooks/useNetwork";
+import { loadAQI, saveAQI } from "../../../offline/utils/aqiCache";
+import { lastUpdated } from '../../../offline/utils/lastUpdated' 
+
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+export const useAQIFetch = () => {
+  const [aqi, setAqi] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const isOnline = useNetwork();
+
+  const cacheRef = useRef(new Map());
+
+  const fetchAQI = useCallback(
+    async (lat, lon, signal) => {
+      if (!lat || !lon) return;
+
+      if (!isOnline) {
+        const cachedAQI = loadAQI(lat, lon, 2 * 60 * 60 * 1000); //2h
+        console.log(cachedAQI);
+        
+        if (cachedAQI) {
+          setAqi({
+            data: cachedAQI.data,
+            timestamp: cachedAQI.timestamp,
+            source: "cache",
+            lastUpdatedText: lastUpdated(cachedAQI.timestamp)
+          });
+        } else {
+          setAqi(null);
+        }
+        return;
+      }
+
+      const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+      const now = Date.now();
+
+      // 🟢 Serve from cache
+      const memoryCached = cacheRef.current.get(key);
+      if (memoryCached && now - memoryCached.timestamp < CACHE_TTL) {
+        setAqi({
+          data: memoryCached.data,
+          timestamp: memoryCached.timestamp,
+          source: "cache",
+          lastUpdatedText: lastUpdated(memoryCached.timestamp)
+        });
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/aqi`,
+          {
+            params: { lat, lon },
+            signal
+          }
+        );
+
+        if (data?.aqi !== undefined) {
+          setAqi({
+            data: data.aqi,
+            timestamp: now,
+            source: "network",
+            lastUpdatedText: null
+          });
+          cacheRef.current.set(key, {
+            data: data.aqi,
+            timestamp: now
+          });
+          saveAQI(lat, lon, data.aqi);
+        } else {
+          throw new Error("Invalid AQI data");
+        }
+      } catch (err) {
+        if (err.name === "CanceledError") return;
+        setError(err);
+        setAqi(null);
+      } finally {
+        setLoading(false);
+      }
+    }, [isOnline]);
+
+  return {
+    aqi,
+    loading,
+    error,
+    fetchAQI
+  };
+};
+</file>
+
+<file path="src/features/weather/aqi/ui/AQIIndicator.jsx">
+const getAQILevel = (aqi) => {
+    if (aqi === 1) return { level: 'Good', color: 'bg-green-500' };
+    if (aqi === 2) return { level: 'Moderate', color: 'bg-yellow-500' };
+    if (aqi === 3) return { level: 'Unhealthy for Sensitive Groups', color: 'bg-orange-500' };
+    if (aqi === 4) return { level: 'Unhealthy', color: 'bg-red-500' };
+    if (aqi === 5) return { level: 'Very Unhealthy', color: 'bg-purple-600' };
+    return { level: 'Hazardous', color: 'bg-maroon-700' };
+};
+
+const AQIIndicator = ({ aqi, loading, error }) => {
+    
+    if (loading) {
+        return (
+            <div className="absolute top-4 left-4 z-[1000] bg-gray-200 text-gray-800 px-3 py-2 rounded shadow">
+                Loading AQI...
+            </div>
+        )
+    }
+
+
+    if (error) {
+        return (
+            <div className="absolute top-4 left-4 z-[1000] bg-red-100 text-red-600 px-3 py-2 rounded shadow">
+                Failed to load AQI
+            </div>
+        )
+    }
+
+    if (!aqi) return null;
+
+    const { level, color } = getAQILevel(aqi);
+    return (
+        <div className={`${color} pulsating-marker`}>
+            {/* AQI: {level} */}
+        </div>
+    )
+}
+
+export default AQIIndicator
+</file>
+
+<file path="src/features/weather/controllers/useWeather.jsx">
+import { useEffect, useRef } from "react";
+import { useWeatherFetch } from "../hooks/useWeatherFetch";
+
+export const useWeather = ({ position }) => {
+    const { weather, loading, error, fetchWeather } = useWeatherFetch();
+
+    const abortRef = useRef(null);
+    const retryTimerRef = useRef(null);
+
+    // 🔁 Fetch on position change
+    useEffect(() => {
+        if (!position?.lat || !position?.lng) return;
+
+        abortRef.current?.abort();
+        
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        fetchWeather(position.lat, position.lng, controller.signal);
+
+        return () => controller.abort();
+    }, [position, fetchWeather]);
+
+    // 🔁 Retry on error
+    useEffect(() => {
+        if (!error || !position) return;
+
+        retryTimerRef.current = window.setInterval(() => {
+            abortRef.current?.abort();
+
+            const controller = new AbortController();
+            abortRef.current = controller;
+            fetchWeather(position.lat, position.lng, controller.signal);
+        }, 15000);
+
+        return () => {
+            if (retryTimerRef.current) {
+                clearInterval(retryTimerRef.current);
+            }
+        };
+    }, [error, position, fetchWeather]);
+
+    // Global unmount cleanup 
+    useEffect(() => {
+        return () => {
+            abortRef.current?.abort();
+            if (retryTimerRef.current) {
+                clearInterval(retryTimerRef.current);
+            }
+        };
+    }, []);
+
+    return {
+        weather,
+        loading,
+        error
+    };
+};
+</file>
+
+<file path="src/features/weather/hooks/useWeatherFetch.jsx">
+import { useState, useRef, useCallback } from "react";
+import axios from "axios";
+import useNetwork from "../../network/hooks/useNetwork";
+import { loadWeather, saveWeather } from "../../offline/utils/weatherCache";
+
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+export const useWeatherFetch = () => {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const isOnline = useNetwork();
+
+  const cacheRef = useRef(new Map());
+
+  const fetchWeather = useCallback(
+    async (lat, lon, signal) => {
+      if (!lat || !lon) return;
+
+      if (!isOnline) {
+        const cached = loadWeather(lat, lon, CACHE_TTL);
+
+        if (cached) {
+          setWeather(cached.data);
+        } else {
+          setWeather(null);
+        }
+        setLoading(false);
+        return;
+      }
+
+      const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+      const now = Date.now();
+
+      // Serve from cache
+      const cached = cacheRef.current.get(key);
+      if (cached && now - cached.timestamp < CACHE_TTL) {
+        setWeather(cached.data);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/weather`,
+          {
+            params: { lat, lon },
+            signal
+          }
+        );
+
+        if (data?.weather !== undefined) {
+          setWeather(data.weather);
+
+          cacheRef.current.set(key, {
+            data: data.weather,
+            timestamp: now
+          });
+
+          saveWeather(lat, lon, data.weather);
+        } else {
+          throw new Error("Invalid weather data");
+        }
+      } catch (err) {
+        if (err.name === "CanceledError") return;
+        setError(err);
+        setWeather(null);
+      } finally {
+        setLoading(false);
+      }
+    }, [isOnline]);
+
+  return {
+    weather,
+    loading,
+    error,
+    fetchWeather
+  };
+};
+</file>
+
+<file path="src/features/weather/ui/Card.jsx">
+import React from "react";
+
+const Card = React.forwardRef(({ className="", ...props }, ref) => (
+  <div
+    ref={ref}
+    className={
+      `rounded-xl border bg-card text-card-foreground shadow ${className}`
+    }
+    {...props}
+  />
+));
+Card.displayName = "Card";
+
+export {
+  Card
+};
+</file>
+
+<file path="src/features/weather/ui/MobileWeatherWidget.jsx">
+import { useState } from "react";
+import { getAqiColor } from "../utility/aqi";
+
+export function MobileWeatherWidget({ weather, aqi }) {
+    const [open, setOpen] = useState(false);
+
+    if (!weather || !aqi) return null;
+
+    const showLastUpdated =
+        aqi.source === "cache" && aqi.lastUpdatedText;
+
+    const iconUrl = weather?.icon
+        ? `https://openweathermap.org/img/wn/${weather.icon}@2x.png`
+        : "/weather-fallback.png";
+
+    return (
+        <div
+            className="
+        fixed bottom-8 left-7 z-[1200]
+        flex items-center lg:hidden
+      "
+        >
+            {/* Button */}
+            <button
+                onClick={() => setOpen(v => !v)}
+                className={`bg-white shadow-lg
+          flex items-center justify-center
+          relative z-10 ease-out active:scale-90
+          h-8 w-8 rounded-full transition-all duration-200
+  ${open ? "ring-4 ring-sky-200" : ""}
+          `}
+                aria-label="Toggle weather info"
+            >
+                <div className="">
+
+                    <img
+                        src={iconUrl}
+                        style={{ backgroundImage: `url(${iconUrl})` }}
+                        aria-label={weather.condition}
+                        className="w-8 h-8 bg-no-repeat bg-contain"
+                    />
+
+                </div>
+            </button>
+
+            {/* Expanding Pill */}
+            <div
+                className={`
+          ml-2
+          overflow-hidden
+          transition-all duration-300 ease-out
+          ${open
+                        ? "max-w-[240px] opacity-100 translate-x-0"
+                        : "max-w-0 opacity-0 -translate-x-2"
+                    }
+        `}
+            >
+                <div
+                    className="
+            bg-white shadow-md
+            rounded-full
+            px-4 py-2
+            text-xs font-medium
+            whitespace-nowrap
+            flex items-center gap-2
+          "
+                >
+                    <span>{Math.round(weather.temperature)}°</span>
+                    <span className="text-gray-400">·</span>
+                    <span className={getAqiColor(aqi.data)}>
+                        AQI {aqi.data}
+                    </span>
+                    {showLastUpdated && (<span className="text-2xs text-gray-400"> (Updated {aqi.lastUpdatedText})</span>)}
+                </div>
+
+            </div>
+        </div>
+    );
+}
+</file>
+
+<file path="src/features/weather/ui/ResponsiveWeatherWidget.jsx">
+import { WeatherWidget } from "./WeatherWidget";
+import { MobileWeatherWidget } from "./MobileWeatherWidget";
+
+export function ResponsiveWeatherWidget({ weather, aqi, loading, error }) {
+  // if (!weather || !aqi) return null;
+    if (!aqi) return null;
+
+  return (
+    <>
+      {/* Desktop / Tablet */}
+      <div className="hidden lg:block absolute top-4 right-4 z-[1000]">
+        <WeatherWidget weather={weather} aqi={aqi} />
+      </div>
+
+      {/* Mobile */}
+      <MobileWeatherWidget weather={weather} aqi={aqi} />
+    </>
+  );
+}
+</file>
+
+<file path="src/features/weather/ui/WeatherWidget.jsx">
+import { Droplets, Wind, Activity } from "lucide-react";
+import { Card } from "./Card";
+import { getAqiBg, getAqiColor, getAqiLabel } from "../utility/aqi";
+
+export function WeatherWidget({
+  aqi,
+  weather,
+  loading,
+  error,
+  label = "Current Location",
+}) {
+  if (loading) {
+    return (
+      <div className="p-4 text-sm text-gray-600">
+        Loading environment data…
+      </div>
+    );
+  }
+
+
+  if (error && !weather) {
+    return (
+      <div className="p-4 text-sm text-red-600">
+        Failed to load environment data
+      </div>
+    );
+  }
+
+
+  if (!weather || !aqi) return null;
+
+  const iconUrl = weather?.icon
+    ? `https://openweathermap.org/img/wn/${weather.icon}@2x.png`
+    : "/weather-fallback.png";
+
+
+  return (
+    <Card
+      className={
+        "glass p-4 w-64 shadow-lg backdrop-blur-md bg-white/80 border-0"}
+    >
+      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+        {label}
+      </div>
+
+
+      <>
+        {/* TEMP + CONDITION */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col">
+            <span className="text-4xl font-light tracking-tighter text-foreground">
+              {Math.round(weather.temperature)}°
+            </span>
+            <span className="text-sm font-medium text-muted-foreground">
+              {weather.condition}
+            </span>
+          </div>
+
+          <div className="h-10 w-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 dark:text-sky-400">
+
+            <img
+              src={iconUrl}
+              style={{ backgroundImage: `url(${iconUrl})` }}
+              aria-label={weather.condition}
+              className="w-10 h-10 bg-no-repeat bg-contain"
+            />
+
+          </div>
+        </div>
+
+        {/* STATS */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="flex items-center gap-1.5 p-2 rounded-lg bg-secondary/50">
+            <Droplets className="h-3.5 w-3.5 text-blue-500" />
+            <span className="font-medium">{weather.humidity}% Hum</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 p-2 rounded-lg bg-secondary/50">
+            <Wind className="h-3.5 w-3.5 text-slate-500" />
+            <span className="font-medium">{weather.wind.speed} km/h</span>
+          </div>
+
+          {/* AQI */}
+          <div
+            className={`col-span-2 flex items-center justify-between p-2 rounded-lg ${getAqiBg(aqi.data)}`}
+          >
+            <div className="flex items-center gap-1.5">
+              <Activity className={`h-3.5 w-3.5 ${getAqiColor(aqi.data)}`} />
+              <span className="font-medium">AQI {Math.round(aqi.data)}</span>
+            </div>
+
+            <span className={`font-semibold ${getAqiColor(aqi.data)}`}>
+              {getAqiLabel(aqi.data)}
+            </span>
+          </div>
+
+
+        </div>
+      </>
+
+    </Card>
+  );
+}
+</file>
+
+<file path="src/features/weather/utility/aqi.js">
+export const getAqiColor = (aqi) => {
+  if (aqi <= 50) return "text-emerald-500";
+  if (aqi <= 100) return "text-lime-500";
+  if (aqi <= 200) return "text-yellow-500";
+  if (aqi <= 300) return "text-orange-500";
+  if (aqi <= 400) return "text-red-500";
+  return "text-purple-600";
+};
+
+
+export const getAqiLabel = (aqi) => {
+  if (aqi == null) return "Unknown";
+
+  if (aqi <= 50) return "Clean";
+  if (aqi <= 100) return "Acceptable";
+  if (aqi <= 150) return "Unhealthy (Sensitive)";
+  if (aqi <= 200) return "Unhealthy";
+  if (aqi <= 300) return "Very Unhealthy";
+  if (aqi <= 400) return "Hazardous";
+  return "Emergency";
+};
+
+
+
+export const getAqiBg = (aqi) => {
+  if (aqi <= 50) return "bg-emerald-50 dark:bg-emerald-900/20";
+  if (aqi <= 100) return "bg-lime-50 dark:bg-lime-900/20";
+  if (aqi <= 200) return "bg-yellow-50 dark:bg-yellow-900/20";
+  if (aqi <= 300) return "bg-orange-50 dark:bg-orange-900/20";
+  if (aqi <= 400) return "bg-red-50 dark:bg-red-900/20";
+  return "bg-purple-50 dark:bg-purple-900/20";
+};
+</file>
+
+<file path="src/hooks/useAutocompleteSearch.jsx">
+// NOT USED ANYWHERE
+import { useState } from "react";
+import { usePlacesSearch } from "./usePlacesSearch";
+
+export const useAutocompleteSearch = (initialPlace = null) => {
+  const [query, setQuery] = useState(initialPlace?.address || "");
+  const [selectedPlace, setSelectedPlace] = useState(initialPlace);
+  const [showResults, setShowResults] = useState(false);
+
+  const { results, loading } = usePlacesSearch(query);
+
+  const handlePlaceSelect = (place) => {
+    if (!place?.lat || !place?.lng) return;
+
+    setSelectedPlace(place);
+    setQuery(place.address);
+    setShowResults(false);
+  };
+
+  /**
+   * Used by Chatbot / external commands
+   * Example: "Search cafes near CP"
+   */
+  const setFromExternal = async (place) => {
+    if (!place) return;
+    handlePlaceSelect(place);
+  };
+
+  return {
+    query,
+    setQuery,
+    results,
+    loading,
+    showResults,
+    setShowResults,
+    selectedPlace,
+    handlePlaceSelect,
+    setFromExternal,
+  };
+};
+</file>
+
+<file path="src/hooks/useFetchPlaces.jsx">
+import { useEffect, useState } from "react";
+import useNetwork from "../features/network/hooks/useNetwork";
+import axios from "axios";
+
+export async function fetchPlaces(query, signal) {
+    if (!query || query.length < 3) return [];
+
+    try {
+        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+        const { data } = await axios.get(url, { signal });
+        return data || [];
+    } catch (err) {
+        if (axios.isCancel?.(err) || err.name === "CanceledError") {
+            return [];
+        }
+        console.error("fetchPlaces error:", err);
+        return [];
+    }
+}
+
+
+const DEBOUNCE_DELAY = 300;
+
+export const useFetchPlaces = (inputVal, justSelectedRef) => {
+    const [results, setResults] = useState([]);
+    const isOnline = useNetwork();
+
+    useEffect(() => {
+        if (!isOnline) {
+            setResults([]);
+            return;
+        }
+        if (justSelectedRef?.current) {
+            justSelectedRef.current = false;
+            return;
+        }
+
+        if (!inputVal || inputVal.length < 3) {
+            setResults([]);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        const handler = setTimeout(async () => {
+            try {
+                const places = await fetchPlaces(inputVal, controller.signal);
+                setResults(places);
+            } catch (err) {
+                // already handled in fetchPlaces
+            }
+        }, DEBOUNCE_DELAY);
+
+        return () => {
+            clearTimeout(handler);
+            controller.abort();
+        };
+    }, [inputVal, justSelectedRef, isOnline]);
+
+    return results;
+}
+</file>
+
+<file path="src/hooks/useGeolocationContext.jsx">
+// Get user's current location
+// This will set the initial position of the map
+// and will be used to fetch nearby POIs
+// It will also update the position when the user selects a place from suggestions
+// If the user denies geolocation permission, it will default to New Delhi
+
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import useNetwork from '../features/network/hooks/useNetwork';
+import { loadLocation, saveLocation } from '../features/offline/utils/locationCache';
+
+const GeolocationContext = createContext();
+
+export const GeolocationProvider = ({ children }) => {
+    const isOnline = useNetwork();
+    
+    // Try to load cached location on initial render
+    const [position, setPosition] = useState(() => {
+        const cached = loadLocation();
+        return cached ? [cached.lat, cached.lng] : [28.6139, 77.2090];
+    });
+    const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
+    const [error, setError] = useState(null);
+
+    // If a place is selected, return its coordinates; otherwise, return current position
+    const coords = useMemo(() => {
+        return selectedPlace ? [selectedPlace.lat, selectedPlace.lng] : position;
+    },[selectedPlace, position])
+
+    // For the initial render, try to get the user's current location
+    useEffect(() => {
+        if (!navigator.geolocation) {
+            setError("Geolocation is not supported by your browser");
+            return;
+        }
+
+        // If offline, use cached location and don't attempt geolocation
+        if (!isOnline) {
+            const cached = loadLocation();
+            if (cached) {
+                console.log("📴 OFFLINE: Using cached location");
+                setPosition([cached.lat, cached.lng]);
+            }
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+
+                setPosition([lat, lng]);
+                setError(null);
+
+                // ✅ Save to cache for offline use
+                saveLocation(lat, lng);
+                console.log("📍 Location saved to cache");
+            },
+            (err) => {
+                console.error("Geolocation error:", err);
+                // Fallback to cached location
+                const cached = loadLocation();
+                if (cached) {
+                    console.log("⚠️ Geolocation failed, using cached location");
+                    setPosition([cached.lat, cached.lng]);
+                    setError("Using last known location");
+                } else {
+                    setError("Unable to retrieve your location");
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+            }
+        );
+    }, [isOnline]);
+
+    const value = useMemo(() => ({
+        position,
+        setPosition,
+        selectedPlace,
+        setSelectedPlace,
+        coords,
+        error,
+        setError,
+    }), [position, selectedPlace, error, coords])
+
+    return (
+        <GeolocationContext.Provider value={value}>
+            {children}
+        </GeolocationContext.Provider>
+    );
+};
+
+export const useGeolocation = () => {
+    const context = useContext(GeolocationContext);
+
+    if (!context) {
+        throw new Error("useGeolocation must be used within a GeolocationProvider");
+    }
+
+    return context;
+};
+</file>
+
+<file path="src/hooks/usePlacesSearch.jsx">
+// NOT USED ANYWHERE
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+
+const DEBOUNCE_DELAY = 300;
+
+export const usePlacesSearch = (query) => {
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const cacheRef = useRef(new Map());
+
+  useEffect(() => {
+    if (!query || query.length < 3) {
+      setResults([]);
+      return;
+    }
+
+    const key = query.toLowerCase().trim();
+    const cached = cacheRef.current.get(key);
+    if (cached) {
+      setResults(cached);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const url = `${import.meta.env.VITE_BASE_URL}/api/search?query=${encodeURIComponent(query)}`;
+        const { data } = await axios.get(url);
+        cacheRef.current.set(key, data);
+        setResults(data);
+      } catch (err) {
+        console.error("Places search failed:", err);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    }, DEBOUNCE_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  return { results, loading };
+};
+</file>
+
+<file path="src/map/components/mapControls/controllers/useMapControlsLogic.js">
+import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
+
+export const useMapControlsLogic = ({
+    selectedPlace,
+    mode,
+    activeField,
+    setPosition,
+    setOrigin,
+    setDestination,
+    setActiveField,
+    setSelectedPlace,
+    setMode
+}) => {
+
+    useSearchSelection({
+        selectedPlace,
+        mode,
+        activeField,
+        setPosition,
+        setOrigin,
+        setDestination,
+        setActiveField,
+        clearSelection: () => setSelectedPlace(null)
+    });
+};
+</file>
+
+<file path="src/map/components/mapControls/ui/MapControls.jsx">
+// Component to manage map controls for searching locations and getting directions
+
+import "leaflet/dist/leaflet.css";
+import SearchControls from "../../../controls/searchControls/ui/Container";
+import DirectionControls from '../../../controls/directionControls/ui/Container'
+import POICategory from "../../../../features/poi/ui/POICategory";
+import Chatbot from "../../../../components/chatbot/ui/Chatbot";
+import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
+import { useMapUI } from "../../../../providers/MapUIProvider";
+import { usePOI } from "../../../../features/poi/hooks/usePOIContext";
+
+const MapControls = ({
+    setPosition,
+    selectedPlace,
+    setSelectedPlace,
+    routes,
+    getDirections,
+    loading,
+    error,
+    clearRoutes,
+    isOnline,
+    onCategorySelect
+}) => {
+
+    const { mode } = useMapUI();
+    const { poiType, showMore, closeMore } = usePOI();
+
+    useSearchSelection({
+        selectedPlace,
+        setPosition,
+        clearSelection: () => setSelectedPlace(null)
+    })
+
+    return (
+        <>
+            {(mode === "search" || mode === "report") && (
+
+                <>
+                    <SearchControls
+                        setPosition={setPosition}
+                        setSelectedPlace={setSelectedPlace}
+                        isOnline={isOnline}
+                    />
+
+
+                    {/* POI CATEGORIES */}
+                    <POICategory
+                        poiType={poiType}
+                        showMore={showMore}
+                        onCategorySelect={onCategorySelect}
+                        closeMore={closeMore} />
+                </>
+
+            )}
+
+            {/* ALWAYS MOUNT IT  */}
+            {/* New changes */}
+            <div style={{ display: mode === "directions" ? "block" : "none" }}>
+                <DirectionControls
+                    setPosition={setPosition}
+                    selectedPlace={selectedPlace}
+                    setSelectedPlace={setSelectedPlace}
+                    routes={routes}
+                    getDirections={getDirections}
+                    loading={loading}
+                    error={error}
+                    clearRoutes={clearRoutes}
+                />
+            </div>
+
+            <div className="absolute bottom-4 right-4 z-[1000] w-[300px]">
+                <Chatbot />
+            </div>
+        </>
+    )
+}
+
+export default MapControls
+</file>
+
+<file path="src/map/components/mapRenderer/controllers/useMapRendererLogic.js">
+import { useMemo } from "react";
+import { useMapHover, useMapUI } from "../../../../providers/MapUIProvider";
+import {
+    transitIcon, poiIcon,
+    highlightedPoiIcon
+} from "../../../icons/markers";
+
+export const useMapRendererLogic = ({
+    poiResults,
+    poiType,
+    selectedPlace,
+    position
+}) => {
+
+    const {
+        origin,
+        destination,
+    } = useMapUI();
+
+    const { hoverPOIId } = useMapHover();
+
+    /* ---------------- POI MARKERS ---------------- */
+
+    // MEMOIZE ALL POI MARKERS
+    const memoizedPOIMarkers = useMemo(() => {
+        return poiResults.map((poi, idx) => {
+            const poiId = poi.place_id || idx;
+            const isActive = hoverPOIId === poiId;
+
+            const icon =
+                poiType === "transit_station"
+                    ? transitIcon
+                    : isActive
+                        ? highlightedPoiIcon
+                        : poiIcon;
+
+            const lat =
+                poi.lat ??
+                (typeof poi.geometry?.location?.lat === "function"
+                    ? poi.geometry.location.lat()
+                    : poi.geometry?.location?.lat);
+
+            const lng =
+                poi.lng ??
+                (typeof poi.geometry?.location?.lng === "function"
+                    ? poi.geometry.location.lng()
+                    : poi.geometry?.location?.lng);
+
+            if (lat == null || lng == null) return null;
+
+            return {
+                poiId,
+                poi: { ...poi, lat, lng },
+                icon
+            };
+        });
+    }, [poiResults, hoverPOIId, poiType]);
+
+    /* ---------------- CENTER POSITION ---------------- */
+
+    const selectedLat =
+        selectedPlace?.lat ??
+        selectedPlace?.geometry?.location?.lat;
+
+    const selectedLng =
+        selectedPlace?.lng ??
+        selectedPlace?.geometry?.location?.lng;
+
+    const centerPosition = useMemo(() => {
+        if (destination) return [destination.lat, destination.lng];
+        if (origin) return [origin.lat, origin.lng];
+        if (selectedLat != null && selectedLng != null)
+            return [selectedLat, selectedLng];
+        if (position) return position;
+        return [28.6139, 77.2090];
+    }, [destination, origin, selectedLat, selectedLng, position]);
+
+    return {
+        memoizedPOIMarkers,
+        centerPosition,
+        selectedLat,
+        selectedLng
+    };
+};
+</file>
+
+<file path="src/map/components/mapRenderer/ui/MapRenderer.jsx">
+import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from 'react-leaflet'
+import FlyToLocation from '../../../../components/FlyToLocation';
+import POIMarker from '../../../../features/poi/ui/POIMarker';
+import "leaflet/dist/leaflet.css";
+import { userIcon, smallIcon } from '../../../icons/markers'
+import DirectionsLayer from '../../../../features/directions/ui/DirectionsLayer';
+import MarkerClusterGroup from 'react-leaflet-cluster';
+import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
+import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
+import { useMapHover, useMapUI } from '../../../../providers/MapUIProvider';
+import { useSearchProvider } from '../../../../providers/SearchProvider';
+
+const MapRenderer = ({
+    mapRef,
+    position,
+    selectedPlace,
+    poiResults,
+    setSelectedPlace,
+    poiType,
+    tileUrl,
+    routes
+}) => {
+
+    const {
+        mode,
+        selectedMode,
+        origin,
+        destination,
+        setSelectedMode
+    } = useMapUI();
+
+    const { setHoverPOIId } = useMapHover();
+
+    const { showTransitLayer } = useSearchProvider();
+
+    const {
+        memoizedPOIMarkers,
+        centerPosition,
+        selectedLat,
+        selectedLng
+    } = useMapRendererLogic({
+        poiResults,
+        poiType,
+        selectedPlace,
+        position
+    });
+
+    return (
+        <MapContainer
+            center={centerPosition}
+            ref={mapRef}
+            zoom={15}
+            zoomControl={false}
+            style={{ height: "100%", width: "100%" }}
+        >
+            <ZoomControl position="bottomleft" />
+            <TileLayer
+                attribution='&copy; OpenStreetMap contributors'
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            />
+
+
+            {/* TRANSIT LAYER */}
+            {showTransitLayer && (
+                <TileLayer
+                    url={tileUrl}
+                    zIndex={10}
+                    attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, © OpenStreetMap contributors'
+                />
+            )}
+
+
+            {/* SELECTED LOCATION */}
+            {mode === "search" && selectedPlace && selectedLat != null && selectedLng != null && (
+                <Marker position={[selectedLat, selectedLng]} icon={userIcon}>
+                    <Popup className='transparent-popup'>
+                        <strong>{selectedPlace.address || selectedPlace.name}</strong>
+                    </Popup>
+                </Marker>
+            )}
+
+            {/* CURRENT LOCATION */}
+            {mode === "search" && !selectedPlace && position && (
+                <Marker position={position} icon={userIcon}>
+                    <Popup className='transparent-popup'>
+                        <strong>Your Location</strong>
+                    </Popup>
+                </Marker>
+            )}
+
+            {/* DIRECTIONS MODE: origin & destination */}
+            {mode === "directions" && origin && (
+                <Marker position={[origin.lat, origin.lng]} icon={smallIcon} >
+                    <Popup>Origin: {origin.name || "Current Location"}</Popup>
+                </Marker>
+            )}
+
+            {mode === "directions" && destination && (
+                <Marker position={[destination.lat, destination.lng]} icon={smallIcon} >
+                    <Popup>Destination: {destination.name}</Popup>
+                </Marker>
+            )}
+
+
+            {/* ✅ Draw route when both origin & destination exist */}
+            {origin && destination && routes?.length > 0 && (
+                <DirectionsLayer routes={routes} selectedMode={selectedMode} setSelectedMode={setSelectedMode} />
+            )}
+
+
+            {/* NEARBY POIs */}
+            {mode === "search" && poiResults.length > 0 && (
+                <MarkerClusterGroup
+                    chunkedLoading
+                    showCoverageOnHover={false}
+                    spiderfyOnMaxZoom
+                    maxClusterRadius={40}
+                    iconCreateFunction={createClusterCustomIcon}
+                >
+                    {memoizedPOIMarkers.map(({ poiId, poi, icon }) => (
+                        <POIMarker
+                            key={poiId}
+                            poi={poi}
+                            poiId={poiId}
+                            icon={icon}
+                            onMouseOver={() => setHoverPOIId(poiId)}
+                            onMouseOut={() => {
+                                if (!selectedPlace || selectedPlace.place_id !== poiId) {
+                                    setHoverPOIId(null);
+                                }
+                            }}
+                            onClick={() => {
+                                setSelectedPlace(poi);
+                                setHoverPOIId(null);
+                            }}
+                        />
+                    ))}
+                </MarkerClusterGroup>
+            )}
+
+
+            {/* RECENTER TO SELECTED OR CURRENT LOCATION */}
+            <FlyToLocation />
+
+
+        </MapContainer>
+    )
+}
+
+export default MapRenderer
+</file>
+
+<file path="src/map/controllers/useDebouncedPosition.jsx">
+import { useEffect, useState } from "react";
+
+export const useDebouncedPosition = (position, delay = 500) => {
+    const [debouncedPosition, setDebouncedPosition] = useState(position);
+
+    useEffect(() => {
+        if(!position) return;
+
+        const timer = setTimeout(() => {
+            setDebouncedPosition(position);
+        }, delay);
+
+        return () => clearTimeout(timer);
+    }, [position, delay]);
+
+    return debouncedPosition;
+}
+</file>
+
+<file path="src/map/controllers/useMapDataController.jsx">
+import { useGeolocation } from "../../hooks/useGeolocationContext";
+import { useAQI } from "../../features/weather/aqi/controllers/useAQI";
+import { useWeather } from "../../features/weather/controllers/useWeather";
+import { useMemo } from "react";
+import { useDebouncedPosition } from "./useDebouncedPosition";
+
+
+export const useMapDataController = () => {
+    const geolocation = useGeolocation();
+    const { coords } = geolocation;
+
+    // | Check                                                                  | What it's doing                                     | Why it's needed                    |
+    // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
+    // | `rawCoords &&`                                                         | Makes sure `rawCoords` is not `null` or `undefined` | Avoids crashes                     |
+    // | `Array.isArray(rawCoords)`                                             | Makes sure it's an array                            | Coordinates should be `[lat, lng]` |
+    // | `rawCoords.length === 2`                                               | Ensures there are exactly 2 items                   | Should be lat & lng only           |
+    // | `typeof rawCoords[0] === 'number' && typeof rawCoords[1] === 'number'` | Makes sure both are numbers                         | Prevents invalid API calls         |
+    // | `rawCoords[0] && rawCoords[1]`                                         | Makes sure neither value is `0`, `null`, or `NaN`   | Some APIs reject these             |
+
+
+    const position = useMemo(() => {
+        const raw = coords;
+        if (
+            raw &&
+            Array.isArray(raw) &&
+            raw.length === 2 &&
+            typeof raw[0] === "number" &&
+            typeof raw[1] === "number" &&
+            raw[0] != null &&
+            raw[1] != null
+        ) {
+            return { lat: raw[0], lng: raw[1] };
+        }
+        return null;
+    }, [coords]);
+
+    const debouncedPosition = useDebouncedPosition(position, 600);
+
+    const canRenderEnv = useMemo(() => {
+        return Boolean(debouncedPosition && typeof debouncedPosition.lat === "number"
+            && typeof debouncedPosition.lng === "number"
+        );
+    }, [debouncedPosition]);
+
+
+    const aqi = useAQI({
+        position: debouncedPosition
+    });
+
+    const weather = useWeather({
+        position: debouncedPosition
+    })
+
+    return {
+        /* ---------------- Location ---------------- */
+        position,
+        fetchPosition: debouncedPosition,
+        setPosition: geolocation.setPosition,
+        selectedPlace: geolocation.selectedPlace,
+        setSelectedPlace: geolocation.setSelectedPlace,
+
+        /* ---------------- ENV RENDER GATE ---------------- */
+        canRenderEnv,
+
+        /* ---------------- AQI ---------------- */
+        aqi: aqi.aqi,
+        aqiLoading: aqi.loading,
+        aqiError: aqi.error,
+
+        /* ---------------- WEATHER ---------------- */
+        weather: weather.weather,
+
+        /* ---------------- ENV STATES ---------------- */
+        envLoading: aqi.loading || weather.loading,
+        envError: aqi.error || weather.error,
+
+    };
+};
+</file>
+
+<file path="src/map/controls/directionControls/hooks/useDirectionControlsLogic.js">
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useImperativeHandle
+} from "react";
+import { useMapUI } from "../../../../providers/MapUIProvider";
+import { fetchPlaces, useFetchPlaces } from "../../../../hooks/useFetchPlaces";
+import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
+import { useSearchProvider } from "../../../../providers/SearchProvider";
+
+export const useDirectionControlsLogic = (props, ref) => {
+  const {
+    setPosition,
+    setSelectedPlace,
+    getDirections,
+    loading,
+    error,
+    clearRoutes
+  } = props;
+
+  const {
+    setMode,
+    origin,
+    setOrigin,
+    destination,
+    setDestination,
+    setActiveField
+  } = useMapUI();
+
+  const { setQuery } = useSearchProvider();
+
+  // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
+  // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED
+  // THUS AVOIDING UNWANTED API CALLS WHEN USER IS TYPING
+  const [originInput, setOriginInput] = useState(origin?.name || "");
+  const [destinationInput, setDestinationInput] = useState(destination?.name || "");
+
+  const justSelectedOrigin = useRef(false);
+  const justSelectedDestination = useRef(false);
+
+  const originResults = useFetchPlaces(originInput, justSelectedOrigin);
+  const destinationResults = useFetchPlaces(destinationInput, justSelectedDestination);
+
+  const handleOriginEnter = async () => {
+    const results = await fetchPlaces(originInput);
+    if (results.length > 0) selectOrigin(results[0]);
+  };
+
+  const handleDestinationEnter = async () => {
+    const results = await fetchPlaces(destinationInput);
+    if (results.length > 0) selectDestination(results[0]);
+  };
+
+
+  // Sync originInput when origin prop changes externally
+  useEffect(() => {
+    if (origin) {
+      setOriginInput(origin.address || origin.name || "");
+    }
+  }, [origin]);
+
+  // Sync destinationInput when destination prop changes externally
+  useEffect(() => {
+    if (destination) {
+      setDestinationInput(destination.address || destination.name || "");
+    }
+  }, [destination]);
+
+  // 🔹 Selection handlers
+  const selectOrigin = (place) => {
+    clearRoutes?.();
+    const normalized = normalizePlace(place);
+    if (!normalized) return;
+
+    setOrigin(normalized);
+    setOriginInput(normalized.address || normalized.name);
+    setActiveField(null);
+    justSelectedOrigin.current = true;
+  };
+
+  const selectDestination = (place) => {
+    clearRoutes?.();
+    const normalized = normalizePlace(place);
+    if (!normalized) return;
+
+    setDestination(normalized);
+    setDestinationInput(normalized.address || normalized.name);
+    setActiveField(null);
+    justSelectedDestination.current = true;
+  };
+
+  // --- 3️⃣ ROUTE REQUEST ON CONFIRMED STATE ---
+  const canRequestRoute = useMemo(
+    () => Boolean(origin?.location && destination?.location),
+    [origin, destination]
+  );
+
+  useEffect(() => {
+    if (!canRequestRoute) return;
+    getDirections(origin.location, destination.location);
+  }, [canRequestRoute, origin, destination, getDirections]);
+
+
+  const swapEnds = () => {
+    setOrigin(destination);
+    setDestination(origin);
+    setOriginInput(destination?.name || "");
+    setDestinationInput(origin?.name || "");
+
+    // Set flags to prevent search after swap
+    justSelectedOrigin.current = true;
+    justSelectedDestination.current = true;
+  };
+
+  // 🔹 Clear
+  const clearAll = () => {
+    clearRoutes?.();
+    setMode("search");
+    setActiveField(null);
+    setOrigin(null);
+    setDestination(null);
+    setOriginInput("");
+    setDestinationInput("");
+    setSelectedPlace(null);
+  };
+
+  // 🔹 Imperative API (chatbot / parent)
+  useImperativeHandle(ref, () => ({
+    ready: true,
+
+    searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
+      // fromchatbotRef.current = true;
+      if (!query && fallbackCurrentLocation) {
+        const pos = fallbackCurrentLocation; // [lat, lng]
+        const fakePlace = {
+          name: "Current Location",
+          address: "Current Location",
+          lat: pos[0],
+          lng: pos[1],
+          place_id: "current_location"
+        };
+        selectOrigin(fakePlace);
+        return true;
+      }
+      const results = await fetchPlaces(query);
+      if (results.length > 0) {
+        selectOrigin(results[0]);
+        return true;
+      }
+      return false;
+    },
+
+    searchAndSetDestination: async (query) => {
+      // fromchatbotRef.current = true;
+      const results = await fetchPlaces(query);
+
+      if (results.length > 0) {
+        selectDestination(results[0]);
+        return true;
+      }
+      return false;
+    },
+
+    calculateDirections: async () => {
+      if (origin?.location && destination?.location) {
+        await getDirections(origin.location, destination.location, "driving");
+      }
+    },
+
+    // switch MapView to directions mode
+    switchToDirectionsMode: () => setMode?.("directions"),
+
+    switchToSearchMode: clearAll,
+
+    searchLocation: async (location) => {
+      try {
+        const results = await fetchPlaces(location);
+        console.log("RESULT: ", results);
+
+        if (results.length === 0) return false;
+
+        const place = results[0];
+        setSelectedPlace(place);
+        setPosition([place.lat, place.lng]);
+
+        if (setQuery) setQuery(place.address);
+
+        return true;
+      } catch (err) {
+        console.error("Failed to search and select:", err);
+        return false;
+      }
+
+    }
+  }));
+
+  return {
+    // state
+    originInput,
+    destinationInput,
+    originResults,
+    destinationResults,
+    canRequestRoute,
+    loading,
+    error,
+
+    // setters
+    setOriginInput,
+    setDestinationInput,
+
+    // handlers
+    selectOrigin,
+    selectDestination,
+    swapEnds,
+    clearAll,
+    handleOriginEnter,
+    handleDestinationEnter
+  };
+};
+</file>
+
+<file path="src/map/controls/directionControls/ui/Container.jsx">
+import DirectionControls from "./DirectionControls";
+import { useDirectionControlsLogic } from "../hooks/useDirectionControlsLogic";
+import { useSearchProvider } from "../../../../providers/SearchProvider";
+
+const Container = ((props, _externalRef) => {
+  const { directionsRef } = useSearchProvider();
+  const logic = useDirectionControlsLogic(props, directionsRef);
+  
+  return <DirectionControls {...props} {...logic} />;
+});
+
+export default Container;
+</file>
+
+<file path="src/map/controls/directionControls/ui/DirectionControls.jsx">
+import { Locate, MapPin, ArrowDownUp, X } from "lucide-react";
+import { useMapUI } from "../../../../providers/MapUIProvider";
+
+const DirectionControls = ({
+  originInput,
+  destinationInput,
+  setOriginInput,
+  setDestinationInput,
+  originResults,
+  destinationResults,
+  selectOrigin,
+  selectDestination,
+  swapEnds,
+  clearAll,
+  loading,
+  error,
+  routes,
+  canRequestRoute
+}) => {
+
+  const {
+    activeField,
+    setActiveField
+  } = useMapUI();
+
+  return (
+    <>
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-1/3 max-w-md">
+        <div className="bg-white rounded-md shadow-md py-1 px-3">
+          {/* Origin */}
+          <div className="flex items-center gap-2">
+            <Locate size={18} className="text-gray-500" />
+            <input
+              type="text"
+              placeholder="Choose starting point"
+              className="w-full p-2 text-sm font-medium focus:outline-none bg-white"
+              value={originInput}
+              onFocus={() => setActiveField("origin")}
+              onChange={(e) => setOriginInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleOriginEnter()}
+            />
+            <button
+              className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500"
+              title="Clear all"
+              onClick={clearAll}
+            >
+              <X size={14} />
+            </button>
+
+            {/* Origin results dropdown */}
+            {activeField === "origin" && originResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white overflow-auto z-[2000] rounded mt-1 max-h-60 overflow-y-auto shadow-md">
+                {originResults.map((place) => (
+                  <div
+                    key={place.place_id || place.id}
+                    className="p-2 font-medium cursor-pointer hover:bg-slate-300 text-sm border-slate-200 border-[1px]"
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // <- prevents input blur
+                      selectOrigin(place);
+                      setActiveField(null);
+                    }}
+                  >
+                    {place.name || place.address}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="border-t my-1 mx-6"></div>
+
+          {/* Destination */}
+          <div className="flex items-center gap-2">
+            <MapPin size={18} className="text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search destination"
+              className="w-full p-2 text-sm font-medium focus:outline-none"
+              value={destinationInput}
+              onFocus={() => setActiveField("destination")}
+              onChange={(e) => setDestinationInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleDestinationEnter()}
+            />
+            <button
+              className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500"
+              title="Swap origin and destination"
+              onClick={swapEnds}
+            >
+              <ArrowDownUp size={14} />
+            </button>
+
+            {/* Destination results dropdown */}
+            {activeField === "destination" && destinationResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white overflow-auto z-[2000] rounded mt-1 max-h-60 overflow-y-auto shadow-md">
+                {destinationResults.map((place) => (
+                  <div
+                    key={place.place_id || place.id}
+                    className="p-2 font-medium cursor-pointer hover:bg-slate-300 text-sm border-slate-200 border-[1px]"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectDestination(place);
+                      setActiveField(null); // Clear active field to hide dropdown
+                    }}
+                  >
+                    {place.name || place.address}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-between items-center text-xs text-gray-500">
+            <div>
+              {loading && <span>Fetching route…</span>}
+              {error && <span className="text-red-500">{error}</span>}
+              {canRequestRoute &&
+                !loading &&
+                routes?.length === 0 &&
+                "No routes found"}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default DirectionControls;
+</file>
+
+<file path="src/map/controls/searchControls/hooks/useSearchControlsLogic.js">
+import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
+import { getCurrentPosition } from "../../../../features/search/utils/getCurrentPosition";
+import { useMapUI } from "../../../../providers/MapUIProvider";
+
+export const useSearchControlsLogic = () => {
+
+  const {
+    setOrigin,
+    setDestination,
+    setMode,
+    setActiveField
+  } = useMapUI();
+
+  const onStartDirections = async (place) => {
+    const destination = normalizePlace(place);
+    if (!destination) return;
+
+    try {
+      const coords = await getCurrentPosition();
+
+      setOrigin({
+        name: "Current Location",
+        address: "Your current location",
+        location: coords,
+        lat: coords[0],
+        lng: coords[1]
+      });
+
+      setDestination(destination);
+      setMode("directions");
+      setActiveField(null);
+    } catch {
+      console.warn("Failed to get current location");
+    }
+  };
+
+  return { onStartDirections };
+};
+</file>
+
+<file path="src/map/controls/searchControls/ui/Container.jsx">
+import SearchControls from './SearchControls';
+import {useSearchControlsLogic} from '../hooks/useSearchControlsLogic'
+
+const Container = (props) => {
+  const logic = useSearchControlsLogic(props);
+  return <SearchControls {...props} {...logic} />;
+};
+
+export default Container;
+</file>
+
+<file path="src/map/controls/searchControls/ui/SearchControls.jsx">
+import SearchBar from "../../../../features/search/ui/SearchBar"
+import "leaflet/dist/leaflet.css"
+import LayersTile from "../../../../features/layers/ui/Layers"
+import Report from "../../../../features/report/ui/Report"
+import { useSearchProvider } from "../../../../providers/SearchProvider"
+
+
+const SearchControls = ({
+  setPosition,
+  setSelectedPlace,
+  isOnline,
+}) => {
+
+  const { searchRef } = useSearchProvider();
+
+  return (
+    <>
+      <div className="absolute
+    top-4 left-4
+    z-[1000]
+    flex items-start
+    gap-2
+    w-[90vw]
+    sm:w-[70vw]
+    md:w-[55vw]
+    lg:w-[45vw]
+    max-w-[640px]">
+        <div className="flex-1 min-w-0">
+          <SearchBar
+            ref={searchRef}
+            setPosition={setPosition}
+            setSelectedPlace={setSelectedPlace}
+            isOnline={isOnline}
+          />
+        </div>
+
+        <div className="shrink-0 h-10 w-10">
+          <LayersTile />
+        </div>
+
+        <div className="shrink-0 h-10 w-10">
+          <Report />
+        </div>
+
+      </div>
+
+    </>
+  )
+}
+
+export default SearchControls
+</file>
+
+<file path="src/map/icons/CustomClusterIcon.jsx">
+import L from "leaflet";
+
+export const createClusterCustomIcon = (cluster) => {
+  const count = cluster.getChildCount();
+
+  // Colors based on density
+  let color = "#76A9FA"; // Blue (low)
+  if (count >= 50) color = "#E35D6A"; // Red (high)
+  else if (count >= 25) color = "#F7B731"; // Yellow (medium)
+
+  // Outer size scales slightly
+  const size = count < 10 ? 40 : count < 50 ? 48 : 56;
+
+  const html = `
+    <div style="
+      position: relative;
+      background: ${color};
+      width: ${size}px;
+      height: ${size}px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    ">
+      <div style="
+        background: white;
+        width: ${size - 10}px;
+        height: ${size - 10}px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #333;
+        font-size: 13px;
+      ">
+        ${count}
+      </div>
+    </div>
+  `;
+
+  return L.divIcon({
+    html,
+    className: "custom-cluster-icon",
+    iconSize: L.point(size, size, true),
+  });
+};
+</file>
+
+<file path="src/map/icons/markers.js">
+import L from 'leaflet'
+import "leaflet/dist/leaflet.css";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+
+// BLIP ANIMATION
+export const userIcon = new L.DivIcon({
+    className: 'user-location-pulse',
+    html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg relative">
+          <div class="absolute -inset-2 bg-blue-500/30 rounded-full animate-ping"></div>
+        </div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
+});
+
+
+export const transitIcon = new L.Icon({
+    iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-train&size=20&color=FF9800",
+    iconAnchor: [12, 41],
+    shadowSize: [41, 41],
+    popupAnchor: [0, -30],
+});
+
+
+// export const poiIcon = new L.Icon({
+//     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=2196F3",
+//     iconAnchor: [12, 41],
+//     popupAnchor: [1, -34],
+//     shadowSize: [41, 41],
+//     popupAnchor: [0, -30],
+// })
+
+//new
+export const poiIcon = new L.DivIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background-color: orange; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
+});
+
+// export const highlightedPoiIcon = new L.Icon({
+//     iconUrl: "https://mapmarker.io/api/v3/font-awesome/v6/icon?icon=fa-solid%20fa-map-pin&size=30&color=4CAF50",
+//     iconAnchor: [12, 41],
+//     shadowSize: [41, 41],
+//     popupAnchor: [0, -30],
+// });
+
+//new
+export const highlightedPoiIcon = new L.DivIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background-color: green; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
+});
+
+export const smallIcon = new L.Icon({
+    iconUrl: markerIcon,
+    iconSize: [20, 32],
+    iconAnchor: [10, 32],
+    popupAnchor: [1, -28],
+})
+</file>
+
+<file path="src/map/MapView.jsx">
+//React
+import { useRef, lazy, Suspense, useCallback } from 'react'
+import "leaflet/dist/leaflet.css";
+
+//POI
+import usePOIInteraction from '../features/poi/controllers/usePOIInteraction';
+
+// Map
+import MapControls from '../map/components/mapControls/ui/MapControls'
+import MapRenderer from '../map/components/mapRenderer/ui/MapRenderer'
+
+// Controllers
+import { useMapUI } from '../providers/MapUIProvider';
+import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
+import { useMapDataController } from './controllers/useMapDataController';
+
+// UI
+import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
+import Sidebar from '../features/poi/ui/Sidebar';
+import { useSearchProvider } from '../providers/SearchProvider';
+import { usePOI } from '../features/poi/hooks/usePOIContext';
+import useNetwork from '../features/network/hooks/useNetwork';
+
+// Lazy 
+const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
+const DirectionsPanel = lazy(() => import('../features/directions/ui/DirectionsPanel'));
+const Recenter = lazy(() => import('../components/Recenter'));
+
+// Loading components
+const LoadingFallback = () => (
+    <div className="fixed bottom-0 left-0 right-0 flex justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg px-4 py-2">
+            <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span className="text-sm text-gray-600">Loading...</span>
+            </div>
+        </div>
+    </div>
+);
+
+const DirectionsPanelFallback = () => (
+    <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-lg p-4 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded mb-4"></div>
+        <div className="space-y-3">
+            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-20 bg-gray-200 rounded"></div>
+        </div>
+    </div>
+);
+
+
+const MapView = () => {
+    const mapRef = useRef(null); // Using same map instance
+
+    const isOnline = useNetwork();
+    const { mode } = useMapUI();
+    const { showTransitLayer } = useSearchProvider();
+
+    const {
+        poiResults,
+        poiType,
+        onCategorySelect: rawOnCategorySelect,
+        onPOIIntent
+    } = usePOI();
+
+    const {
+        position,
+        setPosition,
+        selectedPlace,
+        setSelectedPlace,
+        aqi,
+        weather,
+        envLoading,
+        envError
+    } = useMapDataController();
+
+    const directions = useDirectionsController();
+
+    const poiInteraction = usePOIInteraction({
+        setSelectedPlace,
+        clearRoutes: directions.clearRoutes,
+        position
+    });
+
+    // USING WITH A PROXY SERVER
+    const tileUrl = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
+
+    const handleCategorySelect = useCallback((type) => {
+        const intent = rawOnCategorySelect(type);
+        if (!intent) return;
+        
+        onPOIIntent({ type: intent, radius: 1500});
+    }, [rawOnCategorySelect, onPOIIntent]);
+
+    return (
+        <div className='relative h-screen w-screen'>
+
+            {/* MAP CONTROLS */}
+            <MapControls
+                setPosition={setPosition}
+                selectedPlace={selectedPlace}
+                setSelectedPlace={setSelectedPlace}
+                routes={directions.routes}
+                getDirections={directions.getDirections}
+                loading={directions.loading}
+                error={directions.error}
+                clearRoutes={directions.clearRoutes}
+                isOnline={isOnline}
+                onCategorySelect={handleCategorySelect}
+            />
+
+
+            <div className='fixed inset-0 overflow-hidden'>
+                {/* MAP RENDERER */}
+                <div className='absolute inset-0 z-0'>
+                    <MapRenderer
+                        mapRef={mapRef}
+                        position={position}
+                        selectedPlace={selectedPlace}
+                        poiResults={poiResults}
+                        setSelectedPlace={setSelectedPlace}
+                        poiType={poiType}
+                        showTransitLayer={showTransitLayer} //
+                        tileUrl={tileUrl}
+                        routes={directions.routes}
+                        />
+                </div>
+
+                {/* DESKTOP POI SIDEBAR */}
+                {selectedPlace && (
+                    <Sidebar
+                        place={selectedPlace}
+                        onNavigate={poiInteraction.startDirectionsWith}
+                        onClose={() => setSelectedPlace(null)}
+                    />
+                )}
+
+
+
+
+                {/* RECENTER BUTTON */}
+                {(selectedPlace || poiType || position) && (
+                    // NOW, THIS ACCOMODATES CENTERING ROUTE ALSO
+                    <Suspense fallback={null}>
+                        <Recenter
+                            mapRef={mapRef}
+                            routes={directions.routes}
+                            setPosition={setPosition}
+                            setSelectedPlace={setSelectedPlace}
+                        />
+                    </Suspense>
+
+
+                )}
+
+                <ResponsiveWeatherWidget
+                    aqi={aqi}
+                    weather={weather}
+                    loading={envLoading}
+                    error={envError} />
+
+
+
+                {/* BOTTOMSHEET */}
+                {/* HIDE BOTTOMSHEET WHEN A PLACE IS SELECTED ON MOBILE ONLY */}
+                {mode === "search" && !selectedPlace && (
+                    <Suspense fallback={<LoadingFallback />}>
+                        <BottomSheet
+                            position={position}
+                            onDirections={poiInteraction.startDirectionsWith}
+                        />
+                    </Suspense>
+
+                )}
+
+
+                {mode === "directions" && (
+                    <Suspense fallback={<DirectionsPanelFallback />}>
+                        <DirectionsPanel
+                            routes={directions.routes}
+                            />
+                    </Suspense>
+
+                )}
+
+            </div>
+        </div>
+    )
+}
+
+export default MapView
+</file>
+
+<file path="src/pages/LandingPage.jsx">
+import { MapPin, MessageSquare, Compass, Search } from 'lucide-react';
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+      {/* Hero Section */}
+      <header className="flex flex-col items-center justify-center text-center flex-grow px-6 pt-24 pb-16">
+        <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+          Explore Smarter with Your AI Map Assistant
+        </h1>
+        <p className="text-gray-600 max-w-2xl mb-10 leading-relaxed">
+          Discover nearby places, get instant directions, and chat with your AI travel companion — all in one intuitive map app.
+        </p>
+        <a
+          href="/app"
+          className="bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl text-lg hover:bg-blue-700 transition"
+        >
+          Launch App
+        </a>
+      </header>
+
+      {/* Features Section */}
+      <section className="py-20 px-6 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl font-semibold mb-12">What You Can Do</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              {
+                icon: <Search className="w-7 h-7 text-blue-600" />,
+                title: "Search Places",
+                desc: "Find restaurants, parks, hotels, and more instantly.",
+              },
+              {
+                icon: <Compass className="w-7 h-7 text-green-600" />,
+                title: "Explore Nearby",
+                desc: "See what's around you with real-time map insights.",
+              },
+              {
+                icon: <MessageSquare className="w-7 h-7 text-purple-600" />,
+                title: "Chat & Navigate",
+                desc: "Ask your assistant to guide or find anything for you.",
+              },
+              {
+                icon: <MapPin className="w-7 h-7 text-red-600" />,
+                title: "Save Favorites",
+                desc: "Bookmark your go-to spots for easy future visits.",
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition p-6 flex flex-col items-center text-center"
+              >
+                <div className="mb-4">{feature.icon}</div>
+                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">
+                  {feature.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-10 text-center mt-auto">
+        <p className="text-gray-400 text-sm">
+          © {new Date().getFullYear()} SmartMap Assistant — Built with ❤️ using React & Maps API
+        </p>
+      </footer>
+    </div>
+  );
+}
+</file>
+
+<file path="src/providers/AppProvider.jsx">
+import { DirectionsProvider } from '../features/directions/context/DirectionsProvider'
+import { POIProvider } from '../features/poi/hooks/usePOIContext'
+import { GeolocationProvider } from '../hooks/useGeolocationContext'
+import { MapUIProvider } from './MapUIProvider'
+import { SearchProvider } from './SearchProvider'
+
+const AppProvider = ({ children }) => {
+  return (
+    <GeolocationProvider>
+      <DirectionsProvider>
+        <MapUIProvider>
+          <SearchProvider>
+            <POIProvider>
+              {children}
+            </POIProvider>
+          </SearchProvider>
+        </MapUIProvider>
+      </DirectionsProvider>
+    </GeolocationProvider>
+  )
+}
+
+export default AppProvider
+</file>
+
+<file path="src/providers/MapUIProvider.jsx">
+import { createContext, useContext, useMemo, useState } from "react";
+
+const MapUIStateContext = createContext(null);
+const MapUIHoverContext = createContext(null);
+
+export const MapUIProvider = ({ children }) => {
+
+    const [mode, setMode] = useState("search"); // Mode is basically either we want to just search for a place or get directions
+    const [selectedMode, setSelectedMode] = useState(null); // Mode of transportation for directions: driving, walking, transit
+    const [origin, setOrigin] = useState(null);  // Confirmed origin coordinates
+    const [destination, setDestination] = useState(null); // Confirmed destination coordinates
+    const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
+    const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
+
+    const stateValue = useMemo(() => ({
+        //state
+        mode,
+        selectedMode,
+        origin,
+        destination,
+        activeField,
+
+        //setters
+        setMode,
+        setSelectedMode,
+        setOrigin,
+        setDestination,
+        setActiveField,
+    }), [mode, selectedMode, origin, destination, activeField])
+
+    const hoverValue = useMemo(() => ({
+        //state
+        hoverPOIId,
+
+        //setters
+        setHoverPOIId,
+    }), [hoverPOIId])
+
+    return (
+        <MapUIStateContext.Provider value={stateValue}>
+            <MapUIHoverContext.Provider value={hoverValue}>
+                {children}
+            </MapUIHoverContext.Provider>
+        </MapUIStateContext.Provider>
+    )
+}
+
+export const useMapUI = () => {
+    const context = useContext(MapUIStateContext);
+    if (!context) {
+        throw new Error("useMapUI must be used within a MapUIProvider");
+    }
+    return context;
+
+}
+
+export const useMapHover = () => {
+    const context = useContext(MapUIHoverContext);
+    if (!context) {
+        throw new Error("useMapUI must be used within a MapUIProvider");
+    }
+    return context;
+}
+</file>
+
+<file path="src/providers/SearchProvider.jsx">
+import { useState, useRef, useMemo, createContext, useContext } from "react";
+
+const SearchContext = createContext(null);
+
+export const SearchProvider = ({ children }) => {
+    const [query, setQuery] = useState(''); // Search query state
+    const [showTransitLayer, setShowTransitLayer] = useState(false); // Show Transit Layer only for transit_station poiType
+
+    const searchRef = useRef(); // Reference to Search input instance
+    const directionsRef = useRef(); // Reference to Origin/Destination input instance
+
+    const value = useMemo(() => ({
+        query,
+        setQuery,
+        showTransitLayer,
+        setShowTransitLayer,
+        searchRef,
+        directionsRef,
+    }), [query, showTransitLayer]);
+
+    return (
+        <SearchContext.Provider value={value}>
+            {children}
+        </SearchContext.Provider>
+    )
+}
+
+export const useSearchProvider = () => {
+    const context = useContext(SearchContext);
+    if (!context) {
+        throw new Error('useSearch must be used within a SearchProvider');
+    }
+    return context;
+};
+</file>
+
+<file path="src/App.jsx">
+import MapView from './map/MapView'
+import useNetwork from './features/network/hooks/useNetwork'
+import OfflineBanner from './components/OfflineBanner'
+import { loadCacheMeta } from './features/offline/utils/locationCache'
+import { lastUpdated } from './features/offline/utils/lastUpdated'
+
+const App = () => {
+  const isOnline = useNetwork();
+
+  const locationLastUpdatedTs = !isOnline
+    ? loadCacheMeta()
+    : null;
+
+  const locationLastUpdatedText = locationLastUpdatedTs
+    ? lastUpdated(locationLastUpdatedTs)
+    : null;
+
+  const offlineMessage = locationLastUpdatedText
+    ? `⚠️ You’re offline — using last known location · updated ${locationLastUpdatedText}`
+    : `⚠️ You’re offline — using last known location`;
+
+  return (
+    <>
+      {!isOnline && <OfflineBanner message={offlineMessage} />}
+      <div className='text-center text-2xl font-bold'>
+        <MapView
+        />
+      </div>
+    </>
+  )
+}
+
+export default App
+</file>
+
+<file path="src/index.css">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+/* AQI INDICATOR */
+.pulsating-marker {
+  @apply rounded-full w-5 h-5 animate-pulse shadow-lg;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(.8);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(2);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.chatbot {
+  @apply fixed bottom-3 right-5 w-48 max-h-[300px] sm:max-h-[400px] md:max-h-[500px] overflow-y-auto flex flex-col overflow-hidden rounded-2xl shadow-xl border sm:w-64 md:w-80 md:bottom-6 md:right-6;
+  background: rgba(255, 255, 255, 0.15); 
+  backdrop-filter: blur(12px);           
+  -webkit-backdrop-filter: blur(12px);    
+  border-color: rgba(255, 255, 255, 0.2); 
+}
+
+.chat-header {
+  @apply p-2 text-xs md:text-sm md:p-3 md:font-semibold;
+  background: rgba(15, 23, 42, 0.8); 
+  color: white;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.chat-messages {
+  @apply flex flex-col p-2 overflow-y-auto no-scrollbar;
+}
+
+.message {
+  @apply mb-2 px-2 py-1 rounded-lg text-xs leading-relaxed max-w-[60%] break-words md:text-sm md:px-3 md:py-2;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.message.user {
+  @apply self-end font-semibold text-right text-xs md:text-sm;
+  background: rgba(56, 189, 248, 0.3);   
+  color: #0c4a6e;                        
+}
+
+
+.message.assistant {
+  @apply self-start text-left;
+  background: rgba(255, 255, 255, 0.25); 
+  color: #1e293b;                        
+  font-weight: 500;
+}
+
+.chatbot input {
+  @apply p-2 text-xs outline-none border-t md:text-sm;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #111;
+}
+.chatbot input::placeholder {
+  color: rgba(0,0,0,0.5);
+}
+
+.transparent-popup .leaflet-popup-content-wrapper {
+    background: rgba(255, 255, 255, 0.8); 
+    box-shadow: none; 
+}
+
+.transparent-popup .leaflet-popup-tip {
+    background: rgba(255, 255, 255, 0.0); /* tip transparent */
+}
+</file>
+
+<file path="src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+import AppProvider from './providers/AppProvider.jsx'
+import NetworkProvider from './features/network/providers/NetworkProvider.jsx'
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then(() => console.log("SW registered"))
+      .catch((err) => console.error("SW failed", err));
+  });
+}
+
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <NetworkProvider>
+      <AppProvider>
+        <App />
+      </AppProvider>
+
+    </NetworkProvider>
+
+  </StrictMode>
+)
+</file>
+
+</files>

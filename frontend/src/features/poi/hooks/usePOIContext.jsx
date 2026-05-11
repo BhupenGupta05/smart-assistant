@@ -22,10 +22,10 @@ export const POIProvider = ({ children }) => {
 
     const [poiIntent, setPoiIntent] = useState(null);
 
-    const { getCoords } = useGeolocation();
+    const { coords } = useGeolocation();
 
     const position = useMemo(() => {
-        const raw = getCoords();
+        const raw = coords;
         if (
             raw &&
             Array.isArray(raw) &&
@@ -38,7 +38,7 @@ export const POIProvider = ({ children }) => {
             return { lat: raw[0], lng: raw[1] };
         }
         return null;
-    }, [getCoords]);
+    }, [coords]);
 
     const debouncedPosition = useDebouncedPosition(position, 600);
 

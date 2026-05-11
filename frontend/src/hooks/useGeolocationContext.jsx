@@ -12,6 +12,7 @@ const GeolocationContext = createContext();
 
 export const GeolocationProvider = ({ children }) => {
     const isOnline = useNetwork();
+    
     // Try to load cached location on initial render
     const [position, setPosition] = useState(() => {
         const cached = loadLocation();
@@ -21,9 +22,9 @@ export const GeolocationProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     // If a place is selected, return its coordinates; otherwise, return current position
-    const getCoords = () => {
+    const coords = useMemo(() => {
         return selectedPlace ? [selectedPlace.lat, selectedPlace.lng] : position;
-    }
+    },[selectedPlace, position])
 
     // For the initial render, try to get the user's current location
     useEffect(() => {
@@ -78,10 +79,10 @@ export const GeolocationProvider = ({ children }) => {
         setPosition,
         selectedPlace,
         setSelectedPlace,
-        getCoords,
+        coords,
         error,
         setError,
-    }), [position, selectedPlace, error])
+    }), [position, selectedPlace, error, coords])
 
     return (
         <GeolocationContext.Provider value={value}>

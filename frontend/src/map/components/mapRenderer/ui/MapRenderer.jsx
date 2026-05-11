@@ -7,7 +7,7 @@ import DirectionsLayer from '../../../../features/directions/ui/DirectionsLayer'
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
 import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
-import { useMapUI } from '../../../../providers/MapUIProvider';
+import { useMapHover, useMapUI } from '../../../../providers/MapUIProvider';
 import { useSearchProvider } from '../../../../providers/SearchProvider';
 
 const MapRenderer = ({
@@ -26,9 +26,10 @@ const MapRenderer = ({
         selectedMode,
         origin,
         destination,
-        setSelectedMode,
-        setHoverPOIId 
+        setSelectedMode
     } = useMapUI();
+
+    const { setHoverPOIId } = useMapHover();
 
     const { showTransitLayer } = useSearchProvider();
 

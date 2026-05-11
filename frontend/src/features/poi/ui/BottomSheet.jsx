@@ -5,7 +5,7 @@ import { useState } from "react";
 import useNetwork from "../../network/hooks/useNetwork";
 import { loadCacheMeta } from "../../offline/utils/poiCache";
 import { lastUpdated } from "../../offline/utils/lastUpdated";
-import { useMapUI } from "../../../providers/MapUIProvider";
+import { useMapHover, useMapUI } from "../../../providers/MapUIProvider";
 import { usePOI } from "../hooks/usePOIContext";
 import { useGeolocation } from "../../../hooks/useGeolocationContext";
 
@@ -14,7 +14,7 @@ export default function BottomSheet({
     onDirections
 }) {
 
-    const { setHoverPOIId } = useMapUI();
+    const { setHoverPOIId } = useMapHover();
     const { poiType, poiResults, poiLoading, poiError } = usePOI();
     const { selectedPlace, setSelectedPlace } = useGeolocation();
 

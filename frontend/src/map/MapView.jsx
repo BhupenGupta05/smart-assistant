@@ -59,9 +59,7 @@ const MapView = () => {
     const {
         poiResults,
         poiType,
-        setPoiType,
         onCategorySelect: rawOnCategorySelect,
-        closeMore,
         onPOIIntent
     } = usePOI();
 

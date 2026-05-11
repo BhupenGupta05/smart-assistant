@@ -25,7 +25,6 @@ const App = () => {
       <div className='text-center text-2xl font-bold'>
         <MapView
         />
-
       </div>
     </>
   )

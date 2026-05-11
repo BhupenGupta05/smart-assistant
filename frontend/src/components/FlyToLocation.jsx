@@ -6,14 +6,13 @@ const FlyToLocation = () => {
     // console.log("FLYING TO: ", coords);
 
     const map = useMap();
-    const { getCoords } = useGeolocation();
+    const { coords } = useGeolocation();
     // const prevCoords = useRef(null);
 
 
     // NEW IMPLEMENTATION
     // If it creates a new array, and values are also different only then fly to location
     useEffect(() => {
-        const coords = getCoords();
         if (
             Array.isArray(coords) &&
             coords.length === 2 &&
@@ -28,7 +27,7 @@ const FlyToLocation = () => {
             map.flyTo(coords, 14);
             // prevCoords.current = coords;
         }
-    }, [getCoords, map]);
+    }, [coords, map]);
 
     return null;
 }
