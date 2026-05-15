@@ -5,18 +5,17 @@ import { useState } from "react";
 import useNetwork from "../../network/hooks/useNetwork";
 import { loadCacheMeta } from "../../offline/utils/poiCache";
 import { lastUpdated } from "../../offline/utils/lastUpdated";
-import { useMapHover, useMapUI } from "../../../providers/MapUIProvider";
 import { usePOI } from "../hooks/usePOIContext";
-import { useGeolocation } from "../../../hooks/useGeolocationContext";
+import { useMapUI } from "../../../providers/MapUIProvider";
 
 export default function BottomSheet({
     position,
     onDirections
 }) {
 
-    const { setHoverPOIId } = useMapHover();
+
     const { poiType, poiResults, poiLoading, poiError } = usePOI();
-    const { selectedPlace, setSelectedPlace } = useGeolocation();
+    const { selectedPlace } = useMapUI();
 
     const [isExpanded, setIsExpanded] = useState(false);
     const { itemRefs, containerRef } = usePOISidebar(poiResults, selectedPlace);
@@ -130,9 +129,6 @@ export default function BottomSheet({
                                             ref={(el) => (itemRefs.current[poiId] = el)}
                                             poi={poi}
                                             isActive={isActive}
-                                            onMouseEnter={() => setHoverPOIId(poi.place_id)}
-                                            onMouseLeave={() => setHoverPOIId(null)}
-                                            onClick={() => setSelectedPlace(poi)}
                                             onDirections={onDirections}
                                         />
 

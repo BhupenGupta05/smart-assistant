@@ -1,20 +1,21 @@
-import React from 'react'
+import { memo, useMemo } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 
-const POIMarker = React.memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onClick }) => {
-    
+const POIMarker = memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onClick }) => {
+    const eventHandlers = useMemo(() => ({
+        mouseover: () => onMouseOver(poiId),
+        mouseout: onMouseOut,
+        click: () => {
+            onClick(poi),
+            onMouseOver(poiId);
+        }
+    }), [poiId, poi, onMouseOver, onMouseOut, onClick]);
+
     return (
         <Marker
             position={[poi.lat, poi.lng]}
             icon={icon}
-            eventHandlers={{
-                mouseover: () => onMouseOver(poiId),
-                mouseout: () => onMouseOut(),
-                click: () => {
-                    onClick(poi),
-                    onMouseOver(poiId)
-                }
-            }}>
+            eventHandlers={eventHandlers}>
 
             <Popup className='transparent-popup'>
                 <strong>{poi.name}</strong><br />

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useMapUI } from "../../../providers/MapUIProvider";
 import { normalizePlace } from "../utils/normalizePlace";
 
@@ -8,7 +9,7 @@ export default function usePOIInteraction({
 }) {
     const { setOrigin, setDestination, setMode } = useMapUI();
     
-    const startDirectionsWith = (place) => {
+    const startDirectionsWith = useCallback((place) => {
         if (clearRoutes) clearRoutes();
 
         const destinationPlace = normalizePlace(place);
@@ -43,7 +44,7 @@ export default function usePOIInteraction({
 
         setMode("directions");
         setSelectedPlace(null);
-    };
+    },[clearRoutes, position, setOrigin, setDestination, setMode, setSelectedPlace])
 
     return { startDirectionsWith };
 }

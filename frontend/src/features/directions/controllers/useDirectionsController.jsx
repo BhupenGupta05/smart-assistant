@@ -11,7 +11,7 @@ export const useDirectionsController = () => {
         if (routes?.length && !selectedMode) {
             setSelectedMode(routes[0].mode);
         }
-    }, [routes, selectedMode, setSelectedMode]);
+    }, [routes]);
 
     return {
         routes,

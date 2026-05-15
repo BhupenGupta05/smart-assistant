@@ -1,23 +1,38 @@
+import React from "react";
 import { Star, MapPin, Navigation2 } from "lucide-react";
+import { useCallback } from "react";
 import useNetwork from "../../network/hooks/useNetwork";
+import { useMapHover, useMapUI } from "../../../providers/MapUIProvider";
 
-export default function POICard({
+function POICard({
     poi,
     isActive,
-    onClick,
-    onMouseEnter,
-    onMouseLeave,
     onDirections
 }) {
 
     const isOnline = useNetwork();
 
+    const { setHoverPOIId } = useMapHover();
+    const { setSelectedPlace } = useMapUI();
+
+    const handleMouseEnter = useCallback(() => {
+        setHoverPOIId(poi.place_id);
+    }, [setHoverPOIId, poi.place_id]);
+
+    const handleMouseLeave = useCallback(() => {
+        setHoverPOIId(null);
+    }, [setHoverPOIId]);
+
+    const handleClick = useCallback(() => {
+        setSelectedPlace(poi);
+    }, [setSelectedPlace, poi]);
+
 
     return (
         <div
-            onClick={onClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            onClick={handleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             className={`
         group relative flex-shrink-0 w-full p-3 md:p-4 bg-white rounded-2xl cursor-pointer
         transition-all duration-300 border text-slate-700
@@ -105,3 +120,5 @@ export default function POICard({
         </div>
     );
 }
+
+export default React.memo(POICard);

@@ -1,6 +1,7 @@
 // Component to manage map controls for searching locations and getting directions
 
 import "leaflet/dist/leaflet.css";
+import { memo, useCallback } from "react";
 import SearchControls from "../../../controls/searchControls/ui/Container";
 import DirectionControls from '../../../controls/directionControls/ui/Container'
 import POICategory from "../../../../features/poi/ui/POICategory";
@@ -9,7 +10,7 @@ import { useSearchSelection } from "../../../../features/search/hooks/useSearchS
 import { useMapUI } from "../../../../providers/MapUIProvider";
 import { usePOI } from "../../../../features/poi/hooks/usePOIContext";
 
-const MapControls = ({
+const MapControls = memo(({
     setPosition,
     selectedPlace,
     setSelectedPlace,
@@ -25,10 +26,12 @@ const MapControls = ({
     const { mode } = useMapUI();
     const { poiType, showMore, closeMore } = usePOI();
 
+    const clearSelection = useCallback(() => setSelectedPlace(null),[setSelectedPlace]);
+
     useSearchSelection({
         selectedPlace,
         setPosition,
-        clearSelection: () => setSelectedPlace(null)
+        clearSelection
     })
 
     return (
@@ -73,6 +76,6 @@ const MapControls = ({
             </div>
         </>
     )
-}
+})
 
 export default MapControls

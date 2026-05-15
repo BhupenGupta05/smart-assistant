@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useNetwork from "../features/network/hooks/useNetwork";
 import axios from "axios";
 
@@ -21,17 +21,25 @@ export async function fetchPlaces(query, signal) {
 
 const DEBOUNCE_DELAY = 300;
 
-export const useFetchPlaces = (inputVal, justSelectedRef) => {
+export const useFetchPlaces = (inputVal) => {
     const [results, setResults] = useState([]);
+    const suppressRef = useRef(false);
+
     const isOnline = useNetwork();
+
+    const suppressNextFetch = () => {
+        suppressRef.current = true;
+    };
 
     useEffect(() => {
         if (!isOnline) {
             setResults([]);
             return;
         }
-        if (justSelectedRef?.current) {
-            justSelectedRef.current = false;
+
+        // skip ONE fetch after programmatic update
+        if (suppressRef.current) {
+            suppressRef.current = false;
             return;
         }
 
@@ -55,7 +63,10 @@ export const useFetchPlaces = (inputVal, justSelectedRef) => {
             clearTimeout(handler);
             controller.abort();
         };
-    }, [inputVal, justSelectedRef, isOnline]);
+    }, [inputVal, isOnline]);
 
-    return results;
+    return {
+        results,
+        suppressNextFetch
+    };
 }

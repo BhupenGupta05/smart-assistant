@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
-import { useGeolocation } from "../hooks/useGeolocationContext";
+import { useMapUI } from '../providers/MapUIProvider'
 
 const FlyToLocation = () => {
     // console.log("FLYING TO: ", coords);
 
     const map = useMap();
-    const { coords } = useGeolocation();
+    const { coords } = useMapUI();
     // const prevCoords = useRef(null);
 
 

@@ -11,12 +11,10 @@ const travelModes = [
 export default function DirectionsPanel({
   routes
 }) {
-  const { selectedMode, setSelectedMode} = useMapUI();
+  const { selectedMode, setSelectedMode } = useMapUI();
   const [expanded, setExpanded] = useState(false);
 
   if (!routes?.length) return null;
-
-  // console.log("ROUTES: ",routes);
 
   const filteredRoutes = routes.filter((route) => route.mode === selectedMode);
   const hasRoutes = filteredRoutes.length > 0;
@@ -43,8 +41,8 @@ export default function DirectionsPanel({
               key={key}
               onClick={() => setSelectedMode(key)}
               className={`flex flex-col items-center px-4 py-2 rounded-xl transition ${active
-                  ? "text-blue-600 font-semibold bg-blue-50 shadow-sm"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-blue-600 font-semibold bg-blue-50 shadow-sm"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <Icon size={24} className="mb-1" />
@@ -66,8 +64,8 @@ export default function DirectionsPanel({
                 onClick={() => setSelectedMode(route.mode)
                 }
                 className={`p-4 rounded-2xl cursor-pointer transition shadow-sm ${isActive
-                    ? "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-400"
-                    : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-400"
+                  : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
                   }`}
               >
                 <div className="flex justify-between items-center mb-1">

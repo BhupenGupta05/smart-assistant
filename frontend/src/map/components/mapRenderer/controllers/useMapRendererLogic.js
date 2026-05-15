@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useMapHover, useMapUI } from "../../../../providers/MapUIProvider";
+import { useMapHover } from "../../../../providers/MapUIProvider";
 import {
     transitIcon, poiIcon,
     highlightedPoiIcon
@@ -9,13 +9,10 @@ export const useMapRendererLogic = ({
     poiResults,
     poiType,
     selectedPlace,
-    position
+    position,
+    origin,
+    destination
 }) => {
-
-    const {
-        origin,
-        destination,
-    } = useMapUI();
 
     const { hoverPOIId } = useMapHover();
 

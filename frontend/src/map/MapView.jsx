@@ -17,7 +17,6 @@ import { useMapDataController } from './controllers/useMapDataController';
 // UI
 import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
 import Sidebar from '../features/poi/ui/Sidebar';
-import { useTransitLayer } from '../providers/SearchProvider';
 import { usePOI } from '../features/poi/hooks/usePOIContext';
 import useNetwork from '../features/network/hooks/useNetwork';
 
@@ -48,13 +47,15 @@ const DirectionsPanelFallback = () => (
     </div>
 );
 
+// USING WITH A PROXY SERVER
+const TILE_URL = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
+
 
 const MapView = () => {
     const mapRef = useRef(null); // Using same map instance
 
     const isOnline = useNetwork();
     const { mode } = useMapUI();
-    const { showTransitLayer } = useTransitLayer();
 
     const {
         poiResults,
@@ -74,23 +75,28 @@ const MapView = () => {
         envError
     } = useMapDataController();
 
-    const directions = useDirectionsController();
+    const {
+        routes,
+        getDirections,
+        loading: dirLoading,
+        error: dirError,
+        clearRoutes
+    } = useDirectionsController();
 
-    const poiInteraction = usePOIInteraction({
+    const { startDirectionsWith } = usePOIInteraction({
         setSelectedPlace,
-        clearRoutes: directions.clearRoutes,
+        clearRoutes,
         position
     });
-
-    // USING WITH A PROXY SERVER
-    const tileUrl = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
 
     const handleCategorySelect = useCallback((type) => {
         const intent = rawOnCategorySelect(type);
         if (!intent) return;
-        
-        onPOIIntent({ type: intent, radius: 1500});
+
+        onPOIIntent({ type: intent, radius: 1500 });
     }, [rawOnCategorySelect, onPOIIntent]);
+
+    const handleSidebarClose = useCallback(() => setSelectedPlace(null), [setSelectedPlace])
 
     return (
         <div className='relative h-screen w-screen'>
@@ -100,11 +106,11 @@ const MapView = () => {
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
-                routes={directions.routes}
-                getDirections={directions.getDirections}
-                loading={directions.loading}
-                error={directions.error}
-                clearRoutes={directions.clearRoutes}
+                routes={routes}
+                getDirections={getDirections}
+                loading={dirLoading}
+                error={dirError}
+                clearRoutes={clearRoutes}
                 isOnline={isOnline}
                 onCategorySelect={handleCategorySelect}
             />
@@ -115,23 +121,19 @@ const MapView = () => {
                 <div className='absolute inset-0 z-0'>
                     <MapRenderer
                         mapRef={mapRef}
-                        position={position}
-                        selectedPlace={selectedPlace}
                         poiResults={poiResults}
-                        setSelectedPlace={setSelectedPlace}
                         poiType={poiType}
-                        showTransitLayer={showTransitLayer} //
-                        tileUrl={tileUrl}
-                        routes={directions.routes}
-                        />
+                        tileUrl={TILE_URL}
+                        routes={routes}
+                    />
                 </div>
 
                 {/* DESKTOP POI SIDEBAR */}
                 {selectedPlace && (
                     <Sidebar
                         place={selectedPlace}
-                        onNavigate={poiInteraction.startDirectionsWith}
-                        onClose={() => setSelectedPlace(null)}
+                        onNavigate={startDirectionsWith}
+                        onClose={handleSidebarClose}
                     />
                 )}
 
@@ -144,7 +146,7 @@ const MapView = () => {
                     <Suspense fallback={null}>
                         <Recenter
                             mapRef={mapRef}
-                            routes={directions.routes}
+                            routes={routes}
                             setPosition={setPosition}
                             setSelectedPlace={setSelectedPlace}
                         />
@@ -167,7 +169,7 @@ const MapView = () => {
                     <Suspense fallback={<LoadingFallback />}>
                         <BottomSheet
                             position={position}
-                            onDirections={poiInteraction.startDirectionsWith}
+                            onDirections={startDirectionsWith}
                         />
                     </Suspense>
 
@@ -177,8 +179,8 @@ const MapView = () => {
                 {mode === "directions" && (
                     <Suspense fallback={<DirectionsPanelFallback />}>
                         <DirectionsPanel
-                            routes={directions.routes}
-                            />
+                            routes={routes}
+                        />
                     </Suspense>
 
                 )}

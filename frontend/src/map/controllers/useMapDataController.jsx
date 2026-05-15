@@ -3,11 +3,12 @@ import { useAQI } from "../../features/weather/aqi/controllers/useAQI";
 import { useWeather } from "../../features/weather/controllers/useWeather";
 import { useMemo } from "react";
 import { useDebouncedPosition } from "./useDebouncedPosition";
+import { useMapUI } from "../../providers/MapUIProvider";
 
 
 export const useMapDataController = () => {
-    const geolocation = useGeolocation();
-    const { coords } = geolocation;
+    const { coords, selectedPlace, setSelectedPlace } = useMapUI();
+    const { setPosition } = useGeolocation();
 
     // | Check                                                                  | What it's doing                                     | Why it's needed                    |
     // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
@@ -55,9 +56,9 @@ export const useMapDataController = () => {
         /* ---------------- Location ---------------- */
         position,
         fetchPosition: debouncedPosition,
-        setPosition: geolocation.setPosition,
-        selectedPlace: geolocation.selectedPlace,
-        setSelectedPlace: geolocation.setSelectedPlace,
+        setPosition,
+        selectedPlace,
+        setSelectedPlace,
 
         /* ---------------- ENV RENDER GATE ---------------- */
         canRenderEnv,

@@ -18,13 +18,8 @@ export const GeolocationProvider = ({ children }) => {
         const cached = loadLocation();
         return cached ? [cached.lat, cached.lng] : [28.6139, 77.2090];
     });
-    const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
-    const [error, setError] = useState(null);
 
-    // If a place is selected, return its coordinates; otherwise, return current position
-    const coords = useMemo(() => {
-        return selectedPlace ? [selectedPlace.lat, selectedPlace.lng] : position;
-    },[selectedPlace, position])
+    const [error, setError] = useState(null);
 
     // For the initial render, try to get the user's current location
     useEffect(() => {
@@ -34,14 +29,7 @@ export const GeolocationProvider = ({ children }) => {
         }
 
         // If offline, use cached location and don't attempt geolocation
-        if (!isOnline) {
-            const cached = loadLocation();
-            if (cached) {
-                console.log("📴 OFFLINE: Using cached location");
-                setPosition([cached.lat, cached.lng]);
-            }
-            return;
-        }
+        if (isOnline) return; 
 
         navigator.geolocation.getCurrentPosition(
             (pos) => {
@@ -77,12 +65,9 @@ export const GeolocationProvider = ({ children }) => {
     const value = useMemo(() => ({
         position,
         setPosition,
-        selectedPlace,
-        setSelectedPlace,
-        coords,
         error,
         setError,
-    }), [position, selectedPlace, error, coords])
+    }), [position, error])
 
     return (
         <GeolocationContext.Provider value={value}>

@@ -9,24 +9,26 @@ import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
 import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
 import { useMapHover, useMapUI } from '../../../../providers/MapUIProvider';
 import { useTransitLayer } from '../../../../providers/SearchProvider';
+import { useGeolocation } from '../../../../hooks/useGeolocationContext';
 
 const MapRenderer = ({
     mapRef,
-    position,
-    selectedPlace,
     poiResults,
-    setSelectedPlace,
     poiType,
     tileUrl,
     routes
 }) => {
+
+    const { position } = useGeolocation();
 
     const {
         mode,
         selectedMode,
         origin,
         destination,
-        setSelectedMode
+        setSelectedMode,
+        selectedPlace,
+        setSelectedPlace
     } = useMapUI();
 
     const { setHoverPOIId } = useMapHover();
@@ -42,7 +44,9 @@ const MapRenderer = ({
         poiResults,
         poiType,
         selectedPlace,
-        position
+        position,
+        origin,
+        destination
     });
 
     return (

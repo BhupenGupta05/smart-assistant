@@ -56,6 +56,8 @@ export const usePOIController = ({ position, poiIntent }) => {
     return () => clearInterval(retry);
   }, [error, loadPOIs]);
 
+  const clearPOIs = useCallback(() => setPoiResults([]),[])
+
   return {
     poiType,
     setPoiType,
@@ -63,6 +65,6 @@ export const usePOIController = ({ position, poiIntent }) => {
     loading,
     error,
     refetchPOIs: loadPOIs,
-    clearPOIs: () => setPoiResults([]),
+    clearPOIs
   };
 };

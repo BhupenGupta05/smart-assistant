@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
 
 export const useMapControlsLogic = ({
@@ -12,6 +13,8 @@ export const useMapControlsLogic = ({
     setMode
 }) => {
 
+    const clearSelection = useCallback(() => setSelectedPlace(null), [setSelectedPlace]);
+
     useSearchSelection({
         selectedPlace,
         mode,
@@ -20,6 +23,6 @@ export const useMapControlsLogic = ({
         setOrigin,
         setDestination,
         setActiveField,
-        clearSelection: () => setSelectedPlace(null)
+        clearSelection
     });
 };

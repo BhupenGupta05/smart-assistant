@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
+import { useGeolocation } from "../hooks/useGeolocationContext";
 
 const MapUIStateContext = createContext(null);
 const MapUIHoverContext = createContext(null);
@@ -11,6 +12,16 @@ export const MapUIProvider = ({ children }) => {
     const [destination, setDestination] = useState(null); // Confirmed destination coordinates
     const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
     const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
+    const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
+
+    const { position } = useGeolocation();
+
+        // If a place is selected, return its coordinates; otherwise, return current position
+    const coords = useMemo(() => {
+        return selectedPlace
+            ? [selectedPlace.lat, selectedPlace.lng]
+            : position;
+    }, [selectedPlace, position]);
 
     const stateValue = useMemo(() => ({
         //state
@@ -19,6 +30,8 @@ export const MapUIProvider = ({ children }) => {
         origin,
         destination,
         activeField,
+        selectedPlace,
+        coords,
 
         //setters
         setMode,
@@ -26,19 +39,18 @@ export const MapUIProvider = ({ children }) => {
         setOrigin,
         setDestination,
         setActiveField,
-    }), [mode, selectedMode, origin, destination, activeField])
-
-    const hoverValue = useMemo(() => ({
-        //state
-        hoverPOIId,
-
-        //setters
-        setHoverPOIId,
-    }), [hoverPOIId])
+        setSelectedPlace,
+    }), [mode,
+        selectedMode,
+        origin,
+        destination,
+        activeField,
+        selectedPlace,
+        coords])
 
     return (
         <MapUIStateContext.Provider value={stateValue}>
-            <MapUIHoverContext.Provider value={hoverValue}>
+            <MapUIHoverContext.Provider value={{ hoverPOIId, setHoverPOIId }}>
                 {children}
             </MapUIHoverContext.Provider>
         </MapUIStateContext.Provider>

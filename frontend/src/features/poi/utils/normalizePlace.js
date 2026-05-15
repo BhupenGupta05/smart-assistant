@@ -11,14 +11,11 @@ export const normalizePlace = (place) => {
         lng = typeof place.geometry.location.lng === "function"
             ? place.geometry.location.lng()
             : place.geometry.location.lng;
-        console.log("🌍 geometry.location detected:", lat, lng);
     } else if (Array.isArray(place.location)) {
         [lat, lng] = place.location;
-        console.log("📦 array location detected:", lat, lng);
     } else if (place.lat !== undefined && place.lng !== undefined) {
         lat = place.lat;
         lng = place.lng;
-        console.log("📍 direct lat/lng detected:", lat, lng);
     } 
 
     if (lat == null || lng == null) return null;

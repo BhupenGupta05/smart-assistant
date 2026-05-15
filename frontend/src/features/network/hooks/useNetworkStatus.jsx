@@ -16,9 +16,5 @@ export default function useNetworkStatus() {
         }
     }, [])
 
-    useEffect(() => {
-        console.log("[Network] isOnline state →", isOnline);
-    }, [isOnline]);
-
     return isOnline;
 }

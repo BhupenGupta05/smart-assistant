@@ -1,16 +1,17 @@
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  useImperativeHandle
-} from "react";
+import { useRef } from "react";
+
 import { useMapUI } from "../../../../providers/MapUIProvider";
-import { fetchPlaces, useFetchPlaces } from "../../../../hooks/useFetchPlaces";
-import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
 import { useSearchQuery } from "../../../../providers/SearchProvider";
 
-export const useDirectionControlsLogic = (props, ref) => {
+import { useDirectionInputs } from "./useDirectionInputs";
+import { useDirectionSelections } from "./useDirectionSelections";
+import { useDirectionRouting } from "./useDirectionRouting";
+import { useDirectionImperative } from "./useDirectionImperative";
+
+export const useDirectionControlsLogic = (
+  props,
+  ref
+) => {
   const {
     setPosition,
     setSelectedPlace,
@@ -31,191 +32,123 @@ export const useDirectionControlsLogic = (props, ref) => {
 
   const { setQuery } = useSearchQuery();
 
-  // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
-  // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED
-  // THUS AVOIDING UNWANTED API CALLS WHEN USER IS TYPING
-  const [originInput, setOriginInput] = useState(origin?.name || "");
-  const [destinationInput, setDestinationInput] = useState(destination?.name || "");
+  /*
+   * Temporary placeholders
+   * so selections hook can access them.
+   */
+  const inputRefs = useRef({});
 
-  const justSelectedOrigin = useRef(false);
-  const justSelectedDestination = useRef(false);
+  // SELECTIONS
+  const selections = useDirectionSelections({
+    origin,
+    destination,
 
-  const originResults = useFetchPlaces(originInput, justSelectedOrigin);
-  const destinationResults = useFetchPlaces(destinationInput, justSelectedDestination);
+    setOrigin,
+    setDestination,
 
-  const handleOriginEnter = async () => {
-    const results = await fetchPlaces(originInput);
-    if (results.length > 0) selectOrigin(results[0]);
+    setOriginInput: (...args) =>
+      inputRefs.current.setOriginInput?.(...args),
+
+    setDestinationInput: (...args) =>
+      inputRefs.current.setDestinationInput?.(...args),
+
+    suppressOriginFetch: (...args) =>
+      inputRefs.current.suppressOriginFetch?.(...args),
+
+    suppressDestinationFetch: (...args) =>
+      inputRefs.current.suppressDestinationFetch?.(...args),
+
+    setMode,
+    setActiveField,
+    setSelectedPlace,
+    clearRoutes
+  });
+
+  // INPUTS
+  const inputs = useDirectionInputs({
+    origin,
+    destination,
+    selectOrigin: selections.selectOrigin,
+    selectDestination: selections.selectDestination
+  });
+
+  // CONNECT INPUT REFS
+  inputRefs.current = {
+    setOriginInput: inputs.setOriginInput,
+    setDestinationInput: inputs.setDestinationInput,
+    suppressOriginFetch: inputs.suppressOriginFetch,
+    suppressDestinationFetch:
+      inputs.suppressDestinationFetch
   };
 
-  const handleDestinationEnter = async () => {
-    const results = await fetchPlaces(destinationInput);
-    if (results.length > 0) selectDestination(results[0]);
-  };
+  // ROUTING EFFECT
+  const routing = useDirectionRouting({
+    origin,
+    destination,
+    getDirections
+  });
 
+  // IMPERATIVE API
+  useDirectionImperative({
+    ref,
 
-  // Sync originInput when origin prop changes externally
-  useEffect(() => {
-    if (origin) {
-      setOriginInput(origin.address || origin.name || "");
-    }
-  }, [origin]);
+    origin,
+    destination,
 
-  // Sync destinationInput when destination prop changes externally
-  useEffect(() => {
-    if (destination) {
-      setDestinationInput(destination.address || destination.name || "");
-    }
-  }, [destination]);
+    setMode,
 
-  // 🔹 Selection handlers
-  const selectOrigin = (place) => {
-    clearRoutes?.();
-    const normalized = normalizePlace(place);
-    if (!normalized) return;
+    setPosition,
+    setSelectedPlace,
 
-    setOrigin(normalized);
-    setOriginInput(normalized.address || normalized.name);
-    setActiveField(null);
-    justSelectedOrigin.current = true;
-  };
+    setQuery,
 
-  const selectDestination = (place) => {
-    clearRoutes?.();
-    const normalized = normalizePlace(place);
-    if (!normalized) return;
+    getDirections,
 
-    setDestination(normalized);
-    setDestinationInput(normalized.address || normalized.name);
-    setActiveField(null);
-    justSelectedDestination.current = true;
-  };
+    selectOrigin: selections.selectOrigin,
+    selectDestination:
+      selections.selectDestination,
 
-  // --- 3️⃣ ROUTE REQUEST ON CONFIRMED STATE ---
-  const canRequestRoute = useMemo(
-    () => Boolean(origin?.location && destination?.location),
-    [origin, destination]
-  );
-
-  useEffect(() => {
-    if (!canRequestRoute) return;
-    getDirections(origin.location, destination.location);
-  }, [canRequestRoute, origin, destination, getDirections]);
-
-
-  const swapEnds = () => {
-    setOrigin(destination);
-    setDestination(origin);
-    setOriginInput(destination?.name || "");
-    setDestinationInput(origin?.name || "");
-
-    // Set flags to prevent search after swap
-    justSelectedOrigin.current = true;
-    justSelectedDestination.current = true;
-  };
-
-  // 🔹 Clear
-  const clearAll = () => {
-    clearRoutes?.();
-    setMode("search");
-    setActiveField(null);
-    setOrigin(null);
-    setDestination(null);
-    setOriginInput("");
-    setDestinationInput("");
-    setSelectedPlace(null);
-  };
-
-  // 🔹 Imperative API (chatbot / parent)
-  useImperativeHandle(ref, () => ({
-    ready: true,
-
-    searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
-      // fromchatbotRef.current = true;
-      if (!query && fallbackCurrentLocation) {
-        const pos = fallbackCurrentLocation; // [lat, lng]
-        const fakePlace = {
-          name: "Current Location",
-          address: "Current Location",
-          lat: pos[0],
-          lng: pos[1],
-          place_id: "current_location"
-        };
-        selectOrigin(fakePlace);
-        return true;
-      }
-      const results = await fetchPlaces(query);
-      if (results.length > 0) {
-        selectOrigin(results[0]);
-        return true;
-      }
-      return false;
-    },
-
-    searchAndSetDestination: async (query) => {
-      // fromchatbotRef.current = true;
-      const results = await fetchPlaces(query);
-
-      if (results.length > 0) {
-        selectDestination(results[0]);
-        return true;
-      }
-      return false;
-    },
-
-    calculateDirections: async () => {
-      if (origin?.location && destination?.location) {
-        await getDirections(origin.location, destination.location, "driving");
-      }
-    },
-
-    // switch MapView to directions mode
-    switchToDirectionsMode: () => setMode?.("directions"),
-
-    switchToSearchMode: clearAll,
-
-    searchLocation: async (location) => {
-      try {
-        const results = await fetchPlaces(location);
-        console.log("RESULT: ", results);
-
-        if (results.length === 0) return false;
-
-        const place = results[0];
-        setSelectedPlace(place);
-        setPosition([place.lat, place.lng]);
-
-        if (setQuery) setQuery(place.address);
-
-        return true;
-      } catch (err) {
-        console.error("Failed to search and select:", err);
-        return false;
-      }
-
-    }
-  }));
+    clearAll: selections.clearAll
+  });
 
   return {
     // state
-    originInput,
-    destinationInput,
-    originResults,
-    destinationResults,
-    canRequestRoute,
+    originInput: inputs.originInput,
+    destinationInput:
+      inputs.destinationInput,
+
+    originResults: inputs.originResults,
+    destinationResults:
+      inputs.destinationResults,
+
+    canRequestRoute:
+      routing.canRequestRoute,
+
     loading,
     error,
 
     // setters
-    setOriginInput,
-    setDestinationInput,
+    setOriginInput:
+      inputs.setOriginInput,
+
+    setDestinationInput:
+      inputs.setDestinationInput,
 
     // handlers
-    selectOrigin,
-    selectDestination,
-    swapEnds,
-    clearAll,
-    handleOriginEnter,
-    handleDestinationEnter
+    selectOrigin:
+      selections.selectOrigin,
+
+    selectDestination:
+      selections.selectDestination,
+
+    swapEnds: selections.swapEnds,
+
+    clearAll: selections.clearAll,
+
+    handleOriginEnter:
+      inputs.handleOriginEnter,
+
+    handleDestinationEnter:
+      inputs.handleDestinationEnter
   };
 };

@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import axios from "axios";
-import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
 import useNetwork from "../../../features/network/hooks/useNetwork";
 import { useSearchRefs, useTransitLayer } from "../../../providers/SearchProvider";
 import { useGeolocation } from "../../../hooks/useGeolocationContext";
 import { usePOI } from "../../../features/poi/hooks/usePOIContext";
+import { getCurrentPosition } from "../../../features/search/utils/getCurrentPosition";
+import { useMapUI } from "../../../providers/MapUIProvider";
 
 export const useChatbotLogic = () => {
   const [messages, setMessages] = useState([
@@ -17,12 +18,11 @@ export const useChatbotLogic = () => {
   const chatRef = useRef(null);
   const isOnline = useNetwork();
 
-  const { getCurrentLocation } = useCurrentLocation();
-
   const { searchRef, directionsRef } = useSearchRefs();
   const { setShowTransitLayer} = useTransitLayer();
 
-  const { setPosition, setSelectedPlace } = useGeolocation();
+  const { setSelectedPlace } = useMapUI();
+  const { setPosition } = useGeolocation();
   const { onPOIIntent } = usePOI();
 
   /* ---------------- UI helpers ---------------- */
@@ -37,7 +37,7 @@ export const useChatbotLogic = () => {
     }
 
     if (location === "current") {
-      const [lat, lng] = await getCurrentLocation();
+      const [lat,lng] = await getCurrentPosition();
       setPosition([lat, lng]);
       setSelectedPlace(null);
       return "Moved to current location";
@@ -83,7 +83,7 @@ export const useChatbotLogic = () => {
     let success;
 
     if (origin === "current") {
-      const [lat, lng] = await getCurrentLocation();
+      const [lat,lng] = await getCurrentPosition();
       success = await dirRef.searchAndSetOrigin("", [lat, lng]);
     } else {
       success = await dirRef.searchAndSetOrigin(origin);
