@@ -26,4 +26,8 @@ An AI-powered geolocation platform enabling natural language place discovery wit
  
 ## Live Demo
 
+<img width="450" height="300" alt="Screenshot 2026-05-18 at 10 08 03 AM" src="https://github.com/user-attachments/assets/e57ecdd0-a39c-4105-8cbc-84026e7ec02a" />
+<img width="450" height="300" alt="Screenshot 2026-05-18 at 10 09 24 AM" src="https://github.com/user-attachments/assets/56bc14cf-6d33-4e04-832d-4ba155c7fd23" />
+
+
 Deployed link: https://map-assist.netlify.app/
