@@ -1,36 +1,73 @@
-import { useEffect, useRef } from "react";
-import { useWeatherFetch } from "../hooks/useWeatherFetch";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { fetchWeatherData } from "../service/fetchWeatherData";
+import useNetwork from "../../network/hooks/useNetwork";
 
 export const useWeather = ({ position }) => {
-    const { weather, loading, error, fetchWeather } = useWeatherFetch();
+    const [weather, setWeather] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const abortRef = useRef(null);
+    const isOnline = useNetwork();
+
+    const cacheRef = useRef(new Map());
     const retryTimerRef = useRef(null);
 
-    // 🔁 Fetch on position change
+    const loadWeather = useCallback(async (signal) => {
+        if (!position?.lat || !position?.lng) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const data = await fetchWeatherData({
+                lat: position.lat,
+                lon: position.lng,
+                signal,
+                isOnline,
+                cacheRef
+            });
+
+            setWeather(data);
+        } catch (err) {
+            if (
+                err.name === "CanceledError" ||
+                err.name === "AbortError"
+            ) {
+                return;
+            }
+
+            setError(err);
+            setWeather(null);
+        } finally {
+            setLoading(false);
+        }
+    }, [position, isOnline]);
+
+
+    // Fetch on position change
+
     useEffect(() => {
         if (!position?.lat || !position?.lng) return;
 
-        abortRef.current?.abort();
-        
         const controller = new AbortController();
-        abortRef.current = controller;
 
-        fetchWeather(position.lat, position.lng, controller.signal);
+        loadWeather(controller.signal);
 
-        return () => controller.abort();
-    }, [position, fetchWeather]);
+        return () => {
+            controller.abort();
+        };
+    }, [position, loadWeather]);
 
-    // 🔁 Retry on error
+
+    // Retry on error
+
     useEffect(() => {
         if (!error || !position) return;
 
         retryTimerRef.current = window.setInterval(() => {
-            abortRef.current?.abort();
-
             const controller = new AbortController();
-            abortRef.current = controller;
-            fetchWeather(position.lat, position.lng, controller.signal);
+
+            loadWeather(controller.signal);
         }, 15000);
 
         return () => {
@@ -38,12 +75,12 @@ export const useWeather = ({ position }) => {
                 clearInterval(retryTimerRef.current);
             }
         };
-    }, [error, position, fetchWeather]);
+    }, [error, position, loadWeather]);
 
-    // Global unmount cleanup 
+    // Cleanup on unmount
+
     useEffect(() => {
         return () => {
-            abortRef.current?.abort();
             if (retryTimerRef.current) {
                 clearInterval(retryTimerRef.current);
             }

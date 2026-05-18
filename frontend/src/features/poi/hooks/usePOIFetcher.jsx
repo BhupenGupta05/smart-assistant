@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import axios from "axios";
 import useNetwork from "../../network/hooks/useNetwork";
 import { loadCache, saveCache } from "../../offline/utils/poiCache";
@@ -51,7 +51,9 @@ export const usePOIFetcher = () => {
       });
 
       // Fetch fresh data in background
-      fetchFreshData(cacheKey, lat, lng, type, radius).catch(console.error);
+      fetchFreshData(cacheKey, lat, lng, type, radius).catch(() => {
+        // background refresh failures are acceptable
+      });
 
       return localStorageCached;
     }
@@ -59,7 +61,7 @@ export const usePOIFetcher = () => {
     return await fetchFreshData(cacheKey, lat, lng, type, radius);
   }, [isOnline]);
 
-  const fetchFreshData = useCallback(async (cacheKey, lat, lng, type, radius) => {
+  const fetchFreshData = async (cacheKey, lat, lng, type, radius) => {
     // cancel previous request
     if (abortRef.current) {
       abortRef.current.abort();
@@ -101,13 +103,22 @@ export const usePOIFetcher = () => {
     } finally {
       abortRef.current = null;
     }
-  }, []);
+  };
 
   const cancel = useCallback(() => {
     if (abortRef.current) {
       abortRef.current.abort();
       abortRef.current = null;
     }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+    };
   }, []);
 
   // Optional: Clear cache function

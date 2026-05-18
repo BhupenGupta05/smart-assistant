@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CarFront, Bus, Footprints, Plane } from "lucide-react";
 import { useMapUI } from "../../../providers/MapUIProvider";
 
@@ -14,10 +14,19 @@ export default function DirectionsPanel({
   const { selectedMode, setSelectedMode } = useMapUI();
   const [expanded, setExpanded] = useState(false);
 
+  // By default, set selectedMode to first available mode when routes change
+  useEffect(() => {
+    if (routes?.length && !selectedMode) {
+      setSelectedMode(routes[0].mode);
+    }
+  }, [routes]);
+
   if (!routes?.length) return null;
 
   const filteredRoutes = routes.filter((route) => route.mode === selectedMode);
   const hasRoutes = filteredRoutes.length > 0;
+
+
 
   return (
     <div

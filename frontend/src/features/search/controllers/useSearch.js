@@ -30,7 +30,7 @@ export default function useSearchController({ externalQuery, onExternalQueryChan
         cacheRef.current.set(key, data);
         setResults(data);
         return data;
-    }, [])
+    }, [isOnline])
 
     // Debounced search
     useEffect(() => {

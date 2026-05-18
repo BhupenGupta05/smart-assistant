@@ -7,44 +7,28 @@ export default function usePOIInteraction({
     clearRoutes,
     position
 }) {
+
     const { setOrigin, setDestination, setMode } = useMapUI();
-    
+
     const startDirectionsWith = useCallback((place) => {
-        if (clearRoutes) clearRoutes();
+        clearRoutes?.();
 
         const destinationPlace = normalizePlace(place);
         setDestination(destinationPlace);
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const currentLocation = {
-                        name: "Current Location",
-                        address: "Your current location",
-                        location: [pos.coords.latitude, pos.coords.longitude],
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                    };
-                    setOrigin(currentLocation);
-                },
-                (err) => {
-                    console.warn("⚠️ Failed to fetch current location:", err);
-                    if (position) {
-                        setOrigin({
-                            name: "Current Location",
-                            address: "Your current location",
-                            location: position,
-                            lat: position[0],
-                            lng: position[1],
-                        });
-                    }
-                }
-            );
+        if (position) {
+            setOrigin({
+                name: "Current Location",
+                address: "Your current location",
+                location: [position.lat, position.lng],
+                lat: position.lat,
+                lng: position.lng,
+            });
         }
 
         setMode("directions");
         setSelectedPlace(null);
-    },[clearRoutes, position, setOrigin, setDestination, setMode, setSelectedPlace])
+    }, [clearRoutes, position, setOrigin, setDestination, setMode, setSelectedPlace])
 
     return { startDirectionsWith };
 }

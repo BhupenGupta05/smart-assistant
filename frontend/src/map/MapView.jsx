@@ -11,7 +11,6 @@ import MapRenderer from '../map/components/mapRenderer/ui/MapRenderer'
 
 // Controllers
 import { useMapUI } from '../providers/MapUIProvider';
-import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
 import { useMapDataController } from './controllers/useMapDataController';
 
 // UI
@@ -19,6 +18,7 @@ import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeathe
 import Sidebar from '../features/poi/ui/Sidebar';
 import { usePOI } from '../features/poi/hooks/usePOIContext';
 import useNetwork from '../features/network/hooks/useNetwork';
+import { useDirectionsContext } from '../features/directions/context/useDirectionsContext';
 
 // Lazy 
 const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
@@ -81,7 +81,7 @@ const MapView = () => {
         loading: dirLoading,
         error: dirError,
         clearRoutes
-    } = useDirectionsController();
+    } = useDirectionsContext();
 
     const { startDirectionsWith } = usePOIInteraction({
         setSelectedPlace,

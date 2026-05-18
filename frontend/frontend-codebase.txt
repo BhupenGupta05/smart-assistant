@@ -60,8 +60,6 @@ src/
         DirectionsContext.jsx
         DirectionsProvider.jsx
         useDirectionsContext.jsx
-      controllers/
-        useDirectionsController.jsx
       hooks/
         useDirections.jsx
       ui/
@@ -86,6 +84,8 @@ src/
         poiCache.js
         weatherCache.js
     poi/
+      context/
+        POIContext.jsx
       controllers/
         usePOICategory.js
         usePOIInteraction.js
@@ -94,6 +94,8 @@ src/
         usePOIContext.jsx
         usePOIController.jsx
         usePOIFetcher.jsx
+      providers/
+        POIProvider.jsx
       ui/
         BottomSheet.jsx
         POICard.jsx
@@ -101,7 +103,6 @@ src/
         POIDetails.jsx
         POIMarker.jsx
         POIMore.jsx
-        POISidebar.jsx
         Sidebar.jsx
       utils/
         normalizePlace.js
@@ -112,7 +113,6 @@ src/
       controllers/
         useSearch.js
       hooks/
-        useCurrentLocation.js
         useSearchSelection.js
       ui/
         SearchBar.jsx
@@ -132,8 +132,8 @@ src/
           AQIIndicator.jsx
       controllers/
         useWeather.jsx
-      hooks/
-        useWeatherFetch.jsx
+      service/
+        fetchWeatherData.js
       ui/
         Card.jsx
         MobileWeatherWidget.jsx
@@ -165,6 +165,10 @@ src/
       directionControls/
         hooks/
           useDirectionControlsLogic.js
+          useDirectionImperative.js
+          useDirectionInputs.js
+          useDirectionRouting.js
+          useDirectionSelections.js
         ui/
           Container.jsx
           DirectionControls.jsx
@@ -199,11 +203,12 @@ This section contains the contents of the repository's files.
 <file path="src/components/chatbot/controllers/useChatbotLogic.js">
 import { useRef, useState } from "react";
 import axios from "axios";
-import { useCurrentLocation } from "../../../features/search/hooks/useCurrentLocation";
 import useNetwork from "../../../features/network/hooks/useNetwork";
-import { useSearchProvider } from "../../../providers/SearchProvider";
+import { useSearchRefs, useTransitLayer } from "../../../providers/SearchProvider";
 import { useGeolocation } from "../../../hooks/useGeolocationContext";
 import { usePOI } from "../../../features/poi/hooks/usePOIContext";
+import { getCurrentPosition } from "../../../features/search/utils/getCurrentPosition";
+import { useMapUI } from "../../../providers/MapUIProvider";
 
 export const useChatbotLogic = () => {
   const [messages, setMessages] = useState([
@@ -216,11 +221,11 @@ export const useChatbotLogic = () => {
   const chatRef = useRef(null);
   const isOnline = useNetwork();
 
-  const { getCurrentLocation } = useCurrentLocation();
+  const { searchRef, directionsRef } = useSearchRefs();
+  const { setShowTransitLayer} = useTransitLayer();
 
-  const { searchRef, directionsRef, setShowTransitLayer } = useSearchProvider();
-
-  const { setPosition, setSelectedPlace } = useGeolocation();
+  const { setSelectedPlace } = useMapUI();
+  const { setPosition } = useGeolocation();
   const { onPOIIntent } = usePOI();
 
   /* ---------------- UI helpers ---------------- */
@@ -235,7 +240,7 @@ export const useChatbotLogic = () => {
     }
 
     if (location === "current") {
-      const [lat, lng] = await getCurrentLocation();
+      const [lat,lng] = await getCurrentPosition();
       setPosition([lat, lng]);
       setSelectedPlace(null);
       return "Moved to current location";
@@ -281,7 +286,7 @@ export const useChatbotLogic = () => {
     let success;
 
     if (origin === "current") {
-      const [lat, lng] = await getCurrentLocation();
+      const [lat,lng] = await getCurrentPosition();
       success = await dirRef.searchAndSetOrigin("", [lat, lng]);
     } else {
       success = await dirRef.searchAndSetOrigin(origin);
@@ -527,13 +532,13 @@ export default function FitBounds({ routes }) {
 <file path="src/components/FlyToLocation.jsx">
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
-import { useGeolocation } from "../hooks/useGeolocationContext";
+import { useMapUI } from '../providers/MapUIProvider'
 
 const FlyToLocation = () => {
     // console.log("FLYING TO: ", coords);
 
     const map = useMap();
-    const { coords } = useGeolocation();
+    const { coords } = useMapUI();
     // const prevCoords = useRef(null);
 
 
@@ -715,32 +720,6 @@ export const useDirectionsContext = () => {
 };
 </file>
 
-<file path="src/features/directions/controllers/useDirectionsController.jsx">
-import { useEffect } from "react";
-import { useDirectionsContext } from "../context/useDirectionsContext";
-import { useMapUI } from "../../../providers/MapUIProvider";
-
-export const useDirectionsController = () => {
-    const { routes, loading, error, getDirections, clearRoutes } = useDirectionsContext();
-    const { selectedMode, setSelectedMode } = useMapUI();
-
-    // By default, set selectedMode to first available mode when routes change
-    useEffect(() => {
-        if (routes?.length && !selectedMode) {
-            setSelectedMode(routes[0].mode);
-        }
-    }, [routes, selectedMode, setSelectedMode]);
-
-    return {
-        routes,
-        loading,
-        error,
-        getDirections,
-        clearRoutes
-    }
-}
-</file>
-
 <file path="src/features/directions/hooks/useDirections.jsx">
 // Custom hook to fetch directions between two points using various modes of transportation
 
@@ -881,7 +860,7 @@ export default function DirectionsLayer({ routes, selectedMode, setSelectedMode 
 </file>
 
 <file path="src/features/directions/ui/DirectionsPanel.jsx">
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CarFront, Bus, Footprints, Plane } from "lucide-react";
 import { useMapUI } from "../../../providers/MapUIProvider";
 
@@ -894,15 +873,22 @@ const travelModes = [
 export default function DirectionsPanel({
   routes
 }) {
-  const { selectedMode, setSelectedMode} = useMapUI();
+  const { selectedMode, setSelectedMode } = useMapUI();
   const [expanded, setExpanded] = useState(false);
+
+  // By default, set selectedMode to first available mode when routes change
+  useEffect(() => {
+    if (routes?.length && !selectedMode) {
+      setSelectedMode(routes[0].mode);
+    }
+  }, [routes]);
 
   if (!routes?.length) return null;
 
-  // console.log("ROUTES: ",routes);
-
   const filteredRoutes = routes.filter((route) => route.mode === selectedMode);
   const hasRoutes = filteredRoutes.length > 0;
+
+
 
   return (
     <div
@@ -926,8 +912,8 @@ export default function DirectionsPanel({
               key={key}
               onClick={() => setSelectedMode(key)}
               className={`flex flex-col items-center px-4 py-2 rounded-xl transition ${active
-                  ? "text-blue-600 font-semibold bg-blue-50 shadow-sm"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-blue-600 font-semibold bg-blue-50 shadow-sm"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <Icon size={24} className="mb-1" />
@@ -949,8 +935,8 @@ export default function DirectionsPanel({
                 onClick={() => setSelectedMode(route.mode)
                 }
                 className={`p-4 rounded-2xl cursor-pointer transition shadow-sm ${isActive
-                    ? "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-400"
-                    : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-400"
+                  : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
                   }`}
               >
                 <div className="flex justify-between items-center mb-1">
@@ -994,10 +980,10 @@ export default function DirectionsPanel({
 
 <file path="src/features/layers/ui/Layers.jsx">
 import { Layers } from "lucide-react"
-import { useSearchProvider } from "../../../providers/SearchProvider"
+import { useTransitLayer } from "../../../providers/SearchProvider"
 
 const LayersTile = () => {
-  const { showTransitLayer, setShowTransitLayer } = useSearchProvider();
+  const { showTransitLayer, setShowTransitLayer } = useTransitLayer();
 
   //need to check the function setshowtransit
   return (
@@ -1064,10 +1050,6 @@ export default function useNetworkStatus() {
             window.removeEventListener("offline", offline);
         }
     }, [])
-
-    useEffect(() => {
-        console.log("[Network] isOnline state →", isOnline);
-    }, [isOnline]);
 
     return isOnline;
 }
@@ -1286,6 +1268,12 @@ export const loadWeather = (lat, lng, maxAge) => {
 };
 </file>
 
+<file path="src/features/poi/context/POIContext.jsx">
+import { createContext } from "react";
+
+export const POIContext = createContext(null);
+</file>
+
 <file path="src/features/poi/controllers/usePOICategory.js">
 import { useState, useCallback } from "react";
 
@@ -1316,6 +1304,7 @@ export default function usePOICategory() {
 </file>
 
 <file path="src/features/poi/controllers/usePOIInteraction.js">
+import { useCallback } from "react";
 import { useMapUI } from "../../../providers/MapUIProvider";
 import { normalizePlace } from "../utils/normalizePlace";
 
@@ -1324,44 +1313,28 @@ export default function usePOIInteraction({
     clearRoutes,
     position
 }) {
+
     const { setOrigin, setDestination, setMode } = useMapUI();
-    
-    const startDirectionsWith = (place) => {
-        if (clearRoutes) clearRoutes();
+
+    const startDirectionsWith = useCallback((place) => {
+        clearRoutes?.();
 
         const destinationPlace = normalizePlace(place);
         setDestination(destinationPlace);
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const currentLocation = {
-                        name: "Current Location",
-                        address: "Your current location",
-                        location: [pos.coords.latitude, pos.coords.longitude],
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude,
-                    };
-                    setOrigin(currentLocation);
-                },
-                (err) => {
-                    console.warn("⚠️ Failed to fetch current location:", err);
-                    if (position) {
-                        setOrigin({
-                            name: "Current Location",
-                            address: "Your current location",
-                            location: position,
-                            lat: position[0],
-                            lng: position[1],
-                        });
-                    }
-                }
-            );
+        if (position) {
+            setOrigin({
+                name: "Current Location",
+                address: "Your current location",
+                location: [position.lat, position.lng],
+                lat: position.lat,
+                lng: position.lng,
+            });
         }
 
         setMode("directions");
         setSelectedPlace(null);
-    };
+    }, [clearRoutes, position, setOrigin, setDestination, setMode, setSelectedPlace])
 
     return { startDirectionsWith };
 }
@@ -1414,113 +1387,8 @@ export default function usePOISidebar(poiResults, selectedPlace) {
 </file>
 
 <file path="src/features/poi/hooks/usePOIContext.jsx">
-// Fetch nearby POIs based on the current position or selected place
-// If the user selects a place from suggestions, it will update the position and fetch POIs again
-
-// Retry fetching POIs every 5 seconds if there was an error
-// This will keep trying to fetch POIs until it succeeds
-// or the component is unmounted
-
-
-
-//state + context only
-
-import { createContext, useContext, useMemo, useState, useCallback } from 'react';
-import { usePOIController } from './usePOIController';
-import { useGeolocation } from '../../../hooks/useGeolocationContext';
-import { useDebouncedPosition } from '../../../map/controllers/useDebouncedPosition';
-import usePOICategory from '../controllers/usePOICategory';
-
-const POIContext = createContext();
-
-
-export const POIProvider = ({ children }) => {
-
-    const [poiIntent, setPoiIntent] = useState(null);
-
-    const { coords } = useGeolocation();
-
-    const position = useMemo(() => {
-        const raw = coords;
-        if (
-            raw &&
-            Array.isArray(raw) &&
-            raw.length === 2 &&
-            typeof raw[0] === "number" &&
-            typeof raw[1] === "number" &&
-            raw[0] != null &&
-            raw[1] != null
-        ) {
-            return { lat: raw[0], lng: raw[1] };
-        }
-        return null;
-    }, [coords]);
-
-    const debouncedPosition = useDebouncedPosition(position, 600);
-
-    const onPOIIntent = useCallback((intent) => {
-        if (!intent) return;
-
-        const { type, query, radius } = intent;
-
-        const poiType = (type || query)?.toLowerCase();
-
-        setPoiIntent({
-            type: poiType,
-            radius: radius || 1500
-        });
-
-        return `Showing nearby ${poiType}`;
-    }, []);
-
-    const poi = usePOIController({
-        position: debouncedPosition,
-        poiIntent
-    });
-
-    const category = usePOICategory();
-
-    const value = useMemo(() => ({
-        // Intent
-        poiIntent,
-        onPOIIntent,
-
-        // POI data
-        poiResults: poi.poiResults,
-        poiLoading: poi.loading,
-        poiError: poi.error,
-        poiType: poi.poiType,
-        setPoiType: poi.setPoiType,
-        refetchPOIs: poi.refetchPOIs,
-        clearPOIs: poi.clearPOIs,
-
-        // Category UI state
-        showMore: category.showMore,
-        onCategorySelect: category.onCategorySelect,
-        closeMore: category.closeMore,
-
-    }), [
-        poiIntent,
-        onPOIIntent,
-        poi.poiResults,
-        poi.loading,
-        poi.error,
-        poi.poiType,
-        poi.setPoiType,
-        poi.refetchPOIs,
-        poi.clearPOIs,
-        category.showMore,
-        category.onCategorySelect,
-        category.closeMore,
-
-    ])
-
-    return (
-        <POIContext.Provider value={value}>
-            {children}
-        </POIContext.Provider>
-    );
-};
+import { useContext } from "react";
+import { POIContext } from '../context/POIContext'
 
 export const usePOI = () => {
     const context = useContext(POIContext);
@@ -1592,6 +1460,8 @@ export const usePOIController = ({ position, poiIntent }) => {
     return () => clearInterval(retry);
   }, [error, loadPOIs]);
 
+  const clearPOIs = useCallback(() => setPoiResults([]),[])
+
   return {
     poiType,
     setPoiType,
@@ -1599,13 +1469,13 @@ export const usePOIController = ({ position, poiIntent }) => {
     loading,
     error,
     refetchPOIs: loadPOIs,
-    clearPOIs: () => setPoiResults([]),
+    clearPOIs
   };
 };
 </file>
 
 <file path="src/features/poi/hooks/usePOIFetcher.jsx">
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import axios from "axios";
 import useNetwork from "../../network/hooks/useNetwork";
 import { loadCache, saveCache } from "../../offline/utils/poiCache";
@@ -1658,7 +1528,9 @@ export const usePOIFetcher = () => {
       });
 
       // Fetch fresh data in background
-      fetchFreshData(cacheKey, lat, lng, type, radius).catch(console.error);
+      fetchFreshData(cacheKey, lat, lng, type, radius).catch(() => {
+        // background refresh failures are acceptable
+      });
 
       return localStorageCached;
     }
@@ -1666,7 +1538,7 @@ export const usePOIFetcher = () => {
     return await fetchFreshData(cacheKey, lat, lng, type, radius);
   }, [isOnline]);
 
-  const fetchFreshData = useCallback(async (cacheKey, lat, lng, type, radius) => {
+  const fetchFreshData = async (cacheKey, lat, lng, type, radius) => {
     // cancel previous request
     if (abortRef.current) {
       abortRef.current.abort();
@@ -1708,13 +1580,22 @@ export const usePOIFetcher = () => {
     } finally {
       abortRef.current = null;
     }
-  }, []);
+  };
 
   const cancel = useCallback(() => {
     if (abortRef.current) {
       abortRef.current.abort();
       abortRef.current = null;
     }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+    };
   }, []);
 
   // Optional: Clear cache function
@@ -1726,6 +1607,97 @@ export const usePOIFetcher = () => {
 };
 </file>
 
+<file path="src/features/poi/providers/POIProvider.jsx">
+import { useMemo, useState, useCallback } from "react";
+import { POIContext } from '../context/POIContext'
+import {usePOIController} from '../hooks/usePOIController'
+import { useDebouncedPosition } from "../../../map/controllers/useDebouncedPosition";
+import usePOICategory from "../controllers/usePOICategory";
+import { useMapUI } from "../../../providers/MapUIProvider";
+
+export const POIProvider = ({ children }) => {
+    const [poiIntent, setPoiIntent] = useState(null);
+
+    const { coords } = useMapUI();
+
+    const position = useMemo(() => {
+        const raw = coords;
+
+        if (
+            raw &&
+            Array.isArray(raw) &&
+            raw.length === 2 &&
+            typeof raw[0] === "number" &&
+            typeof raw[1] === "number"
+        ) {
+            return { lat: raw[0], lng: raw[1] };
+        }
+
+        return null;
+    }, [coords]);
+
+    const debouncedPosition = useDebouncedPosition(position, 600);
+
+    const onPOIIntent = useCallback((intent) => {
+        if (!intent) return;
+
+        const { type, query, radius } = intent;
+
+        const poiType = (type || query)?.toLowerCase();
+
+        setPoiIntent({
+            type: poiType,
+            radius: radius || 1500
+        });
+
+        return `Showing nearby ${poiType}`;
+    }, []);
+
+    const poi = usePOIController({
+        position: debouncedPosition,
+        poiIntent
+    });
+
+    const category = usePOICategory();
+
+    const value = useMemo(() => ({
+        poiIntent,
+        onPOIIntent,
+
+        poiResults: poi.poiResults,
+        poiLoading: poi.loading,
+        poiError: poi.error,
+        poiType: poi.poiType,
+        setPoiType: poi.setPoiType,
+        refetchPOIs: poi.refetchPOIs,
+        clearPOIs: poi.clearPOIs,
+
+        showMore: category.showMore,
+        onCategorySelect: category.onCategorySelect,
+        closeMore: category.closeMore,
+    }), [
+        poiIntent,
+        onPOIIntent,
+        poi.poiResults,
+        poi.loading,
+        poi.error,
+        poi.poiType,
+        poi.setPoiType,
+        poi.refetchPOIs,
+        poi.clearPOIs,
+        category.showMore,
+        category.onCategorySelect,
+        category.closeMore,
+    ]);
+
+    return (
+        <POIContext.Provider value={value}>
+            {children}
+        </POIContext.Provider>
+    );
+};
+</file>
+
 <file path="src/features/poi/ui/BottomSheet.jsx">
 import { ChevronUp, Loader2 } from "lucide-react";
 import usePOISidebar from "../controllers/usePOISidebar";
@@ -1734,18 +1706,17 @@ import { useState } from "react";
 import useNetwork from "../../network/hooks/useNetwork";
 import { loadCacheMeta } from "../../offline/utils/poiCache";
 import { lastUpdated } from "../../offline/utils/lastUpdated";
-import { useMapHover, useMapUI } from "../../../providers/MapUIProvider";
 import { usePOI } from "../hooks/usePOIContext";
-import { useGeolocation } from "../../../hooks/useGeolocationContext";
+import { useMapUI } from "../../../providers/MapUIProvider";
 
 export default function BottomSheet({
     position,
     onDirections
 }) {
 
-    const { setHoverPOIId } = useMapHover();
+
     const { poiType, poiResults, poiLoading, poiError } = usePOI();
-    const { selectedPlace, setSelectedPlace } = useGeolocation();
+    const { selectedPlace } = useMapUI();
 
     const [isExpanded, setIsExpanded] = useState(false);
     const { itemRefs, containerRef } = usePOISidebar(poiResults, selectedPlace);
@@ -1859,9 +1830,6 @@ export default function BottomSheet({
                                             ref={(el) => (itemRefs.current[poiId] = el)}
                                             poi={poi}
                                             isActive={isActive}
-                                            onMouseEnter={() => setHoverPOIId(poi.place_id)}
-                                            onMouseLeave={() => setHoverPOIId(null)}
-                                            onClick={() => setSelectedPlace(poi)}
                                             onDirections={onDirections}
                                         />
 
@@ -1879,26 +1847,41 @@ export default function BottomSheet({
 </file>
 
 <file path="src/features/poi/ui/POICard.jsx">
+import React from "react";
 import { Star, MapPin, Navigation2 } from "lucide-react";
+import { useCallback } from "react";
 import useNetwork from "../../network/hooks/useNetwork";
+import { useMapHover, useMapUI } from "../../../providers/MapUIProvider";
 
-export default function POICard({
+function POICard({
     poi,
     isActive,
-    onClick,
-    onMouseEnter,
-    onMouseLeave,
     onDirections
 }) {
 
     const isOnline = useNetwork();
 
+    const { setHoverPOIId } = useMapHover();
+    const { setSelectedPlace } = useMapUI();
+
+    const handleMouseEnter = useCallback(() => {
+        setHoverPOIId(poi.place_id);
+    }, [setHoverPOIId, poi.place_id]);
+
+    const handleMouseLeave = useCallback(() => {
+        setHoverPOIId(null);
+    }, [setHoverPOIId]);
+
+    const handleClick = useCallback(() => {
+        setSelectedPlace(poi);
+    }, [setSelectedPlace, poi]);
+
 
     return (
         <div
-            onClick={onClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            onClick={handleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             className={`
         group relative flex-shrink-0 w-full p-3 md:p-4 bg-white rounded-2xl cursor-pointer
         transition-all duration-300 border text-slate-700
@@ -1986,6 +1969,8 @@ export default function POICard({
         </div>
     );
 }
+
+export default React.memo(POICard);
 </file>
 
 <file path="src/features/poi/ui/POICategory.jsx">
@@ -2175,23 +2160,24 @@ export default POIDetails;
 </file>
 
 <file path="src/features/poi/ui/POIMarker.jsx">
-import React from 'react'
+import { memo, useMemo } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 
-const POIMarker = React.memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onClick }) => {
-    
+const POIMarker = memo(({ poiId, poi, icon, onMouseOver, onMouseOut, onClick }) => {
+    const eventHandlers = useMemo(() => ({
+        mouseover: () => onMouseOver(poiId),
+        mouseout: onMouseOut,
+        click: () => {
+            onClick(poi),
+            onMouseOver(poiId);
+        }
+    }), [poiId, poi, onMouseOver, onMouseOut, onClick]);
+
     return (
         <Marker
             position={[poi.lat, poi.lng]}
             icon={icon}
-            eventHandlers={{
-                mouseover: () => onMouseOver(poiId),
-                mouseout: () => onMouseOut(),
-                click: () => {
-                    onClick(poi),
-                    onMouseOver(poiId)
-                }
-            }}>
+            eventHandlers={eventHandlers}>
 
             <Popup className='transparent-popup'>
                 <strong>{poi.name}</strong><br />
@@ -2291,173 +2277,6 @@ const POIMore = ({ onClose, onSelect }) => {
 }
 
 export default POIMore
-</file>
-
-<file path="src/features/poi/ui/POISidebar.jsx">
-// NOT IN USE
-
-import POIDetails from './POIDetails';
-import usePOISidebar from '../controllers/usePOISidebar';
-
-const POISidebar = ({
-  poiType,
-  poiResults,
-  poiLoading,
-  poiError,
-  activePOIId,
-  setActivePOIId,
-  selectedPlace,
-  setSelectedPlace,
-  onDirections
-}) => {
-  if (!poiType) return null;
-
-  const { itemRefs, containerRef, showDivider, userClickedRef } = usePOISidebar(poiResults, selectedPlace);
-
-  if (selectedPlace) {
-    return (
-      <POIDetails
-        place={selectedPlace}
-        onBack={() => setSelectedPlace(null)}
-        onDirections={() => onDirections(selectedPlace)}
-      />
-    );
-  }
-
-  return (
-    <div
-      ref={containerRef}
-      className="absolute bottom-0 left-0 right-0 z-10 bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-t-2xl shadow-xl max-h-[35%] overflow-y-auto transition-all duration-300"
-    >
-      {/* Header */}
-      <div
-        className={`sticky top-0 bg-white/90 backdrop-blur-md p-4 transition-all duration-300 ${showDivider ? "border-b border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]" : "border-none shadow-none"
-          }`}
-      >
-        <h2 className="text-lg font-semibold text-gray-800">
-          Nearby {poiType?.charAt(0).toUpperCase() + poiType?.slice(1)}
-        </h2>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {poiLoading && <p className="text-gray-500 text-sm">Loading nearby places...</p>}
-        {poiError && !poiLoading && (
-          <p className="text-red-500 text-sm mb-2">{poiError}</p>
-        )}
-        {!poiError && !poiLoading && poiResults.length === 0 && (
-          <p className="text-gray-500 text-sm">No places found nearby.</p>
-        )}
-
-        <ul className="space-y-3">
-          {poiResults.map((place, idx) => {
-            const poiId = place.place_id || idx;
-            const isActive = activePOIId === poiId;
-
-            return (
-              <li
-                key={poiId}
-                ref={(el) => (itemRefs.current[poiId] = el)}
-                className={`flex flex-col sm:flex-row gap-3 border rounded-xl p-3 shadow-sm cursor-pointer transition-all duration-300 ${isActive
-                  ? "bg-blue-50 border-blue-400 shadow-md"
-                  : "hover:bg-gray-50"
-                  }`}
-                onMouseEnter={() => setActivePOIId(poiId)}
-                onMouseLeave={() => !selectedPlace && setActivePOIId(null)}
-                onClick={() => {
-                  userClickedRef.current = true;
-                  setSelectedPlace(place);
-                  setActivePOIId(poiId);
-                }}
-              >
-                {/* Image */}
-                {place.photos?.length > 0 ? (
-                  <img
-                    key={idx}
-                    src={`${import.meta.env.VITE_BASE_URL}/api/place-photo?photoRef=${place.photos[0].photo_reference}`}
-                    alt={place.name}
-                    loading="lazy"
-                    onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
-                    className="w-24 h-24 object-cover rounded-lg border transition-opacity duration-700 ease-in-out"
-                  />
-                ) : (
-                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-lg text-xs text-gray-500">
-                    No Image
-                  </div>
-                )}
-
-                {/* Info */}
-                {place.user_ratings_total !== 'NA' && (<div className="flex flex-col justify-between flex-1">
-                  <div>
-                    <p className="text-base font-semibold text-gray-800 truncate">
-                      {place.name}
-                    </p>
-
-                    <div className="flex items-center flex-wrap gap-2 text-xs mt-1 text-gray-600">
-                      {place.rating && (
-                        <span className="font-medium">{place.rating} ⭐</span>
-                      )}
-                      {place.user_ratings_total && (
-                        <span>({place.user_ratings_total})</span>
-                      )}
-                      <span
-                        className={`font-semibold ${place.opening_hours === true
-                            ? "text-green-600"
-                            : place.opening_hours === false
-                              ? "text-red-500"
-                              : "text-gray-500"
-                          }`}
-                      >
-                        {place.opening_hours === true
-                          ? "Open"
-                          : place.opening_hours === false
-                            ? "Closed"
-                            : "Unknown"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDirections(place);
-                      }}
-                      className="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition"
-                    >
-                      Directions
-                    </button>
-                    {place.website && (
-                      <a
-                        href={place.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded-full hover:bg-purple-100 transition"
-                      >
-                        Website
-                      </a>
-                    )}
-                    {place.formatted_phone_number && (
-                      <a
-                        href={`tel:${place.formatted_phone_number}`}
-                        className="px-2 py-1 text-xs font-medium text-green-600 bg-green-50 rounded-full hover:bg-green-100 transition"
-                      >
-                        Call
-                      </a>
-                    )}
-                  </div>
-                </div>)}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-export default POISidebar;
 </file>
 
 <file path="src/features/poi/ui/Sidebar.jsx">
@@ -2622,14 +2441,11 @@ export const normalizePlace = (place) => {
         lng = typeof place.geometry.location.lng === "function"
             ? place.geometry.location.lng()
             : place.geometry.location.lng;
-        console.log("🌍 geometry.location detected:", lat, lng);
     } else if (Array.isArray(place.location)) {
         [lat, lng] = place.location;
-        console.log("📦 array location detected:", lat, lng);
     } else if (place.lat !== undefined && place.lng !== undefined) {
         lat = place.lat;
         lng = place.lng;
-        console.log("📍 direct lat/lng detected:", lat, lng);
     } 
 
     if (lat == null || lng == null) return null;
@@ -2707,7 +2523,7 @@ export default function useSearchController({ externalQuery, onExternalQueryChan
         cacheRef.current.set(key, data);
         setResults(data);
         return data;
-    }, [])
+    }, [isOnline])
 
     // Debounced search
     useEffect(() => {
@@ -2759,25 +2575,6 @@ export default function useSearchController({ externalQuery, onExternalQueryChan
 }
 </file>
 
-<file path="src/features/search/hooks/useCurrentLocation.js">
-export function useCurrentLocation() {
-  const getCurrentLocation = () =>
-    new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation not supported"));
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (pos) => resolve([pos.coords.latitude, pos.coords.longitude]),
-        reject
-      );
-    });
-
-  return { getCurrentLocation };
-}
-</file>
-
 <file path="src/features/search/hooks/useSearchSelection.js">
 import { useEffect } from "react";
 import { useMapUI } from "../../../providers/MapUIProvider";
@@ -2822,11 +2619,11 @@ export function useSearchSelection({
 import { useImperativeHandle, forwardRef } from 'react';
 import { Search } from 'lucide-react';
 import useSearch from '../controllers/useSearch'
-import { useSearchProvider } from '../../../providers/SearchProvider';
+import { useSearchQuery } from '../../../providers/SearchProvider';
 
 const SearchBar = forwardRef(({ setPosition, setSelectedPlace, isOnline }, ref) => {
 
-    const { query, setQuery } = useSearchProvider();
+    const { query, setQuery } = useSearchQuery();
     const controller = useSearch({
         externalQuery: query,
         onExternalQueryChange: setQuery,
@@ -3165,39 +2962,76 @@ export default AQIIndicator
 </file>
 
 <file path="src/features/weather/controllers/useWeather.jsx">
-import { useEffect, useRef } from "react";
-import { useWeatherFetch } from "../hooks/useWeatherFetch";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { fetchWeatherData } from "../service/fetchWeatherData";
+import useNetwork from "../../network/hooks/useNetwork";
 
 export const useWeather = ({ position }) => {
-    const { weather, loading, error, fetchWeather } = useWeatherFetch();
+    const [weather, setWeather] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const abortRef = useRef(null);
+    const isOnline = useNetwork();
+
+    const cacheRef = useRef(new Map());
     const retryTimerRef = useRef(null);
 
-    // 🔁 Fetch on position change
+    const loadWeather = useCallback(async (signal) => {
+        if (!position?.lat || !position?.lng) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const data = await fetchWeatherData({
+                lat: position.lat,
+                lon: position.lng,
+                signal,
+                isOnline,
+                cacheRef
+            });
+
+            setWeather(data);
+        } catch (err) {
+            if (
+                err.name === "CanceledError" ||
+                err.name === "AbortError"
+            ) {
+                return;
+            }
+
+            setError(err);
+            setWeather(null);
+        } finally {
+            setLoading(false);
+        }
+    }, [position, isOnline]);
+
+
+    // Fetch on position change
+
     useEffect(() => {
         if (!position?.lat || !position?.lng) return;
 
-        abortRef.current?.abort();
-        
         const controller = new AbortController();
-        abortRef.current = controller;
 
-        fetchWeather(position.lat, position.lng, controller.signal);
+        loadWeather(controller.signal);
 
-        return () => controller.abort();
-    }, [position, fetchWeather]);
+        return () => {
+            controller.abort();
+        };
+    }, [position, loadWeather]);
 
-    // 🔁 Retry on error
+
+    // Retry on error
+
     useEffect(() => {
         if (!error || !position) return;
 
         retryTimerRef.current = window.setInterval(() => {
-            abortRef.current?.abort();
-
             const controller = new AbortController();
-            abortRef.current = controller;
-            fetchWeather(position.lat, position.lng, controller.signal);
+
+            loadWeather(controller.signal);
         }, 15000);
 
         return () => {
@@ -3205,12 +3039,12 @@ export const useWeather = ({ position }) => {
                 clearInterval(retryTimerRef.current);
             }
         };
-    }, [error, position, fetchWeather]);
+    }, [error, position, loadWeather]);
 
-    // Global unmount cleanup 
+    // Cleanup on unmount
+
     useEffect(() => {
         return () => {
-            abortRef.current?.abort();
             if (retryTimerRef.current) {
                 clearInterval(retryTimerRef.current);
             }
@@ -3225,89 +3059,59 @@ export const useWeather = ({ position }) => {
 };
 </file>
 
-<file path="src/features/weather/hooks/useWeatherFetch.jsx">
-import { useState, useRef, useCallback } from "react";
+<file path="src/features/weather/service/fetchWeatherData.js">
 import axios from "axios";
-import useNetwork from "../../network/hooks/useNetwork";
 import { loadWeather, saveWeather } from "../../offline/utils/weatherCache";
 
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
-export const useWeatherFetch = () => {
-  const [weather, setWeather] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export async function fetchWeatherData({
+    lat,
+    lon,
+    signal,
+    isOnline,
+    cacheRef
+}) {
+    if (!lat || !lon) return;
 
-  const isOnline = useNetwork();
-
-  const cacheRef = useRef(new Map());
-
-  const fetchWeather = useCallback(
-    async (lat, lon, signal) => {
-      if (!lat || !lon) return;
-
-      if (!isOnline) {
+    if (!isOnline) {
         const cached = loadWeather(lat, lon, CACHE_TTL);
 
-        if (cached) {
-          setWeather(cached.data);
-        } else {
-          setWeather(null);
-        }
-        setLoading(false);
-        return;
-      }
+        return cached?.data || null;
+    }
 
-      const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
-      const now = Date.now();
+    const key = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+    const now = Date.now();
 
-      // Serve from cache
-      const cached = cacheRef.current.get(key);
-      if (cached && now - cached.timestamp < CACHE_TTL) {
-        setWeather(cached.data);
-        return;
-      }
+    // Serve from cache
+    const cached = cacheRef.current.get(key);
+    if (cached && now - cached.timestamp < CACHE_TTL) {
+        return cached.data;
+    }
 
-      setLoading(true);
-      setError(null);
 
-      try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/weather`,
-          {
+
+    const { data } = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/weather`,
+        {
             params: { lat, lon },
             signal
-          }
-        );
+        }
+    );
 
-        if (data?.weather !== undefined) {
-          setWeather(data.weather);
+    if (data?.weather !== undefined) {
 
-          cacheRef.current.set(key, {
+        cacheRef.current.set(key, {
             data: data.weather,
             timestamp: now
-          });
+        });
 
-          saveWeather(lat, lon, data.weather);
-        } else {
-          throw new Error("Invalid weather data");
-        }
-      } catch (err) {
-        if (err.name === "CanceledError") return;
-        setError(err);
-        setWeather(null);
-      } finally {
-        setLoading(false);
-      }
-    }, [isOnline]);
-
-  return {
-    weather,
-    loading,
-    error,
-    fetchWeather
-  };
-};
+        saveWeather(lat, lon, data.weather);
+        return data.weather
+    } else {
+        throw new Error("Invalid weather data");
+    }
+}
 </file>
 
 <file path="src/features/weather/ui/Card.jsx">
@@ -3618,7 +3422,7 @@ export const useAutocompleteSearch = (initialPlace = null) => {
 </file>
 
 <file path="src/hooks/useFetchPlaces.jsx">
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useNetwork from "../features/network/hooks/useNetwork";
 import axios from "axios";
 
@@ -3641,17 +3445,25 @@ export async function fetchPlaces(query, signal) {
 
 const DEBOUNCE_DELAY = 300;
 
-export const useFetchPlaces = (inputVal, justSelectedRef) => {
+export const useFetchPlaces = (inputVal) => {
     const [results, setResults] = useState([]);
+    const suppressRef = useRef(false);
+
     const isOnline = useNetwork();
+
+    const suppressNextFetch = () => {
+        suppressRef.current = true;
+    };
 
     useEffect(() => {
         if (!isOnline) {
             setResults([]);
             return;
         }
-        if (justSelectedRef?.current) {
-            justSelectedRef.current = false;
+
+        // skip ONE fetch after programmatic update
+        if (suppressRef.current) {
+            suppressRef.current = false;
             return;
         }
 
@@ -3675,9 +3487,12 @@ export const useFetchPlaces = (inputVal, justSelectedRef) => {
             clearTimeout(handler);
             controller.abort();
         };
-    }, [inputVal, justSelectedRef, isOnline]);
+    }, [inputVal, isOnline]);
 
-    return results;
+    return {
+        results,
+        suppressNextFetch
+    };
 }
 </file>
 
@@ -3702,13 +3517,8 @@ export const GeolocationProvider = ({ children }) => {
         const cached = loadLocation();
         return cached ? [cached.lat, cached.lng] : [28.6139, 77.2090];
     });
-    const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
-    const [error, setError] = useState(null);
 
-    // If a place is selected, return its coordinates; otherwise, return current position
-    const coords = useMemo(() => {
-        return selectedPlace ? [selectedPlace.lat, selectedPlace.lng] : position;
-    },[selectedPlace, position])
+    const [error, setError] = useState(null);
 
     // For the initial render, try to get the user's current location
     useEffect(() => {
@@ -3718,14 +3528,7 @@ export const GeolocationProvider = ({ children }) => {
         }
 
         // If offline, use cached location and don't attempt geolocation
-        if (!isOnline) {
-            const cached = loadLocation();
-            if (cached) {
-                console.log("📴 OFFLINE: Using cached location");
-                setPosition([cached.lat, cached.lng]);
-            }
-            return;
-        }
+        if (isOnline) return; 
 
         navigator.geolocation.getCurrentPosition(
             (pos) => {
@@ -3761,12 +3564,9 @@ export const GeolocationProvider = ({ children }) => {
     const value = useMemo(() => ({
         position,
         setPosition,
-        selectedPlace,
-        setSelectedPlace,
-        coords,
         error,
         setError,
-    }), [position, selectedPlace, error, coords])
+    }), [position, error])
 
     return (
         <GeolocationContext.Provider value={value}>
@@ -3835,6 +3635,7 @@ export const usePlacesSearch = (query) => {
 </file>
 
 <file path="src/map/components/mapControls/controllers/useMapControlsLogic.js">
+import { useCallback } from "react";
 import { useSearchSelection } from "../../../../features/search/hooks/useSearchSelection";
 
 export const useMapControlsLogic = ({
@@ -3849,6 +3650,8 @@ export const useMapControlsLogic = ({
     setMode
 }) => {
 
+    const clearSelection = useCallback(() => setSelectedPlace(null), [setSelectedPlace]);
+
     useSearchSelection({
         selectedPlace,
         mode,
@@ -3857,7 +3660,7 @@ export const useMapControlsLogic = ({
         setOrigin,
         setDestination,
         setActiveField,
-        clearSelection: () => setSelectedPlace(null)
+        clearSelection
     });
 };
 </file>
@@ -3866,6 +3669,7 @@ export const useMapControlsLogic = ({
 // Component to manage map controls for searching locations and getting directions
 
 import "leaflet/dist/leaflet.css";
+import { memo, useCallback } from "react";
 import SearchControls from "../../../controls/searchControls/ui/Container";
 import DirectionControls from '../../../controls/directionControls/ui/Container'
 import POICategory from "../../../../features/poi/ui/POICategory";
@@ -3874,7 +3678,7 @@ import { useSearchSelection } from "../../../../features/search/hooks/useSearchS
 import { useMapUI } from "../../../../providers/MapUIProvider";
 import { usePOI } from "../../../../features/poi/hooks/usePOIContext";
 
-const MapControls = ({
+const MapControls = memo(({
     setPosition,
     selectedPlace,
     setSelectedPlace,
@@ -3890,10 +3694,12 @@ const MapControls = ({
     const { mode } = useMapUI();
     const { poiType, showMore, closeMore } = usePOI();
 
+    const clearSelection = useCallback(() => setSelectedPlace(null),[setSelectedPlace]);
+
     useSearchSelection({
         selectedPlace,
         setPosition,
-        clearSelection: () => setSelectedPlace(null)
+        clearSelection
     })
 
     return (
@@ -3938,14 +3744,14 @@ const MapControls = ({
             </div>
         </>
     )
-}
+})
 
 export default MapControls
 </file>
 
 <file path="src/map/components/mapRenderer/controllers/useMapRendererLogic.js">
 import { useMemo } from "react";
-import { useMapHover, useMapUI } from "../../../../providers/MapUIProvider";
+import { useMapHover } from "../../../../providers/MapUIProvider";
 import {
     transitIcon, poiIcon,
     highlightedPoiIcon
@@ -3955,13 +3761,10 @@ export const useMapRendererLogic = ({
     poiResults,
     poiType,
     selectedPlace,
-    position
+    position,
+    origin,
+    destination
 }) => {
-
-    const {
-        origin,
-        destination,
-    } = useMapUI();
 
     const { hoverPOIId } = useMapHover();
 
@@ -4041,30 +3844,32 @@ import MarkerClusterGroup from 'react-leaflet-cluster';
 import { createClusterCustomIcon } from '../../../icons/CustomClusterIcon';
 import { useMapRendererLogic } from '../controllers/useMapRendererLogic';
 import { useMapHover, useMapUI } from '../../../../providers/MapUIProvider';
-import { useSearchProvider } from '../../../../providers/SearchProvider';
+import { useTransitLayer } from '../../../../providers/SearchProvider';
+import { useGeolocation } from '../../../../hooks/useGeolocationContext';
 
 const MapRenderer = ({
     mapRef,
-    position,
-    selectedPlace,
     poiResults,
-    setSelectedPlace,
     poiType,
     tileUrl,
     routes
 }) => {
+
+    const { position } = useGeolocation();
 
     const {
         mode,
         selectedMode,
         origin,
         destination,
-        setSelectedMode
+        setSelectedMode,
+        selectedPlace,
+        setSelectedPlace
     } = useMapUI();
 
     const { setHoverPOIId } = useMapHover();
 
-    const { showTransitLayer } = useSearchProvider();
+    const { showTransitLayer } = useTransitLayer();
 
     const {
         memoizedPOIMarkers,
@@ -4075,7 +3880,9 @@ const MapRenderer = ({
         poiResults,
         poiType,
         selectedPlace,
-        position
+        position,
+        origin,
+        destination
     });
 
     return (
@@ -4209,11 +4016,12 @@ import { useAQI } from "../../features/weather/aqi/controllers/useAQI";
 import { useWeather } from "../../features/weather/controllers/useWeather";
 import { useMemo } from "react";
 import { useDebouncedPosition } from "./useDebouncedPosition";
+import { useMapUI } from "../../providers/MapUIProvider";
 
 
 export const useMapDataController = () => {
-    const geolocation = useGeolocation();
-    const { coords } = geolocation;
+    const { coords, selectedPlace, setSelectedPlace } = useMapUI();
+    const { setPosition } = useGeolocation();
 
     // | Check                                                                  | What it's doing                                     | Why it's needed                    |
     // | ---------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------- |
@@ -4261,9 +4069,9 @@ export const useMapDataController = () => {
         /* ---------------- Location ---------------- */
         position,
         fetchPosition: debouncedPosition,
-        setPosition: geolocation.setPosition,
-        selectedPlace: geolocation.selectedPlace,
-        setSelectedPlace: geolocation.setSelectedPlace,
+        setPosition,
+        selectedPlace,
+        setSelectedPlace,
 
         /* ---------------- ENV RENDER GATE ---------------- */
         canRenderEnv,
@@ -4285,19 +4093,20 @@ export const useMapDataController = () => {
 </file>
 
 <file path="src/map/controls/directionControls/hooks/useDirectionControlsLogic.js">
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  useImperativeHandle
-} from "react";
-import { useMapUI } from "../../../../providers/MapUIProvider";
-import { fetchPlaces, useFetchPlaces } from "../../../../hooks/useFetchPlaces";
-import { normalizePlace } from "../../../../features/poi/utils/normalizePlace";
-import { useSearchProvider } from "../../../../providers/SearchProvider";
+import { useRef } from "react";
 
-export const useDirectionControlsLogic = (props, ref) => {
+import { useMapUI } from "../../../../providers/MapUIProvider";
+import { useSearchQuery } from "../../../../providers/SearchProvider";
+
+import { useDirectionInputs } from "./useDirectionInputs";
+import { useDirectionSelections } from "./useDirectionSelections";
+import { useDirectionRouting } from "./useDirectionRouting";
+import { useDirectionImperative } from "./useDirectionImperative";
+
+export const useDirectionControlsLogic = (
+  props,
+  ref
+) => {
   const {
     setPosition,
     setSelectedPlace,
@@ -4316,205 +4125,403 @@ export const useDirectionControlsLogic = (props, ref) => {
     setActiveField
   } = useMapUI();
 
-  const { setQuery } = useSearchProvider();
+  const { setQuery } = useSearchQuery();
 
-  // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
-  // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED
-  // THUS AVOIDING UNWANTED API CALLS WHEN USER IS TYPING
-  const [originInput, setOriginInput] = useState(origin?.name || "");
-  const [destinationInput, setDestinationInput] = useState(destination?.name || "");
+  /*
+   * Temporary placeholders
+   * so selections hook can access them.
+   */
+  const inputRefs = useRef({});
 
-  const justSelectedOrigin = useRef(false);
-  const justSelectedDestination = useRef(false);
+  // SELECTIONS
+  const selections = useDirectionSelections({
+    origin,
+    destination,
 
-  const originResults = useFetchPlaces(originInput, justSelectedOrigin);
-  const destinationResults = useFetchPlaces(destinationInput, justSelectedDestination);
+    setOrigin,
+    setDestination,
 
-  const handleOriginEnter = async () => {
-    const results = await fetchPlaces(originInput);
-    if (results.length > 0) selectOrigin(results[0]);
+    setOriginInput: (...args) =>
+      inputRefs.current.setOriginInput?.(...args),
+
+    setDestinationInput: (...args) =>
+      inputRefs.current.setDestinationInput?.(...args),
+
+    suppressOriginFetch: (...args) =>
+      inputRefs.current.suppressOriginFetch?.(...args),
+
+    suppressDestinationFetch: (...args) =>
+      inputRefs.current.suppressDestinationFetch?.(...args),
+
+    setMode,
+    setActiveField,
+    setSelectedPlace,
+    clearRoutes
+  });
+
+  // INPUTS
+  const inputs = useDirectionInputs({
+    origin,
+    destination,
+    selectOrigin: selections.selectOrigin,
+    selectDestination: selections.selectDestination
+  });
+
+  // CONNECT INPUT REFS
+  inputRefs.current = {
+    setOriginInput: inputs.setOriginInput,
+    setDestinationInput: inputs.setDestinationInput,
+    suppressOriginFetch: inputs.suppressOriginFetch,
+    suppressDestinationFetch:
+      inputs.suppressDestinationFetch
   };
 
-  const handleDestinationEnter = async () => {
-    const results = await fetchPlaces(destinationInput);
-    if (results.length > 0) selectDestination(results[0]);
-  };
+  // ROUTING EFFECT
+  const routing = useDirectionRouting({
+    origin,
+    destination,
+    getDirections
+  });
 
+  // IMPERATIVE API
+  useDirectionImperative({
+    ref,
 
-  // Sync originInput when origin prop changes externally
-  useEffect(() => {
-    if (origin) {
-      setOriginInput(origin.address || origin.name || "");
-    }
-  }, [origin]);
+    origin,
+    destination,
 
-  // Sync destinationInput when destination prop changes externally
-  useEffect(() => {
-    if (destination) {
-      setDestinationInput(destination.address || destination.name || "");
-    }
-  }, [destination]);
+    setMode,
 
-  // 🔹 Selection handlers
-  const selectOrigin = (place) => {
-    clearRoutes?.();
-    const normalized = normalizePlace(place);
-    if (!normalized) return;
+    setPosition,
+    setSelectedPlace,
 
-    setOrigin(normalized);
-    setOriginInput(normalized.address || normalized.name);
-    setActiveField(null);
-    justSelectedOrigin.current = true;
-  };
+    setQuery,
 
-  const selectDestination = (place) => {
-    clearRoutes?.();
-    const normalized = normalizePlace(place);
-    if (!normalized) return;
+    getDirections,
 
-    setDestination(normalized);
-    setDestinationInput(normalized.address || normalized.name);
-    setActiveField(null);
-    justSelectedDestination.current = true;
-  };
+    selectOrigin: selections.selectOrigin,
+    selectDestination:
+      selections.selectDestination,
 
-  // --- 3️⃣ ROUTE REQUEST ON CONFIRMED STATE ---
-  const canRequestRoute = useMemo(
-    () => Boolean(origin?.location && destination?.location),
-    [origin, destination]
-  );
-
-  useEffect(() => {
-    if (!canRequestRoute) return;
-    getDirections(origin.location, destination.location);
-  }, [canRequestRoute, origin, destination, getDirections]);
-
-
-  const swapEnds = () => {
-    setOrigin(destination);
-    setDestination(origin);
-    setOriginInput(destination?.name || "");
-    setDestinationInput(origin?.name || "");
-
-    // Set flags to prevent search after swap
-    justSelectedOrigin.current = true;
-    justSelectedDestination.current = true;
-  };
-
-  // 🔹 Clear
-  const clearAll = () => {
-    clearRoutes?.();
-    setMode("search");
-    setActiveField(null);
-    setOrigin(null);
-    setDestination(null);
-    setOriginInput("");
-    setDestinationInput("");
-    setSelectedPlace(null);
-  };
-
-  // 🔹 Imperative API (chatbot / parent)
-  useImperativeHandle(ref, () => ({
-    ready: true,
-
-    searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
-      // fromchatbotRef.current = true;
-      if (!query && fallbackCurrentLocation) {
-        const pos = fallbackCurrentLocation; // [lat, lng]
-        const fakePlace = {
-          name: "Current Location",
-          address: "Current Location",
-          lat: pos[0],
-          lng: pos[1],
-          place_id: "current_location"
-        };
-        selectOrigin(fakePlace);
-        return true;
-      }
-      const results = await fetchPlaces(query);
-      if (results.length > 0) {
-        selectOrigin(results[0]);
-        return true;
-      }
-      return false;
-    },
-
-    searchAndSetDestination: async (query) => {
-      // fromchatbotRef.current = true;
-      const results = await fetchPlaces(query);
-
-      if (results.length > 0) {
-        selectDestination(results[0]);
-        return true;
-      }
-      return false;
-    },
-
-    calculateDirections: async () => {
-      if (origin?.location && destination?.location) {
-        await getDirections(origin.location, destination.location, "driving");
-      }
-    },
-
-    // switch MapView to directions mode
-    switchToDirectionsMode: () => setMode?.("directions"),
-
-    switchToSearchMode: clearAll,
-
-    searchLocation: async (location) => {
-      try {
-        const results = await fetchPlaces(location);
-        console.log("RESULT: ", results);
-
-        if (results.length === 0) return false;
-
-        const place = results[0];
-        setSelectedPlace(place);
-        setPosition([place.lat, place.lng]);
-
-        if (setQuery) setQuery(place.address);
-
-        return true;
-      } catch (err) {
-        console.error("Failed to search and select:", err);
-        return false;
-      }
-
-    }
-  }));
+    clearAll: selections.clearAll
+  });
 
   return {
     // state
-    originInput,
-    destinationInput,
-    originResults,
-    destinationResults,
-    canRequestRoute,
+    originInput: inputs.originInput,
+    destinationInput:
+      inputs.destinationInput,
+
+    originResults: inputs.originResults,
+    destinationResults:
+      inputs.destinationResults,
+
+    canRequestRoute:
+      routing.canRequestRoute,
+
     loading,
     error,
 
     // setters
-    setOriginInput,
-    setDestinationInput,
+    setOriginInput:
+      inputs.setOriginInput,
+
+    setDestinationInput:
+      inputs.setDestinationInput,
 
     // handlers
-    selectOrigin,
-    selectDestination,
-    swapEnds,
-    clearAll,
-    handleOriginEnter,
-    handleDestinationEnter
+    selectOrigin:
+      selections.selectOrigin,
+
+    selectDestination:
+      selections.selectDestination,
+
+    swapEnds: selections.swapEnds,
+
+    clearAll: selections.clearAll,
+
+    handleOriginEnter:
+      inputs.handleOriginEnter,
+
+    handleDestinationEnter:
+      inputs.handleDestinationEnter
   };
 };
+</file>
+
+<file path="src/map/controls/directionControls/hooks/useDirectionImperative.js">
+import { useImperativeHandle } from "react";
+import { fetchPlaces } from "../../../../hooks/useFetchPlaces";
+
+export const useDirectionImperative = ({
+    ref,
+    origin,
+    destination,
+    setMode,
+    setPosition,
+    setSelectedPlace,
+    setQuery,
+    getDirections,
+    selectOrigin,
+    selectDestination,
+    clearAll
+}) => {
+    
+
+    // Imperative API (chatbot / parent)
+    useImperativeHandle(ref, () => ({
+        ready: true,
+
+        searchAndSetOrigin: async (query, fallbackCurrentLocation) => {
+            if (!query && fallbackCurrentLocation) {
+                const pos = fallbackCurrentLocation; // [lat, lng]
+                const fakePlace = {
+                    name: "Current Location",
+                    address: "Current Location",
+                    lat: pos[0],
+                    lng: pos[1],
+                    place_id: "current_location"
+                };
+                selectOrigin(fakePlace);
+                return true;
+            }
+            const results = await fetchPlaces(query);
+            if (results.length > 0) {
+                selectOrigin(results[0]);
+                return true;
+            }
+            return false;
+        },
+
+        searchAndSetDestination: async (query) => {
+            const results = await fetchPlaces(query);
+
+            if (results.length > 0) {
+                selectDestination(results[0]);
+                return true;
+            }
+            return false;
+        },
+
+        calculateDirections: async () => {
+            if (origin?.location && destination?.location) {
+                await getDirections(origin.location, destination.location, "driving");
+            }
+        },
+
+        // switch MapView to directions mode
+        switchToDirectionsMode: () => setMode?.("directions"),
+
+        switchToSearchMode: clearAll,
+
+        searchLocation: async (location) => {
+            try {
+                const results = await fetchPlaces(location);
+
+                if (results.length === 0) return false;
+
+                const place = results[0];
+                setSelectedPlace(place);
+                setPosition([place.lat, place.lng]);
+
+                if (setQuery) setQuery(place.address);
+
+                return true;
+            } catch (err) {
+                console.error("Failed to search and select:", err);
+                return false;
+            }
+
+        }
+    }));
+
+}
+</file>
+
+<file path="src/map/controls/directionControls/hooks/useDirectionInputs.js">
+import { useState, useEffect } from "react";
+import { fetchPlaces, useFetchPlaces } from "../../../../hooks/useFetchPlaces";
+
+export const useDirectionInputs = ({
+    origin,
+    destination,
+    selectOrigin,
+    selectDestination
+}) => {
+    
+
+    // BUFFER STATES TO SHOW TYPED INPUT IN THE BOXES
+    // WITHOUT AFFECTING THE ACTUAL ORIGIN/DESTINATION UNTIL SELECTED
+    // THUS AVOIDING UNWANTED API CALLS WHEN USER IS TYPING
+    const [originInput, setOriginInput] = useState(origin?.name || "");
+    const [destinationInput, setDestinationInput] = useState(destination?.name || "");
+
+    const {
+        results: originResults,
+        suppressNextFetch: suppressOriginFetch
+    } = useFetchPlaces(originInput);
+
+    const {
+        results: destinationResults,
+        suppressNextFetch: suppressDestinationFetch
+    } = useFetchPlaces(destinationInput);
+
+    // Sync originInput when origin prop changes externally
+    useEffect(() => {
+        if (origin) {
+            setOriginInput(origin.address || origin.name || "");
+        }
+    }, [origin]);
+
+    // Sync destinationInput when destination prop changes externally
+    useEffect(() => {
+        if (destination) {
+            setDestinationInput(destination.address || destination.name || "");
+        }
+    }, [destination]);
+
+    const handleOriginEnter = async () => {
+        const results = await fetchPlaces(originInput);
+        if (results.length > 0) selectOrigin(results[0]);
+    };
+
+    const handleDestinationEnter = async () => {
+        const results = await fetchPlaces(destinationInput);
+        if (results.length > 0) selectDestination(results[0]);
+    };
+
+    return {
+        //state
+        originInput,
+        destinationInput,
+
+        //setters
+        setOriginInput,
+        setDestinationInput,
+
+        //sutocomplete
+        originResults,
+        destinationResults,
+
+        //suppressors
+        suppressOriginFetch,
+        suppressDestinationFetch,
+
+        //handlers
+        handleOriginEnter,
+        handleDestinationEnter
+    }
+
+}
+</file>
+
+<file path="src/map/controls/directionControls/hooks/useDirectionRouting.js">
+import { useMemo, useEffect } from "react";
+
+export const useDirectionRouting = ({
+    origin,
+    destination,
+    getDirections
+}) => {
+    // --- ROUTE REQUEST ON CONFIRMED STATE ---
+    const canRequestRoute = useMemo(
+        () => Boolean(origin?.location && destination?.location),
+        [origin, destination]
+    );
+
+    useEffect(() => {
+        if (!canRequestRoute) return;
+        getDirections(origin.location, destination.location);
+    }, [canRequestRoute, origin, destination, getDirections]);
+
+    return {
+        canRequestRoute
+    }
+}
+</file>
+
+<file path="src/map/controls/directionControls/hooks/useDirectionSelections.js">
+import {normalizePlace} from '../../../../features/poi/utils/normalizePlace'
+
+export const useDirectionSelections = ({
+    origin,
+    destination,
+    setOrigin,
+    setDestination,
+    setOriginInput,
+    setDestinationInput,
+    suppressOriginFetch,
+    suppressDestinationFetch,
+    setMode,
+    setActiveField,
+    setSelectedPlace,
+    clearRoutes
+}) => {
+
+    // Selection handlers
+    const selectOrigin = (place) => {
+        clearRoutes?.();
+        const normalized = normalizePlace(place);
+        if (!normalized) return;
+
+        setOrigin(normalized);
+        setOriginInput(normalized.address || normalized.name);
+        setActiveField(null);
+        suppressOriginFetch();
+    };
+
+    const selectDestination = (place) => {
+        clearRoutes?.();
+        const normalized = normalizePlace(place);
+        if (!normalized) return;
+
+        setDestination(normalized);
+        setDestinationInput(normalized.address || normalized.name);
+        setActiveField(null);
+        suppressDestinationFetch();
+    };
+
+    const swapEnds = async () => {
+        setOrigin(destination);
+        setDestination(origin);
+        setOriginInput(destination?.name || "");
+        setDestinationInput(origin?.name || "");
+
+        // Set flags to prevent search after swap
+        suppressOriginFetch();
+        suppressDestinationFetch();
+    };
+
+
+    // Clear
+    const clearAll = () => {
+        clearRoutes?.();
+        setMode("search");
+        setActiveField(null);
+        setOrigin(null);
+        setDestination(null);
+        setOriginInput("");
+        setDestinationInput("");
+        setSelectedPlace(null);
+    };
+
+    return {
+        selectOrigin,
+        selectDestination,
+        swapEnds,
+        clearAll
+    }
+
+}
 </file>
 
 <file path="src/map/controls/directionControls/ui/Container.jsx">
 import DirectionControls from "./DirectionControls";
 import { useDirectionControlsLogic } from "../hooks/useDirectionControlsLogic";
-import { useSearchProvider } from "../../../../providers/SearchProvider";
+import { useSearchRefs } from "../../../../providers/SearchProvider";
 
 const Container = ((props, _externalRef) => {
-  const { directionsRef } = useSearchProvider();
+  const { directionsRef } = useSearchRefs();
   const logic = useDirectionControlsLogic(props, directionsRef);
   
   return <DirectionControls {...props} {...logic} />;
@@ -4548,6 +4555,7 @@ const DirectionControls = ({
     activeField,
     setActiveField
   } = useMapUI();
+
 
   return (
     <>
@@ -4715,7 +4723,7 @@ import SearchBar from "../../../../features/search/ui/SearchBar"
 import "leaflet/dist/leaflet.css"
 import LayersTile from "../../../../features/layers/ui/Layers"
 import Report from "../../../../features/report/ui/Report"
-import { useSearchProvider } from "../../../../providers/SearchProvider"
+import { useSearchRefs } from "../../../../providers/SearchProvider"
 
 
 const SearchControls = ({
@@ -4724,7 +4732,7 @@ const SearchControls = ({
   isOnline,
 }) => {
 
-  const { searchRef } = useSearchProvider();
+  const { searchRef } = useSearchRefs();
 
   return (
     <>
@@ -4894,15 +4902,14 @@ import MapRenderer from '../map/components/mapRenderer/ui/MapRenderer'
 
 // Controllers
 import { useMapUI } from '../providers/MapUIProvider';
-import { useDirectionsController } from '../features/directions/controllers/useDirectionsController';
 import { useMapDataController } from './controllers/useMapDataController';
 
 // UI
 import { ResponsiveWeatherWidget } from '../features/weather/ui/ResponsiveWeatherWidget';
 import Sidebar from '../features/poi/ui/Sidebar';
-import { useSearchProvider } from '../providers/SearchProvider';
 import { usePOI } from '../features/poi/hooks/usePOIContext';
 import useNetwork from '../features/network/hooks/useNetwork';
+import { useDirectionsContext } from '../features/directions/context/useDirectionsContext';
 
 // Lazy 
 const BottomSheet = lazy(() => import('../features/poi/ui/BottomSheet'));
@@ -4931,13 +4938,15 @@ const DirectionsPanelFallback = () => (
     </div>
 );
 
+// USING WITH A PROXY SERVER
+const TILE_URL = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
+
 
 const MapView = () => {
     const mapRef = useRef(null); // Using same map instance
 
     const isOnline = useNetwork();
     const { mode } = useMapUI();
-    const { showTransitLayer } = useSearchProvider();
 
     const {
         poiResults,
@@ -4957,23 +4966,28 @@ const MapView = () => {
         envError
     } = useMapDataController();
 
-    const directions = useDirectionsController();
+    const {
+        routes,
+        getDirections,
+        loading: dirLoading,
+        error: dirError,
+        clearRoutes
+    } = useDirectionsContext();
 
-    const poiInteraction = usePOIInteraction({
+    const { startDirectionsWith } = usePOIInteraction({
         setSelectedPlace,
-        clearRoutes: directions.clearRoutes,
+        clearRoutes,
         position
     });
-
-    // USING WITH A PROXY SERVER
-    const tileUrl = `${import.meta.env.VITE_BASE_URL}/api/tiles/{z}/{x}/{y}`;
 
     const handleCategorySelect = useCallback((type) => {
         const intent = rawOnCategorySelect(type);
         if (!intent) return;
-        
-        onPOIIntent({ type: intent, radius: 1500});
+
+        onPOIIntent({ type: intent, radius: 1500 });
     }, [rawOnCategorySelect, onPOIIntent]);
+
+    const handleSidebarClose = useCallback(() => setSelectedPlace(null), [setSelectedPlace])
 
     return (
         <div className='relative h-screen w-screen'>
@@ -4983,11 +4997,11 @@ const MapView = () => {
                 setPosition={setPosition}
                 selectedPlace={selectedPlace}
                 setSelectedPlace={setSelectedPlace}
-                routes={directions.routes}
-                getDirections={directions.getDirections}
-                loading={directions.loading}
-                error={directions.error}
-                clearRoutes={directions.clearRoutes}
+                routes={routes}
+                getDirections={getDirections}
+                loading={dirLoading}
+                error={dirError}
+                clearRoutes={clearRoutes}
                 isOnline={isOnline}
                 onCategorySelect={handleCategorySelect}
             />
@@ -4998,23 +5012,19 @@ const MapView = () => {
                 <div className='absolute inset-0 z-0'>
                     <MapRenderer
                         mapRef={mapRef}
-                        position={position}
-                        selectedPlace={selectedPlace}
                         poiResults={poiResults}
-                        setSelectedPlace={setSelectedPlace}
                         poiType={poiType}
-                        showTransitLayer={showTransitLayer} //
-                        tileUrl={tileUrl}
-                        routes={directions.routes}
-                        />
+                        tileUrl={TILE_URL}
+                        routes={routes}
+                    />
                 </div>
 
                 {/* DESKTOP POI SIDEBAR */}
                 {selectedPlace && (
                     <Sidebar
                         place={selectedPlace}
-                        onNavigate={poiInteraction.startDirectionsWith}
-                        onClose={() => setSelectedPlace(null)}
+                        onNavigate={startDirectionsWith}
+                        onClose={handleSidebarClose}
                     />
                 )}
 
@@ -5027,7 +5037,7 @@ const MapView = () => {
                     <Suspense fallback={null}>
                         <Recenter
                             mapRef={mapRef}
-                            routes={directions.routes}
+                            routes={routes}
                             setPosition={setPosition}
                             setSelectedPlace={setSelectedPlace}
                         />
@@ -5050,7 +5060,7 @@ const MapView = () => {
                     <Suspense fallback={<LoadingFallback />}>
                         <BottomSheet
                             position={position}
-                            onDirections={poiInteraction.startDirectionsWith}
+                            onDirections={startDirectionsWith}
                         />
                     </Suspense>
 
@@ -5060,8 +5070,8 @@ const MapView = () => {
                 {mode === "directions" && (
                     <Suspense fallback={<DirectionsPanelFallback />}>
                         <DirectionsPanel
-                            routes={directions.routes}
-                            />
+                            routes={routes}
+                        />
                     </Suspense>
 
                 )}
@@ -5152,24 +5162,28 @@ export default function LandingPage() {
 
 <file path="src/providers/AppProvider.jsx">
 import { DirectionsProvider } from '../features/directions/context/DirectionsProvider'
-import { POIProvider } from '../features/poi/hooks/usePOIContext'
+import NetworkProvider from '../features/network/providers/NetworkProvider'
+import { POIProvider } from '../features/poi/providers/POIProvider'
 import { GeolocationProvider } from '../hooks/useGeolocationContext'
 import { MapUIProvider } from './MapUIProvider'
 import { SearchProvider } from './SearchProvider'
 
 const AppProvider = ({ children }) => {
   return (
-    <GeolocationProvider>
-      <DirectionsProvider>
-        <MapUIProvider>
-          <SearchProvider>
-            <POIProvider>
-              {children}
-            </POIProvider>
-          </SearchProvider>
-        </MapUIProvider>
-      </DirectionsProvider>
-    </GeolocationProvider>
+    <NetworkProvider>
+      <GeolocationProvider>
+        <DirectionsProvider>
+          <MapUIProvider>
+            <SearchProvider>
+              <POIProvider>
+                {children}
+              </POIProvider>
+            </SearchProvider>
+          </MapUIProvider>
+        </DirectionsProvider>
+      </GeolocationProvider>
+    </NetworkProvider>
+
   )
 }
 
@@ -5178,6 +5192,7 @@ export default AppProvider
 
 <file path="src/providers/MapUIProvider.jsx">
 import { createContext, useContext, useMemo, useState } from "react";
+import { useGeolocation } from "../hooks/useGeolocationContext";
 
 const MapUIStateContext = createContext(null);
 const MapUIHoverContext = createContext(null);
@@ -5190,6 +5205,16 @@ export const MapUIProvider = ({ children }) => {
     const [destination, setDestination] = useState(null); // Confirmed destination coordinates
     const [activeField, setActiveField] = useState(null); // State to manage which input field is active (origin or destination)
     const [hoverPOIId, setHoverPOIId] = useState(null); // Store active POI ID for highlighting 
+    const [selectedPlace, setSelectedPlace] = useState(null); // Selected place from search suggestions
+
+    const { position } = useGeolocation();
+
+        // If a place is selected, return its coordinates; otherwise, return current position
+    const coords = useMemo(() => {
+        return selectedPlace
+            ? [selectedPlace.lat, selectedPlace.lng]
+            : position;
+    }, [selectedPlace, position]);
 
     const stateValue = useMemo(() => ({
         //state
@@ -5198,6 +5223,8 @@ export const MapUIProvider = ({ children }) => {
         origin,
         destination,
         activeField,
+        selectedPlace,
+        coords,
 
         //setters
         setMode,
@@ -5205,19 +5232,18 @@ export const MapUIProvider = ({ children }) => {
         setOrigin,
         setDestination,
         setActiveField,
-    }), [mode, selectedMode, origin, destination, activeField])
-
-    const hoverValue = useMemo(() => ({
-        //state
-        hoverPOIId,
-
-        //setters
-        setHoverPOIId,
-    }), [hoverPOIId])
+        setSelectedPlace,
+    }), [mode,
+        selectedMode,
+        origin,
+        destination,
+        activeField,
+        selectedPlace,
+        coords])
 
     return (
         <MapUIStateContext.Provider value={stateValue}>
-            <MapUIHoverContext.Provider value={hoverValue}>
+            <MapUIHoverContext.Provider value={{ hoverPOIId, setHoverPOIId }}>
                 {children}
             </MapUIHoverContext.Provider>
         </MapUIStateContext.Provider>
@@ -5245,7 +5271,9 @@ export const useMapHover = () => {
 <file path="src/providers/SearchProvider.jsx">
 import { useState, useRef, useMemo, createContext, useContext } from "react";
 
-const SearchContext = createContext(null);
+const SearchQueryContext = createContext(null);
+const TransitLayerContext = createContext(null);
+const SearchRefsContext = createContext(null);
 
 export const SearchProvider = ({ children }) => {
     const [query, setQuery] = useState(''); // Search query state
@@ -5254,27 +5282,59 @@ export const SearchProvider = ({ children }) => {
     const searchRef = useRef(); // Reference to Search input instance
     const directionsRef = useRef(); // Reference to Origin/Destination input instance
 
-    const value = useMemo(() => ({
+    const queryValue = useMemo(() => ({
         query,
         setQuery,
+    }), [query])
+
+    const transitValue = useMemo(() => ({
         showTransitLayer,
         setShowTransitLayer,
+    }), [showTransitLayer])
+
+    const refsValue = useMemo(() => ({
         searchRef,
         directionsRef,
-    }), [query, showTransitLayer]);
+    }), []);
 
     return (
-        <SearchContext.Provider value={value}>
-            {children}
-        </SearchContext.Provider>
+        <SearchQueryContext.Provider value={queryValue}>
+            <TransitLayerContext.Provider value={transitValue}>
+                <SearchRefsContext.Provider value={refsValue}>
+                    {children}
+                </SearchRefsContext.Provider>
+            </TransitLayerContext.Provider>
+        </SearchQueryContext.Provider>
     )
 }
 
-export const useSearchProvider = () => {
-    const context = useContext(SearchContext);
+export const useSearchQuery = () => {
+    const context = useContext(SearchQueryContext);
+
     if (!context) {
-        throw new Error('useSearch must be used within a SearchProvider');
+        throw new Error('useSearchQuery must be used within SearchProvider');
     }
+
+    return context;
+};
+
+export const useTransitLayer = () => {
+    const context = useContext(TransitLayerContext);
+
+    if (!context) {
+        throw new Error('useTransitLayer must be used within SearchProvider');
+    }
+
+    return context;
+};
+
+export const useSearchRefs = () => {
+    const context = useContext(SearchRefsContext);
+
+    if (!context) {
+        throw new Error('useSearchRefs must be used within SearchProvider');
+    }
+
     return context;
 };
 </file>
@@ -5285,29 +5345,30 @@ import useNetwork from './features/network/hooks/useNetwork'
 import OfflineBanner from './components/OfflineBanner'
 import { loadCacheMeta } from './features/offline/utils/locationCache'
 import { lastUpdated } from './features/offline/utils/lastUpdated'
+import { useMemo } from 'react'
 
 const App = () => {
   const isOnline = useNetwork();
 
-  const locationLastUpdatedTs = !isOnline
-    ? loadCacheMeta()
-    : null;
+  // Only runs when isOnline changes not on every render
+  const offlineMessage = useMemo(() => {
+    if (isOnline) return null;
 
-  const locationLastUpdatedText = locationLastUpdatedTs
-    ? lastUpdated(locationLastUpdatedTs)
-    : null;
+    const locationLastUpdatedTs = loadCacheMeta();
+    const locationLastUpdatedText = locationLastUpdatedTs
+      ? lastUpdated(locationLastUpdatedTs)
+      : null;
 
-  const offlineMessage = locationLastUpdatedText
-    ? `⚠️ You’re offline — using last known location · updated ${locationLastUpdatedText}`
-    : `⚠️ You’re offline — using last known location`;
+    return locationLastUpdatedText
+      ? `⚠️ You’re offline — using last known location · updated ${locationLastUpdatedText}`
+      : `⚠️ You’re offline — using last known location`;
+  }, [isOnline]);
 
   return (
     <>
       {!isOnline && <OfflineBanner message={offlineMessage} />}
-      <div className='text-center text-2xl font-bold'>
-        <MapView
-        />
-      </div>
+      <MapView
+      />
     </>
   )
 }
@@ -5421,7 +5482,6 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import AppProvider from './providers/AppProvider.jsx'
-import NetworkProvider from './features/network/providers/NetworkProvider.jsx'
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -5435,12 +5495,9 @@ if ("serviceWorker" in navigator) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <NetworkProvider>
       <AppProvider>
         <App />
       </AppProvider>
-
-    </NetworkProvider>
 
   </StrictMode>
 )
